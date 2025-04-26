@@ -8,7 +8,7 @@
 ![Made with ❤️ by Dadscap](https://img.shields.io/badge/made%20with-%E2%9D%A4%20by%20Dadscap-orange)
 
 **Stop Searching. Start Finding.**  
-The ultimate CS2 multi-market skin search extension — by ([Dadscap](https://www.youtube.com/@dadscap)).
+The ultimate CS2 multi-market skin search extension — by [Dadscap](https://www.youtube.com/@dadscap).
 
 ---
 
@@ -43,4 +43,4 @@ Referral links are included in the official release by Dadscap.
 ---
 
 ## 💬 Contact
-For questions, suggestions, or collabs: ([dadscaptv@gmail.com](mailto:dadscaptv@gmail.com)) or ([@Dadscap](https://twitter.com/dadscap)) on Twitter
+For questions, suggestions, or collabs: [dadscaptv@gmail.com](mailto:dadscaptv@gmail.com) or [@Dadscap](https://twitter.com/dadscap) on Twitter
