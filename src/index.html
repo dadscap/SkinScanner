@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CS2 SkinScanner 🔎</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    body {
+      width: 550px;
+      min-height: 450px;
+      max-height: 600px;
+      overflow-y: auto;
+      position: relative;
+      padding: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+    .container {
+        border-radius: 8px;
+        overflow: hidden; 
+        height: 100%; 
+         display: flex; flex-direction: column; 
+    }
+    h2, h3 { margin: 0; padding: 0; }
+    .form-group { margin: 0; padding: 0; }
+    #skinForm {
+       display: grid;
+       grid-template-columns: 200px 1fr;
+       grid-template-rows: 1fr auto; 
+       flex-grow: 1; 
+       overflow: hidden; 
+       border-top: 1px solid #dde1e6; 
+    }
+     body.dark-mode #skinForm {
+       border-top-color: #313847;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>SkinScanner 🔎</h2>
+    <h3>Stop searching. Start finding.</h3>
+    <form id="skinForm">
+      <div class="form-column-left">
+        <div class="form-group"> 
+          <div class="label-container">
+            <label for="item_name" class="label-bold">Item Name</label>
+            <span class="info-icon" title="For best results, select a match from the autocomplete dropdown.">𝒾</span>
+          </div>
+          <input type="text" id="item_name" name="item_name" placeholder="AK-47 | Redline" list="skinList" required>
+          <datalist id="skinList"></datalist>
+        </div>
+        <div class="form-group"> 
+           <div class="checkbox-button-container">
+             <label class="checkbox-button-label" for="stattrak" id="stattrakLabel"><input type="checkbox" id="stattrak" name="stattrak"><span>StatTrak™</span></label>
+             <label class="checkbox-button-label" for="notradehold" id="noTradeHoldLabel"><input type="checkbox" id="notradehold" name="notradehold"><span>Tradable</span></label>
+           </div>
+        </div>
+        <div class="form-group"> 
+          <label for="exterior" class="label-bold">Exterior</label>
+          <select id="exterior" name="exterior">
+            <option value="">Any</option>
+            <option value="fn">Factory New (0.00-0.07)</option>
+            <option value="mw">Minimal Wear (0.07-0.15)</option>
+            <option value="ft">Field-Tested (0.15-0.38)</option>
+            <option value="ww">Well-Worn (0.38-0.45)</option>
+            <option value="bs">Battle-Scarred (0.45-1.00)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="section-title">Float Range</div>
+          <div class="float-range">
+            <input type="range" id="minFloatRange" name="minFloatRange" min="0" max="1" step="0.001" value="0.000">
+            <div class="float-inputs-row">
+               <div class="float-input-group"><input type="number" id="minFloatInput" name="minFloatInput" min="0" max="1" step="0.001" value="0.000" class="float-input"><span class="float-value" id="minFloatLabel">0.000</span></div>
+               <span class="float-range-dash">–</span>
+               <div class="float-input-group"><input type="number" id="maxFloatInput" name="maxFloatInput" min="0" max="1" step="0.001" value="1.000" class="float-input"><span class="float-value" id="maxFloatLabel">1.000</span></div>
+            </div>
+            <input type="range" id="maxFloatRange" name="maxFloatRange" min="0" max="1" step="0.001" value="1.000">
+          </div>
+          <div class="form-group">
+            <div class="section-title">Paint Seed/Pattern</div>
+            <input type="number" id="paint_seed" name="paint_seed" placeholder="e.g., 442" min="0" max="1000" step="1" class="pattern-input">
+          </div>
+          <div class="social-links-section">
+            <h4 class="social-links-title">🧢 Made by Dadscap:</h4>
+            <div class="social-links-icons">
+              <a href="https://www.youtube.com/@Dadscap" target="_blank" rel="noopener noreferrer" title="Subscribe on YouTube" class="social-link-item">
+                <img src="logos/youtube_icon.webp" alt="YouTube" class="social-icon">
+              </a>
+              <a href="https://x.com/dadscap" target="_blank" rel="noopener noreferrer" title="Follow on X (Twitter)" class="social-link-item">
+                <img src="logos/x_icon.webp" alt="X (Twitter)" class="social-icon">
+              </a>
+              <a href="https://steamcommunity.com/id/dadscap/" target="_blank" rel="noopener noreferrer" title="Steam" class="social-link-item">
+                <img src="logos/steam_icon.webp" alt="Steam Profile" class="social-icon">
+              </a>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <div class="form-column-right">
+         <div class="form-group">
+            <div class="section-title">Marketplaces</div>
+            <div class="select-all-container"><input type="checkbox" id="selectAll" name="selectAll"><label for="selectAll">Select/Deselect All</label></div>
+          </div>
+         <div class="form-group">
+            <div class="market-list" id="marketList">
+              <div class="market-item" data-value="steam"><input type="checkbox" name="market" value="steam" id="market-steam"><img src="logos/steam_icon.webp" alt="Steam Market"><label for="market-steam">Steam Market</label></div>
+              <div class="market-item" data-value="csfloat"><input type="checkbox" name="market" value="csfloat" id="market-csfloat"><img src="logos/csfloat_icon.webp" alt="CSFloat"><label for="market-csfloat">CSFloat</label></div>
+              <div class="market-item" data-value="skinport"><input type="checkbox" name="market" value="skinport" id="market-skinport"><img src="logos/skinport_icon.webp" alt="Skinport"><label for="market-skinport">Skinport</label></div>
+              <div class="market-item" data-value="bitskins"><input type="checkbox" name="market" value="bitskins" id="market-bitskins"><img src="logos/bitskins_icon.webp" alt="Bitskins"><label for="market-bitskins">BitSkins</label></div>
+              <div class="market-item" data-value="buff"><input type="checkbox" name="market" value="buff" id="market-buff"><img src="logos/buff163_icon.webp" alt="Buff163"><label for="market-buff">BUFF163</label></div>
+              <div class="market-item" data-value="buffmarket"><input type="checkbox" name="market" value="buffmarket" id="market-buffmarket"><img src="logos/buffmarket_icon.webp" alt="Buff.Market"><label for="market-buffmarket">BUFF.Market</label></div>
+              <div class="market-item" data-value="whitemarket"><input type="checkbox" name="market" value="whitemarket" id="market-whitemarket"><img src="logos/whitemarket_icon.webp" alt="White Market"><label for="market-whitemarket">White.Market</label></div>
+               <div class="market-item" data-value="waxpeer"><input type="checkbox" name="market" value="waxpeer" id="market-waxpeer"><img src="logos/waxpeer_icon.webp" alt="Waxpeer"><label for="market-waxpeer">WAXPEER</label></div>
+               <div class="market-item" data-value="dmarket"><input type="checkbox" name="market" value="dmarket" id="market-dmarket"><img src="logos/dmarket_icon.webp" alt="DMarket"><label for="market-dmarket">DMarket</label></div>
+               <div class="market-item" data-value="shadowpay"><input type="checkbox" name="market" value="shadowpay" id="market-shadowpay"><img src="logos/shadowpay_icon.webp" alt="ShadowPay"><label for="market-shadowpay">ShadowPay</label></div>
+               <div class="market-item" data-value="gamerpay"><input type="checkbox" name="market" value="gamerpay" id="market-gamerpay"><img src="logos/gamerpay_icon.webp" alt="Gamerpay"><label for="market-gamerpay">GamerPay</label></div>
+               <div class="market-item" data-value="csgo"><input type="checkbox" name="market" value="csgo" id="market-csgo"><img src="logos/marketcsgo_icon.webp" alt="CSGO.com"><label for="market-csgo">CSGO.com</label></div>
+               <div class="market-item" data-value="csmoney"><input type="checkbox" name="market" value="csmoney" id="market-csmoney"><img src="logos/csmoney_icon.webp" alt="CS.MONEY"><label for="market-csmoney">CS.MONEY</label></div>
+               <div class="market-item" data-value="tradeit"><input type="checkbox" name="market" value="tradeit" id="market-tradeit"><img src="logos/tradeit_icon.webp" alt="Tradeit.gg"><label for="market-tradeit">Tradeit.gg</label></div>
+               <div class="market-item" data-value="lisskins"><input type="checkbox" name="market" value="lisskins" id="market-lisskins"><img src="logos/lisskins_icon.webp" alt="LIS-SKINS"><label for="market-lisskins">LIS-SKINS</label></div>
+               <div class="market-item" data-value="avanmarket"><input type="checkbox" name="market" value="avanmarket" id="market-avanmarket"><img src="logos/avanmarket_icon.webp" alt="AvanMarket"><label for="market-avanmarket">Avan.Market</label></div>
+              </div>
+         </div>
+      </div>
+      <div class="form-footer">
+          <button type="submit" id="searchButton">Find Listings</button>
+          <button type="button" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+      </div>
+    </form>
+  </div>
+  <script src="script.js" defer></script>
+</body>
+</html>

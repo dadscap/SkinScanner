@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "SkinScanner 🔎",
+  "version": "1.0",
+  "description": "Open multiple marketplace search links for CS2 skins based on input.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "logos/skinscanner-16.png",
+    "48": "logos/skinscanner-48.png",
+    "128": "logos/skinscanner-128.png"
+   },
+  "permissions": [
+    "tabs",    
+    "storage"
+  ]
+}
