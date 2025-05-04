@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     baseUrl += (noTradeHold ? `&hold=-1` : "");
                     if (!isVanillaSearch && phaseName && phaseMappings.lisskins?.[phaseName]) { 
                         baseUrl += `&phase=${phaseMappings.lisskins[phaseName]}`;}
-                    baseUrl += `&rf=63543283`;
+                    baseUrl += `&rf=1878725`;
                     return addUtmParams(baseUrl, 'lisskins'); 
                 })(),
                 shadowpay: (() => {
