@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 skinport: (() => {
                     const standardEncoded = encodedBaseSearchName;
                     const skinportSearchParam = standardEncoded.replace(/%20/g, '+');
-                    let baseUrl = `https://skinport.com/market?search=${skinportSearchParam}&order=asc&sort=price`;
+                    let baseUrl = `https://skinport.com/market?search=${skinportSearchParam}&order=asc&sort=price&r=dadscap`;
                     if (isVanillaSearch) {
                         baseUrl += `&vanilla=1`;} 
                     else {
@@ -653,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return addUtmParams(baseUrl, 'waxpeer'); 
                 })(),
                 whitemarket: (() => {
-                    let baseUrl = `https://white.market/market?name=${encodedBaseSearchName}&sort=pr_a&unique=false&ref=f9274c0f14d7f996`;
+                    let baseUrl = `https://white.market/market?name=${encodedBaseSearchName}&sort=pr_a&unique=false&ref=SkinScanner`;
                     if (isVanillaSearch) {
                         baseUrl += `&exterior=e5`;} 
                     else {
