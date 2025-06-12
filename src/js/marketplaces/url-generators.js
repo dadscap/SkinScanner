@@ -188,7 +188,7 @@ export class MarketplaceURLs {
             url += `&phase=${phaseMappings.csgo[phaseName]}`;
         }
         url += '&sort=price&order=asc';
-        return addUtmParams(url, 'csgo');
+        return url + '&utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
     }
     // DMarket
     static generateDmarket(params) {
