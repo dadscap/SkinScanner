@@ -266,32 +266,20 @@ export class MarketplaceURLs {
     // Skinbid
     static generateSkinbid(params) {
         const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, paintSeed, dopplerType, phaseName } = params;
-        const queryParts = [];
-        if (minFloat > 0 || maxFloat < 1) {
-            queryParts.push(`Wear=${encodeURIComponent(`${minFloat.toFixed(4)} - ${maxFloat.toFixed(4)}`)}`);
+        let url = `https://skinbid.com/market?sort=price%23asc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
+        url += isStatTrak ? `&Category=StatTrak%23true` : '';
+        if (exterior === "fn" && (minFloat > 0 || maxFloat < 0.07)) {
+            url += `&wear=${minFloat.toFixed(3)}-${maxFloat.toFixed(3)}`;
         } else if (skinbidWearMap && skinbidWearMap[exterior]) {
-            queryParts.push(`Wear=${skinbidWearMap[exterior]}`);
+            url += `&Wear=${skinbidWearMap[exterior]}`;
         }
+        url += (noTradeHold ? '&instasell=1' : '');
+        url += (paintSeed !== null ? `&PatternID=${paintSeed}` : "");
         if (dopplerType && phaseName && phaseMappings.skinbid?.[dopplerType]?.[phaseName]) {
-            queryParts.push(`Phase=${phaseMappings.skinbid[dopplerType][phaseName]}`);
+            url += `&Phase=${phaseMappings.skinbid[dopplerType][phaseName]}`;
         } else if (phaseName && phaseMappings.skinbid?.[phaseName] && !dopplerType) {
-            queryParts.push(`Phase=${phaseMappings.skinbid[phaseName]}`);
+            url += `&Phase=${phaseMappings.skinbid[phaseName]}`;
         }
-        queryParts.push(`sort=price%23asc`);
-        queryParts.push(`sellType=fixed_price`);
-        queryParts.push(`search=${encodedBaseSearchName}`);
-        queryParts.push(`take=60`);
-        queryParts.push(`skip=0`);
-        if (isStatTrak) {
-            queryParts.push(`Category=StatTrak%23true`);
-        }
-        if (noTradeHold) {
-            queryParts.push(`instasell=1`);
-        }
-        if (paintSeed !== null) {
-            queryParts.push(`PatternID=${paintSeed}`);
-        }
-        let url = `https://skinbid.com/market?${queryParts.join('&')}`;
         return addUtmParams(url, 'skinbid');
     }
     // Skinport
