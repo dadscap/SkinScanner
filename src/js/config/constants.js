@@ -10,6 +10,7 @@ export const exteriorIdMap = {fn: 1,mw: 2,ft: 3,ww: 4,bs: 5};
 export const spExteriorIdMap = {fn: 2,mw: 4,ft: 3,ww: 5,bs: 1};
 export const lisSkinsExteriorIdMap = {fn: 2,mw: 4,ft: 3,ww: 6,bs: 1};
 export const wearCategoryMap = {fn: "WearCategory0",mw: "WearCategory1",ft: "WearCategory2",ww: "WearCategory3",bs: "WearCategory4"};
+export const skinbidWearMap = {fn: "FactoryNew",mw: "MinimalWear",ft: "FieldTested",ww: "WellWorn",bs: "BattleScarred"};
 export const whitemarketExteriorMap = {fn: 'e0',mw: 'e1',ft: 'e2',ww: 'e3',bs: 'e4'};
 export const phaseMappings = {
     skinport: { "Phase 1": 2, "Phase 2": 3, "Phase 3": 4, "Phase 4": 5, "Sapphire": 6, "Ruby": 7, "Black Pearl": 8, "Emerald": 9 },
@@ -19,6 +20,8 @@ export const phaseMappings = {
     dmarket: { "Phase 1": "phase-1", "Phase 2": "phase-2", "Phase 3": "phase-3", "Phase 4": "phase-4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "black-pearl", "Emerald": "emerald" },
     shadowpay: { "Phase 1": "+(Phase+1)", "Phase 2": "+(Phase+2)", "Phase 3": "+(Phase+3)", "Phase 4": "+(Phase+4)", "Sapphire": "+(Sapphire)", "Ruby": "+(Ruby)", "Black Pearl": "+(Black+Pearl)", "Emerald": "+(Emerald)" },
     gamerpay: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" },
+    skinbid: { "Doppler": { "Phase 1": "Doppler,Phase%201", "Phase 2": "Doppler,Phase%202", "Phase 3": "Doppler,Phase%203", "Phase 4": "Doppler,Phase%204", "Sapphire": "Doppler,Sapphire", "Ruby": "Doppler,Ruby", "Black Pearl": "Doppler,Black%20Pearl" },
+        "Gamma Doppler": { "Phase 1": "Gamma,Phase%201", "Phase 2": "Gamma,Phase%202", "Phase 3": "Gamma,Phase%203", "Phase 4": "Gamma,Phase%204", "Emerald": "Gamma,Emerald" }},    
     csgo: { "Phase 1": "phase1", "Phase 2": "phase2", "Phase 3": "phase3", "Phase 4": "phase4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "blackpearl", "Emerald": "emerald" },
     lisskins: { "Phase 1": 1, "Phase 2": 2, "Phase 3": 3, "Phase 4": 4, "Sapphire": 6, "Ruby": 7, "Black Pearl": 8, "Emerald": 5 },
     avanmarket: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" }

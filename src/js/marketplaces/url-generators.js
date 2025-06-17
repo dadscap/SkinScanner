@@ -8,7 +8,9 @@ import {
     lisSkinsExteriorIdMap,
     wearCategoryMap,
     whitemarketExteriorMap,
+    skinbidWearMap
 } from '../config/constants.js';
+
 import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
 
 const phaseRegex = /\s*\((Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)\)/i;
@@ -29,7 +31,6 @@ export class MarketplaceURLs {
     static generateBitskins(params) {
         const { finalSearchName, minFloat, maxFloat, isVanillaSearch, exterior, noTradeHold, paintSeed, phaseName } = params;
         const currentExteriorId = exteriorIdMap[exterior]; 
-
         let whereClause = {
             skin_name: finalSearchName,
             float_value_from: minFloat,
@@ -49,18 +50,7 @@ export class MarketplaceURLs {
     }
     // BUFF163
     static generateBuff(params) {
-        const {
-            isVanillaSearch,
-            encodedBaseSearchName,
-            isStatTrak,
-            exterior, 
-            phaseName,
-            baseSearchName, 
-            fullInput,     
-            paintSeed,
-            minFloat,
-            maxFloat
-        } = params;
+        const { isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat } = params;
         if (isVanillaSearch) {
             let vanillaUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&category_group=knife&search=${encodedBaseSearchName}&exterior=wearcategoryna`;
             if (isStatTrak) {
@@ -74,7 +64,6 @@ export class MarketplaceURLs {
         if (exterior && typeof buffMap !== 'undefined' && buffMap) {
             const buffMapLookupKey = phaseName ? baseSearchName : fullInput;
             const buffItemData = buffMap[buffMapLookupKey];
-
             if (buffItemData) {
                 const buffIdKey = isStatTrak ? `st_${exterior}` : exterior;
                 const exteriorData = buffItemData[buffIdKey];
@@ -118,7 +107,7 @@ export class MarketplaceURLs {
             console.log("Buff163: Falling back to general search URL (non-vanilla).");
             let searchUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
-            const searchExteriorFilter = wearCategoryMap[exterior]; // wearCategoryMap needs to be imported
+            const searchExteriorFilter = wearCategoryMap[exterior];
             searchUrl += (searchExteriorFilter ? `&exterior=${searchExteriorFilter}` : "");
             if (paintSeed !== null) {
                 searchUrl += `&paintseed=${paintSeed}`;
@@ -263,12 +252,53 @@ export class MarketplaceURLs {
         url += `&utm_campaign=KzvAR2XJATjoT8y`;
         return ShadowPayUtmParams(url, 'shadowpay');
     }
+    // SkinBaron
+        static generateSkinbaron(params) { 
+        const { encodedBaseSearchName, isStatTrak, exterior, noTradeHold } = params;
+        const { wearGt, wearLt } = params;
+        const currentExteriorId = exteriorIdMap[exterior];
+        let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=CF&wlb=${wearGt}&wub=${wearLt}`;
+        url += (isStatTrak ? `&statTrak=true` : "");
+        url += (currentExteriorId ? `&exterior=${currentExteriorId}` : ""); 
+        url += (noTradeHold ? `&tli=0&otherCurrency=USD` : "");
+        return addUtmParams(url, 'skinbaron');
+    }
+    // Skinbid
+    static generateSkinbid(params) {
+        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, paintSeed, dopplerType, phaseName } = params;
+        const queryParts = [];
+        if (minFloat > 0 || maxFloat < 1) {
+            queryParts.push(`Wear=${encodeURIComponent(`${minFloat.toFixed(4)} - ${maxFloat.toFixed(4)}`)}`);
+        } else if (skinbidWearMap && skinbidWearMap[exterior]) {
+            queryParts.push(`Wear=${skinbidWearMap[exterior]}`);
+        }
+        if (dopplerType && phaseName && phaseMappings.skinbid?.[dopplerType]?.[phaseName]) {
+            queryParts.push(`Phase=${phaseMappings.skinbid[dopplerType][phaseName]}`);
+        } else if (phaseName && phaseMappings.skinbid?.[phaseName] && !dopplerType) {
+            queryParts.push(`Phase=${phaseMappings.skinbid[phaseName]}`);
+        }
+        queryParts.push(`sort=price%23asc`);
+        queryParts.push(`sellType=fixed_price`);
+        queryParts.push(`search=${encodedBaseSearchName}`);
+        queryParts.push(`take=60`);
+        queryParts.push(`skip=0`);
+        if (isStatTrak) {
+            queryParts.push(`Category=StatTrak%23true`);
+        }
+        if (noTradeHold) {
+            queryParts.push(`instasell=1`);
+        }
+        if (paintSeed !== null) {
+            queryParts.push(`PatternID=${paintSeed}`);
+        }
+        let url = `https://skinbid.com/market?${queryParts.join('&')}`;
+        return addUtmParams(url, 'skinbid');
+    }
     // Skinport
     static generateSkinport(params) {
         const { encodedBaseSearchName, isVanillaSearch, exterior, isStatTrak, noTradeHold, paintSeed, phaseName } = params;
         const { wearGt, wearLt } = params;
         const currentSpExteriorId = spExteriorIdMap[exterior];
-
         const skinportSearchParam = encodedBaseSearchName.replace(/%20/g, '+');
         let url = `https://skinport.com/market?search=${skinportSearchParam}&order=asc&sort=price`;
         if (isVanillaSearch) {
