@@ -12,7 +12,7 @@ const phaseRegex = /\s*\((Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)\)/i;
 
 export class MarketplaceURLs {
     // Avanmarket
-    static generateAvanmarket(params, mappings) {
+    static generateAvanmarket(params, _mappings) {
         const { encodedBaseSearchName, minFloat, maxFloat, isStatTrak, phaseName, isVanillaSearch, fullInput } = params;
         let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap&sort=1`;
         // Special handling for special items like stickers, patches, charms, etc.
@@ -34,7 +34,7 @@ export class MarketplaceURLs {
     }
 
     // Bitskins
-    static generateBitskins(params, mappings) {
+    static generateBitskins(params, _mappings) {
         const { finalSearchName, minFloat, maxFloat, isVanillaSearch, exterior, noTradeHold, paintSeed, phaseName, fullInput } = params;
         // For special items like stickers, patches, charms, etc., we just use the finalSearchName directly
         if (isSpecialItemType(fullInput)) {
@@ -295,7 +295,7 @@ export class MarketplaceURLs {
     }
 
     // CS.Money
-    static generateCsmoney(params, mappings) {
+    static generateCsmoney(params, _mappings) {
         const { phaseName, encodedFullInput, encodedBaseSearchName, baseSearchName, isVanillaSearch, minFloat, maxFloat, exterior, isStatTrak, paintSeed, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const searchNameParam = encodedBaseSearchName;
@@ -323,7 +323,7 @@ export class MarketplaceURLs {
     }
 
     // CS.Deals
-    static generateCsdeals(params, mappings) {
+    static generateCsdeals(params, _mappings) {
         const { phaseName, encodedFullInput, encodedBaseSearchName, isStatTrak, noTradeHold, exterior, maxFloat, minFloat, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://cs.deals/new?game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}`;
@@ -404,7 +404,7 @@ export class MarketplaceURLs {
     }
 
     // Market.CSGO
-    static generateCsgo(params, mappings) {
+    static generateCsgo(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, isVanillaSearch, exterior, minFloat, maxFloat, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://market.csgo.com/en/?search=${encodedBaseSearchName}`;
@@ -433,7 +433,7 @@ export class MarketplaceURLs {
     }
 
     // DMarket
-    static generateDmarket(params, mappings) {
+    static generateDmarket(params, _mappings) {
         const { encodedBaseSearchName, minFloat, maxFloat, isVanillaSearch, isStatTrak, exterior, noTradeHold, paintSeed, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodedBaseSearchName}`;
@@ -464,7 +464,7 @@ export class MarketplaceURLs {
     }
 
     // Gamerpay
-    static generateGamerpay(params, mappings) {
+    static generateGamerpay(params, _mappings) {
         const { encodedBaseSearchName, baseSearchName, isVanillaSearch, minFloat, maxFloat, isStatTrak, noTradeHold, exterior, paintSeed, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://gamerpay.gg/?query=${encodedBaseSearchName}&sortBy=price&ascending=true&page=1`;
@@ -667,7 +667,7 @@ export class MarketplaceURLs {
     }
 
     // LisSkins
-    static generateLisskins(params, mappings) {
+    static generateLisskins(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, minFloat, maxFloat, isVanillaSearch, exterior, noTradeHold, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://lis-skins.com/market/csgo/?sort_by=price_asc&query=${encodedBaseSearchName}`;
@@ -697,7 +697,7 @@ export class MarketplaceURLs {
     }
 
     // Mannco.store
-    static generateMannco(params, mappings) {
+    static generateMannco(params, _mappings) {
         const { baseSearchName, exterior, isStatTrak, encodedBaseSearchName, phaseName, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC`;
@@ -727,7 +727,7 @@ export class MarketplaceURLs {
     }
 
     // ShadowPay
-    static generateShadowpay(params, mappings) {
+    static generateShadowpay(params, _mappings) {
         const { exterior, minFloat, maxFloat, encodedBaseSearchName, isVanillaSearch, phaseName, isStatTrak, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://shadowpay.com/csgo-items?search=${encodedBaseSearchName}&sort_column=discount&sort_dir=desc`;
@@ -759,7 +759,7 @@ export class MarketplaceURLs {
     }
 
     // Skinbaron
-    static generateSkinbaron(params, mappings) {
+    static generateSkinbaron(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, exterior, noTradeHold, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=CF`;
@@ -780,7 +780,7 @@ export class MarketplaceURLs {
 
     // Skinbid
     // Note: Skinbid has unique float handling and phase mappings
-    static generateSkinbid(params, mappings) {
+    static generateSkinbid(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, paintSeed, dopplerType, phaseName, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://skinbid.com/market?sort=popular%23desc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
@@ -813,7 +813,7 @@ export class MarketplaceURLs {
     }
 
     // Skinflow
-    static generateSkinflow(params, mappings) {
+    static generateSkinflow(params, _mappings) {
         const { finalSearchName, exterior, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
@@ -831,7 +831,7 @@ export class MarketplaceURLs {
     }
 
     // Skinout
-    static generateSkinout(params, mappings) {
+    static generateSkinout(params, _mappings) {
         const { baseSearchName, minFloat, maxFloat, isStatTrak, noTradeHold, exterior, phaseName, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let skinoutSearchTerm = baseSearchName;
@@ -861,7 +861,7 @@ export class MarketplaceURLs {
     }
 
     // Skinport
-    static generateSkinport(params, mappings) {
+    static generateSkinport(params, _mappings) {
         const { encodedBaseSearchName, isVanillaSearch, exterior, isStatTrak, noTradeHold, paintSeed, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const skinportSearchParam = encodedBaseSearchName.replace(/%20/g, '+');
@@ -893,7 +893,7 @@ export class MarketplaceURLs {
     }
 
     // Skinplace
-    static generateSkinplace(params, mappings) {
+    static generateSkinplace(params, _mappings) {
         const { finalSearchName, exterior, isVanillaSearch, isStatTrak, minFloat, maxFloat, phaseName, noTradeHold, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc`;
@@ -951,7 +951,7 @@ export class MarketplaceURLs {
     }
 
     // Steam
-    static generateSteam(params, mappings) {
+    static generateSteam(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const steamSearchName = finalSearchName;
@@ -992,7 +992,7 @@ export class MarketplaceURLs {
     }
 
     // Tradeit
-    static generateTradeit(params, mappings) {
+    static generateTradeit(params, _mappings) {
         const { phaseName, isStatTrak, fullInput, finalSearchName, exterior, isVanillaSearch } = params;
         if (isSpecialItemType(fullInput)) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
@@ -1015,7 +1015,7 @@ export class MarketplaceURLs {
     }
 
     // Waxpeer
-    static generateWaxpeer(params, mappings) {
+    static generateWaxpeer(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, phaseName, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://waxpeer.com/en/r/dadscap?sort=ASC&order=price&all=0&search=${encodedBaseSearchName}`;
@@ -1043,7 +1043,7 @@ export class MarketplaceURLs {
     }
 
     // Whitemarket
-    static generateWhitemarket(params, mappings) {
+    static generateWhitemarket(params, _mappings) {
         const { encodedBaseSearchName, isVanillaSearch, minFloat, maxFloat, exterior, isStatTrak, paintSeed, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let url = `https://white.market/market?name=${encodedBaseSearchName}&sort=pr_a&unique=false&ref=SkinScanner`;
@@ -1070,7 +1070,7 @@ export class MarketplaceURLs {
     }
 
     // Skinland
-    static generateSkinland(params, mappings) {
+    static generateSkinland(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, noTradeHold, minFloat, maxFloat, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             let searchTerm = encodeURIComponent(finalSearchName);
@@ -1143,7 +1143,7 @@ export class MarketplaceURLs {
     }
 
     // CS.trade
-    static generateCstrade(params, mappings) {
+    static generateCstrade(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const encodedName = encodeURIComponent(finalSearchName);
@@ -1187,7 +1187,7 @@ export class MarketplaceURLs {
     }
 
     // itrade.gg
-    static generateItradegg(params, mappings) {
+    static generateItradegg(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
@@ -1233,7 +1233,7 @@ export class MarketplaceURLs {
     }
 
     // Swap.gg
-    static generateSwapgg(params, mappings) {
+    static generateSwapgg(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
@@ -1276,11 +1276,11 @@ export class MarketplaceURLs {
     }
 
     // SkinSwap
-    static generateSkinswap(params, mappings) {
+    static generateSkinswap(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinswap.com/trade/trade?search=${formattedName}&r=dadscap`, 'skinswap');
+            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
@@ -1289,7 +1289,7 @@ export class MarketplaceURLs {
                 vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
-            return addUtmParams(`https://skinswap.com/trade?search=${formattedName}&r=dadscap`, 'skinswap');
+            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove && !searchName.startsWith('★')) {
@@ -1315,11 +1315,11 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://skinswap.com/trade?search=${formattedName}&r=dadscap`, 'skinswap');
+        return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
     }
 
     // SkinsMonkey
-    static generateSkinsmonkey(params, mappings) {
+    static generateSkinsmonkey(params, _mappings) {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
@@ -1362,7 +1362,7 @@ export class MarketplaceURLs {
     }
 
     // CS7.market
-    static generateCs7market(params, mappings) {
+    static generateCs7market(params, _mappings) {
         const { finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             return addUtmParams(`https://cs7.market/en/catalog?r=64af74&page=1&o=price&f_s=${encodeURIComponent(finalSearchName)}`, 'cs7market');
