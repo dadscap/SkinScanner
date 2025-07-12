@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SkinScanner 🔎",
-  "version": "1.10",
+  "version": "1.0",
   "description": "Open multiple marketplace search links for CS2 skins based on input.",
   "action": {
     "default_popup": "index.html"
@@ -10,10 +10,18 @@
     "16": "icons/skinscanner-16.png",
     "48": "icons/skinscanner-48.png",
     "128": "icons/skinscanner-128.png"
-   },
+  },
   "permissions": [
-        "storage"
+    "storage"
   ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [ "data/mappings.json" ],
+      "matches": [ "<all_urls>" ]
+    }
+  ],
+  
   "browser_specific_settings": {
     "gecko": {
       "id": "skin@scanner.skinscanner",

@@ -1,3 +1,6 @@
+/* FloatRangeManager
+ * Manages float range inputs and their interactions in the UI.
+ */
 import { exteriorPresets } from '../config/constants.js';
 import { validateFloatInputsDOM, updatePaintSeedInputValidationClass } from '../utils/validation.js';
 
@@ -220,6 +223,23 @@ export class FloatRangeManager {
         this.cachedValues.min = parseFloat(this.elements.minFloatInput.value) || 0;
         this.cachedValues.max = parseFloat(this.elements.maxFloatInput.value) || 1;
         
+        this.updateSlidersFromInput(false);
+        this.updateRangeFillImmediate();
+        updatePaintSeedInputValidationClass(this.elements.paintSeedInput);
+    }
+
+    resetToDefaults() {
+        // Reset to default values
+        this.elements.exteriorSelect.value = '';
+        this.elements.minFloatInput.value = '0.000';
+        this.elements.maxFloatInput.value = '1.000';
+        this.elements.paintSeedInput.value = '';
+        
+        // Update cached values
+        this.cachedValues.min = 0;
+        this.cachedValues.max = 1;
+        
+        // Update UI elements
         this.updateSlidersFromInput(false);
         this.updateRangeFillImmediate();
         updatePaintSeedInputValidationClass(this.elements.paintSeedInput);

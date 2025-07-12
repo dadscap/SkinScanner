@@ -7,7 +7,7 @@
   <link href="styles.css" rel="stylesheet">
   <style>
     body {
-      width: 550px;
+      width: 650px;
       min-height: 450px;
       max-height: 600px;
       overflow-y: auto;
@@ -45,13 +45,14 @@
 <body>
   <div class="container">
     <h2>SkinScanner 🔎</h2>
-    <h3>CS2 Multi-Market Search UI</h3>
+    <h3>CS2 Multi-Market Search Tool</h3>
     <form id="skinForm">
       <div class="form-column-left">
-        <div class="form-group"> 
+        <div class="form-group">
           <div class="label-container">
             <label for="item_name" class="label-bold">Item Name</label>
             <span class="info-icon" title="For best results, select a match from the autocomplete dropdown.">𝒾</span>
+            <button type="button" id="resetFiltersButton" class="reset-filters-button" title="Reset all filters to default values">Reset Filters</button>
           </div>
           <input type="text" id="item_name" name="item_name" placeholder="AK-47 | Redline" list="skinList" required>
           <datalist id="skinList"></datalist>
@@ -74,86 +75,80 @@
           </select>
         </div>
         <div class="form-group">
-          <div class="section-title">Float Range</div>
           <div class="float-range">
             <div class="dual-range-container">
               <input type="range" id="minFloatRange" name="minFloatRange" min="0" max="1" step="0.001" value="0.000" class="dual-range-min">
               <input type="range" id="maxFloatRange" name="maxFloatRange" min="0" max="1" step="0.001" value="1.000" class="dual-range-max">
             </div>
             <div class="float-inputs-row">
-               <div class="float-input-group"><input type="number" id="minFloatInput" name="minFloatInput" min="0" max="1" step="0.001" value="0.000" class="float-input"><span class="float-value" id="minFloatLabel">0.000</span></div>
+               <div class="float-input-group"><input type="number" id="minFloatInput" name="minFloatInput" min="0" max="1" step="0.001" value="0.000" class="float-input"></div>
                <span class="float-range-dash">–</span>
-               <div class="float-input-group"><input type="number" id="maxFloatInput" name="maxFloatInput" min="0" max="1" step="0.001" value="1.000" class="float-input"><span class="float-value" id="maxFloatLabel">1.000</span></div>
+               <div class="float-input-group"><input type="number" id="maxFloatInput" name="maxFloatInput" min="0" max="1" step="0.001" value="1.000" class="float-input"></div>
             </div>
           </div>
           <div class="form-group">
-            <div class="section-title">Paint Seed/Pattern</div>
+            <label for="paint_seed" class="label-bold">Paint Seed/Pattern</label>
             <input type="number" id="paint_seed" name="paint_seed" placeholder="e.g., 442" min="0" max="1000" step="1" class="pattern-input">
           </div>
           <div class="social-links-section">
             <h4 class="social-links-title">🧢 Made by Dadscap:</h4>
             <div class="social-links-icons">
-              <a href="https://www.youtube.com/@Dadscap" target="_blank" rel="noopener noreferrer" title="Subscribe on YouTube" class="social-link-item">
-                <svg height="30px" width="30px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 461.00 461.00" xml:space="preserve" fill="#ffffff" stroke="#ffffff">
-                  <g id="SVGRepo_bgCarrier" stroke-width="0" transform="translate(126.775275,126.775275), scale(0.45)">
-                    <rect x="0" y="0" width="461.00" height="461.00" rx="0" fill="#ffffff" strokewidth="0"></rect>
-                  </g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier"> 
-                    <g> 
-                      <path style="fill:#F61C0D;" d="M365.257,67.393H95.744C42.866,67.393,0,110.259,0,163.137v134.728 c0,52.878,42.866,95.744,95.744,95.744h269.513c52.878,0,95.744-42.866,95.744-95.744V163.137 C461.001,110.259,418.135,67.393,365.257,67.393z M300.506,237.056l-126.06,60.123c-3.359,1.602-7.239-0.847-7.239-4.568V168.607 c0-3.774,3.982-6.22,7.348-4.514l126.06,63.881C304.363,229.873,304.298,235.248,300.506,237.056z">            
-                      </path> </g> 
-                    </g>
-                  </svg>    
-              <a href="https://x.com/dadscap" target="_blank" rel="noopener noreferrer" title="Follow on X (Twitter)" class="social-link-item">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,256,256" width="30px" height="30px" fill-rule="nonzero">
-                  <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
-                    <rect x="35" y="40" width="180" height="180" id="bgRectangle"></rect>
-                  </g>
-                  <g fill="#000000" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
-                    <g transform="scale(5.12,5.12)">
-                      <path d="M11,4c-3.866,0 -7,3.134 -7,7v28c0,3.866 3.134,7 7,7h28c3.866,0 7,-3.134 7,-7v-28c0,-3.866 -3.134,-7 -7,-7zM13.08594,13h7.9375l5.63672,8.00977l6.83984,-8.00977h2.5l-8.21094,9.61328l10.125,14.38672h-7.93555l-6.54102,-9.29297l-7.9375,9.29297h-2.5l9.30859,-10.89648zM16.91406,15l14.10742,20h3.06445l-14.10742,-20z"></path>
-                    </g>
-                  </g>
-                </svg>
-              </a>
-              <a href="https://steamcommunity.com/id/dadscap/" target="_blank" rel="noopener noreferrer" title="Steam" class="social-link-item">
-                <svg width="30px" height="30px" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier"> 
-                    <path d="M2.56967 20.0269C4.30041 25.7964 9.65423 30 15.9906 30C23.7274 30 29.9995 23.7318 29.9995 16C29.9995 8.26803 23.7274 2 15.9906 2C8.56634 2 2.49151 7.77172 2.01172 15.0699C2.01172 17.1667 2.01172 18.0417 2.56967 20.0269Z" fill="url(#paint0_linear_87_8314)"></path> <path d="M15.2706 12.5629L11.8426 17.5395C11.0345 17.5028 10.221 17.7314 9.54572 18.1752L2.01829 15.0784C2.01829 15.0784 1.84411 17.9421 2.56999 20.0763L7.89147 22.2707C8.15866 23.464 8.97779 24.5107 10.1863 25.0142C12.1635 25.8398 14.4433 24.8988 15.2658 22.922C15.4799 22.4052 15.5797 21.8633 15.5652 21.3225L20.5904 17.8219C23.5257 17.8219 25.9114 15.4305 25.9114 12.4937C25.9114 9.55673 23.5257 7.16748 20.5904 7.16748C17.7553 7.16748 15.1117 9.64126 15.2706 12.5629ZM14.4469 22.5783C13.8103 24.1057 12.054 24.8303 10.5273 24.1946C9.82302 23.9014 9.29128 23.3642 8.98452 22.7237L10.7167 23.4411C11.8426 23.9098 13.1343 23.3762 13.6023 22.2514C14.0718 21.1254 13.5392 19.8324 12.4139 19.3637L10.6233 18.6222C11.3142 18.3603 12.0997 18.3507 12.8336 18.6559C13.5734 18.9635 14.1475 19.5428 14.4517 20.283C14.756 21.0233 14.7548 21.8404 14.4469 22.5783ZM20.5904 16.0434C18.6364 16.0434 17.0455 14.4511 17.0455 12.4937C17.0455 10.5379 18.6364 8.94518 20.5904 8.94518C22.5457 8.94518 24.1365 10.5379 24.1365 12.4937C24.1365 14.4511 22.5457 16.0434 20.5904 16.0434ZM17.9341 12.4883C17.9341 11.0159 19.127 9.82159 20.5964 9.82159C22.0671 9.82159 23.2599 11.0159 23.2599 12.4883C23.2599 13.9609 22.0671 15.1541 20.5964 15.1541C19.127 15.1541 17.9341 13.9609 17.9341 12.4883Z" fill="white"></path> <defs> <linearGradient id="paint0_linear_87_8314" x1="16.0056" y1="2" x2="16.0056" y2="30" gradientUnits="userSpaceOnUse"> <stop stop-color="#111D2E"></stop> <stop offset="0.21248" stop-color="#051839"></stop> <stop offset="0.40695" stop-color="#0A1B48"></stop> <stop offset="0.5811" stop-color="#132E62"></stop> <stop offset="0.7376" stop-color="#144B7E"></stop> <stop offset="0.87279" stop-color="#136497"></stop> <stop offset="1" stop-color="#1387B8"></stop> </linearGradient> </defs> </g>
-                  </svg>
-              </a>
+              <a href="https://www.youtube.com/@Dadscap" target="_blank" rel="noopener noreferrer" title="Subscribe on YouTube" class="social-link-item"><img src="logos/youtube_icon.webp" alt="YouTube"></a>
+              <a href="https://x.com/dadscap" target="_blank" rel="noopener noreferrer" title="Follow on X (Twitter)" class="social-link-item"><img src="logos/x_icon.webp" alt="X (Twitter)"></a>
+              <a href="https://steamcommunity.com/id/dadscap/" target="_blank" rel="noopener noreferrer" title="Steam" class="social-link-item"><img src="logos/steam_icon.webp" alt="Steam"></a>
             </div>
           </div>          
         </div>
       </div>
       <div class="form-column-right">
          <div class="form-group">
-            <div class="section-title">Marketplaces</div>
-            <div class="select-all-container"><input type="checkbox" id="selectAll" name="selectAll"><label for="selectAll">Select/Deselect All</label></div>
+            <div class="marketplaces-header">
+              <div class="marketplaces-title">Marketplaces:</div>
+              <div class="select-all-container select-all-all"><input type="checkbox" id="selectAll" name="selectAll"><label for="selectAll">All</label></div>
+              <div class="select-all-container select-all-buysell"><input type="checkbox" id="selectBuySell" name="selectBuySell"><label for="selectBuySell">Buy/Sell</label></div>
+              <div class="select-all-container select-all-trade"><input type="checkbox" id="selectTrade" name="selectTrade"><label for="selectTrade">Trade</label></div>
+              <div class="select-all-container select-all-china"><input type="checkbox" id="selectChina" name="selectChina"><label for="selectChina"><img src="https://img.icons8.com/?size=15&id=OafC2pWK4RV4&format=png&color=000000" alt="China"></label></div>
+
+
+
+            </div>
           </div>
          <div class="form-group">
             <div class="market-list" id="marketList">
-              <div class="market-item" data-value="avanmarket"><input type="checkbox" name="market" value="avanmarket" id="market-avanmarket"><img src="logos/avanmarket_icon.webp" alt="AvanMarket"><label for="market-avanmarket">Avan.Market</label></div>
+              <div class="market-item" data-value="avanmarket"><input type="checkbox" name="market" value="avanmarket" id="market-avanmarket"><img src="logos/avanmarket_icon.webp" alt="AvanMarket"><label for="market-avanmarket">Avan Market</label></div>
               <div class="market-item" data-value="bitskins"><input type="checkbox" name="market" value="bitskins" id="market-bitskins"><img src="logos/bitskins_icon.webp" alt="Bitskins"><label for="market-bitskins">BitSkins</label></div>
               <div class="market-item" data-value="buff"><input type="checkbox" name="market" value="buff" id="market-buff"><img src="logos/buff163_icon.webp" alt="Buff163"><label for="market-buff">BUFF163</label></div>
-              <div class="market-item" data-value="buffmarket"><input type="checkbox" name="market" value="buffmarket" id="market-buffmarket"><img src="logos/buffmarket_icon.webp" alt="Buff.Market"><label for="market-buffmarket">BUFF.Market</label></div>
+              <div class="market-item" data-value="buffmarket"><input type="checkbox" name="market" value="buffmarket" id="market-buffmarket"><img src="logos/buffmarket_icon.webp" alt="BUFFMarket"><label for="market-buffmarket">BUFF Market</label></div>
+              <div class="market-item" data-value="c5"><input type="checkbox" name="market" value="c5" id="market-c5"><img src="logos/C5_icon.webp" alt="C5Game"><label for="market-c5">C5Game</label></div>              
+              <div class="market-item" data-value="csdeals"><input type="checkbox" name="market" value="csdeals" id="market-csdeals"><img src="logos/csdeals_icon.webp" alt="CS.Deals"><label for="market-csdeals">CS.Deals</label></div>
               <div class="market-item" data-value="csfloat"><input type="checkbox" name="market" value="csfloat" id="market-csfloat"><img src="logos/csfloat_icon.webp" alt="CSFloat"><label for="market-csfloat">CSFloat</label></div>
               <div class="market-item" data-value="csmoney"><input type="checkbox" name="market" value="csmoney" id="market-csmoney"><img src="logos/csmoney_icon.webp" alt="CS.MONEY"><label for="market-csmoney">CS.MONEY</label></div>
+              <div class="market-item" data-value="cstrade"><input type="checkbox" name="market" value="cstrade" id="market-cstrade"><img src="logos/cstrade_icon.webp" alt="CS.Trade"><label for="market-cstrade">CS.Trade</label></div>
+              <div class="market-item" data-value="cs7market"><input type="checkbox" name="market" value="cs7market" id="market-cs7market"><img src="logos/cs7market_icon.webp" alt="CS7.Market"><label for="market-cs7market">CS7 Market</label></div>
               <div class="market-item" data-value="dmarket"><input type="checkbox" name="market" value="dmarket" id="market-dmarket"><img src="logos/dmarket_icon.webp" alt="DMarket"><label for="market-dmarket">DMarket</label></div>
-              <div class="market-item" data-value="gamerpay"><input type="checkbox" name="market" value="gamerpay" id="market-gamerpay"><img src="logos/gamerpay_icon.webp" alt="Gamerpay"><label for="market-gamerpay">GamerPay</label></div>
+              <div class="market-item" data-value="gamerpay"><input type="checkbox" name="market" value="gamerpay" id="market-gamerpay"><img src="logos/gamerpay_icon.webp" alt="GamerPay"><label for="market-gamerpay">GamerPay</label></div>
+              <div class="market-item" data-value="haloskins"><input type="checkbox" name="market" value="haloskins" id="market-haloskins"><img src="logos/haloskins_icon.webp" alt="Haloskins"><label for="market-haloskins">HaloSkins</label></div>
+              <div class="market-item" data-value="itradegg"><input type="checkbox" name="market" value="itradegg" id="market-itradegg"><img src="logos/itradegg_icon.webp" alt="iTradeGG"><label for="market-itradegg">iTradeGG</label></div>              
               <div class="market-item" data-value="lisskins"><input type="checkbox" name="market" value="lisskins" id="market-lisskins"><img src="logos/lisskins_icon.webp" alt="LIS-SKINS"><label for="market-lisskins">LIS-SKINS</label></div>
+              <div class="market-item" data-value="mannco"><input type="checkbox" name="market" value="mannco" id="market-mannco"><img src="logos/mannco_icon.webp" alt="Mannco.Store"><label for="market-mannco">Mannco Store</label></div>              
               <div class="market-item" data-value="csgo"><input type="checkbox" name="market" value="csgo" id="market-csgo"><img src="logos/marketcsgo_icon.webp" alt="CSGO.com"><label for="market-csgo">Market.CSGO</label></div>
               <div class="market-item" data-value="shadowpay"><input type="checkbox" name="market" value="shadowpay" id="market-shadowpay"><img src="logos/shadowpay_icon.webp" alt="ShadowPay"><label for="market-shadowpay">ShadowPay</label></div>
               <div class="market-item" data-value="skinbaron"><input type="checkbox" name="market" value="skinbaron" id="market-skinbaron"><img src="logos/skinbaron_icon.webp" alt="Skinbaron"><label for="market-skinbaron">SkinBaron</label></div>
               <div class="market-item" data-value="skinbid"><input type="checkbox" name="market" value="skinbid" id="market-skinbid"><img src="logos/skinbid_icon.webp" alt="Skinbid"><label for="market-skinbid">SkinBid</label></div>
+              <div class="market-item" data-value="skinflow"><input type="checkbox" name="market" value="skinflow" id="market-skinflow"><img src="logos/skinflow_icon.webp" alt="Skinflow"><label for="market-skinflow">Skinflow</label></div>
+              <div class="market-item" data-value="skinland"><input type="checkbox" name="market" value="skinland" id="market-skinland"><img src="logos/skinland_icon.webp" alt="Skin.Land"><label for="market-skinland">SkinLand</label></div>
+              <div class="market-item" data-value="skinout"><input type="checkbox" name="market" value="skinout" id="market-skinout"><img src="logos/skinout_icon.webp" alt="Skinout"><label for="market-skinout">SkinOut</label></div>
+              <div class="market-item" data-value="skinplace"><input type="checkbox" name="market" value="skinplace" id="market-skinplace"><img src="logos/skinplace_icon.webp" alt="Skin.Place"><label for="market-skinplace">SkinPlace</label></div>
               <div class="market-item" data-value="skinport"><input type="checkbox" name="market" value="skinport" id="market-skinport"><img src="logos/skinport_icon.webp" alt="Skinport"><label for="market-skinport">Skinport</label></div>
+              <div class="market-item" data-value="skinsmonkey"><input type="checkbox" name="market" value="skinsmonkey" id="market-skinsmonkey"><img src="logos/skinsmonkey_icon.webp" alt="SkinsMonkey"><label for="market-skinsmonkey">SkinsMonkey</label></div>
+              <div class="market-item" data-value="skinswap"><input type="checkbox" name="market" value="skinswap" id="market-skinswap"><img src="logos/skinswap_icon.webp" alt="SkinSwap"><label for="market-skinswap">SkinSwap</label></div>                            
               <div class="market-item" data-value="steam"><input type="checkbox" name="market" value="steam" id="market-steam"><img src="logos/steam_icon.webp" alt="Steam Market"><label for="market-steam">Steam</label></div>
+              <div class="market-item" data-value="swapgg"><input type="checkbox" name="market" value="swapgg" id="market-swapgg"><img src="logos/swapgg_icon.webp" alt="Swap.gg"><label for="market-swapgg">Swap.gg</label></div>              
               <div class="market-item" data-value="tradeit"><input type="checkbox" name="market" value="tradeit" id="market-tradeit"><img src="logos/tradeit_icon.webp" alt="Tradeit.gg"><label for="market-tradeit">Tradeit</label></div>
               <div class="market-item" data-value="waxpeer"><input type="checkbox" name="market" value="waxpeer" id="market-waxpeer"><img src="logos/waxpeer_icon.webp" alt="Waxpeer"><label for="market-waxpeer">WAXPEER</label></div>
-              <div class="market-item" data-value="whitemarket"><input type="checkbox" name="market" value="whitemarket" id="market-whitemarket"><img src="logos/whitemarket_icon.webp" alt="White Market"><label for="market-whitemarket">White.Market</label></div>
-          </div>
+              <div class="market-item" data-value="whitemarket"><input type="checkbox" name="market" value="whitemarket" id="market-whitemarket"><img src="logos/whitemarket_icon.webp" alt="White Market"><label for="market-whitemarket">White Market</label></div>
+              <div class="market-item" data-value="youpin"><input type="checkbox" name="market" value="youpin" id="market-youpin"><img src="logos/youpin898_icon.webp" alt="YouPin898"><label for="market-youpin">YouPin898</label></div>
+            </div>
          </div>
       </div>
       <div class="form-footer">
