@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SkinScanner 🔎",
-  "version": "1.0",
+  "version": "2.0.1",
   "description": "Open multiple marketplace search links for CS2 skins based on input.",
   "action": {
     "default_popup": "index.html"
