@@ -14,6 +14,7 @@ export class FloatRangeManager {
         this.dualRangeContainer = null;
         this.cachedValues = { min: 0, max: 1 };
         this.isUpdating = false;
+        this.isUpdatingExterior = false; // Prevent infinite loops when updating exterior
         
         // Debounced state change callback
         this.debouncedStateChange = this.debounce(() => {
@@ -87,6 +88,9 @@ export class FloatRangeManager {
         // Debounced validation and state change
         this.fastVisualUpdate();
         this.debouncedStateChange();
+        
+        // Update exterior selection based on float range
+        this.updateExteriorFromFloatRange();
     }
 
     // Immediate range fill update using requestAnimationFrame
@@ -188,7 +192,11 @@ export class FloatRangeManager {
         
         this.isUpdating = false; // Re-enable updates
         
-        if (doSave) this.onStateChange();
+        if (doSave) {
+            this.onStateChange();
+            // Update exterior selection based on float range
+            this.updateExteriorFromFloatRange();
+        }
     }
 
     updateRangeFill() {
@@ -201,6 +209,8 @@ export class FloatRangeManager {
     }
 
     onExteriorChange() {
+        if (this.isUpdatingExterior) return; // Prevent infinite loops
+        
         const exteriorKey = this.elements.exteriorSelect.value;
         const preset = exteriorPresets[exteriorKey];
         if (preset) {
@@ -243,6 +253,33 @@ export class FloatRangeManager {
         this.updateSlidersFromInput(false);
         this.updateRangeFillImmediate();
         updatePaintSeedInputValidationClass(this.elements.paintSeedInput);
+    }
+
+    // Update exterior selection based on current float range
+    updateExteriorFromFloatRange() {
+        if (this.isUpdatingExterior || !this.elements.exteriorSelect) return;
+        
+        const minFloat = this.cachedValues.min;
+        const maxFloat = this.cachedValues.max;
+        
+        // Check if the float range falls entirely within a single exterior's boundaries
+        for (const [exteriorKey, boundaries] of Object.entries(exteriorPresets)) {
+            const [exteriorMin, exteriorMax] = boundaries;
+            
+            // Check if the current float range falls entirely within this exterior's boundaries
+            if (minFloat >= exteriorMin && maxFloat <= exteriorMax) {
+                this.isUpdatingExterior = true;
+                this.elements.exteriorSelect.value = exteriorKey;
+                this.isUpdatingExterior = false;
+                return;
+            }
+        }
+        
+        // If the float range spans multiple exterior boundaries or doesn't align with any standard boundaries,
+        // set the exterior to "Any" (empty value)
+        this.isUpdatingExterior = true;
+        this.elements.exteriorSelect.value = '';
+        this.isUpdatingExterior = false;
     }
 
     // Cleanup method to prevent memory leaks

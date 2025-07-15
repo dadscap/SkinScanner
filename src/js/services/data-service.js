@@ -12,8 +12,15 @@ export async function getMappings() {
   }
 
   try {
-    // Get the full, correct URL to the file within the extension.
-    const url = chrome.runtime.getURL('data/mappings.json');
+    // Check if we're in a Chrome extension context or regular web page
+    let url;
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      // Extension context
+      url = chrome.runtime.getURL('data/mappings.json');
+    } else {
+      // Regular web page context
+      url = 'data/mappings.json';
+    }
     
     // Fetch the file.
     const response = await fetch(url);

@@ -236,6 +236,7 @@ export class MarketSelector {
         
         // Update states and notify of change
         this.updateSelectAllState();
+        this.updateCategoryStates();
         this.onStateChange();
     }
 
@@ -267,6 +268,7 @@ export class MarketSelector {
         
         // Update UI to reflect restored state
         this.updateSelectAllState();
+        this.updateCategoryStates();
     }
 
     /**

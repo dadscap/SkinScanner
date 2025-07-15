@@ -8,6 +8,7 @@ import { MarketplaceURLs } from './marketplaces/url-generators.js';
 import { DarkModeManager } from './components/dark-mode.js';
 import { FloatRangeManager } from './components/float-range.js';
 import { MarketSelector } from './components/market-selector.js';
+import { AutocompleteComponent } from './components/autocomplete.js';
 import { TabManager } from './services/tab-manager.js';
 import { SearchProcessor } from './services/search-processor.js';
 import { getMappings } from './services/data-service.js';
@@ -18,7 +19,6 @@ if (typeof browser === "undefined") {
 
 document.addEventListener('DOMContentLoaded', async () => {
     const body = document.body;
-    const skinDatalist = document.getElementById('skinList');
     const skinForm = document.getElementById('skinForm');
     const itemNameInput = document.getElementById('item_name');
     const stattrakCheckbox = document.getElementById('stattrak');
@@ -76,6 +76,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchButton
     };
     const marketSelector = new MarketSelector(marketSelectorElements, debouncedSaveState);
+    
+    // Initialize autocomplete component
+    const autocomplete = new AutocompleteComponent(itemNameInput, {
+        maxResults: 50,
+        minSearchLength: 1,
+        debounceDelay: 150,
+        highlightSearch: true,
+        enableKeyboardNavigation: true,
+        showResultCount: true // Show total result count
+    });
 
     // --- Load Preferences & State ---
     await darkModeManager.loadPreference();
@@ -189,17 +199,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // --- Load Mappings and Populate Datalist ---
+    // --- Load Mappings and Populate Autocomplete ---
     const mappings = await getMappings();
-    if (mappings && mappings.skinMap && Object.keys(mappings.skinMap).length > 0 && skinDatalist) {
-        for (const skinName in mappings.skinMap) {
-            const option = document.createElement('option');
-            option.value = skinName;
-            skinDatalist.appendChild(option);
-        }
+    if (mappings && mappings.skinMap && Object.keys(mappings.skinMap).length > 0) {
+        // Extract skin names for autocomplete
+        const skinNames = Object.keys(mappings.skinMap);
+        autocomplete.setData(skinNames);
+        console.log(`Loaded ${skinNames.length} skin names for autocomplete`);
+        
         if (searchButton) searchButton.disabled = marketSelector.getSelectedMarkets().length === 0;
     } else {
-        console.error("SkinMap data is missing or skinDatalist not found!");
+        console.error("SkinMap data is missing!");
         if (searchButton) {
             searchButton.disabled = true;
             searchButton.textContent = "Error: Skin data missing";

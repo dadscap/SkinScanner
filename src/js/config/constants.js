@@ -52,8 +52,9 @@ export const phaseMappings = {
 };
 
 // Persistence Keys
-export const STORAGE_KEY = 'dadscapFormData';
-export const DARK_MODE_KEY = 'dadscapDarkMode';
+export const STORAGE_KEY = 'skinScannerState';
+export const DARK_MODE_KEY = 'darkModePreference';
+export const RECENT_SEARCHES_KEY = 'recentSearches';
 
 // UTM
 export const UTM_SOURCE = 'skinscanner';
