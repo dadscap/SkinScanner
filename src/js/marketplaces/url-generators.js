@@ -880,7 +880,7 @@ export class MarketplaceURLs {
         const { finalSearchName, exterior, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
-            return addUtmParams(`https://skinflow.gg/buy?search=${encodedSearch}`, 'skinflow');
+            return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`, 'skinflow');
         }
         const currentExteriorLabel = exteriorLabelMap[exterior];
         let searchString = finalSearchName;
@@ -890,7 +890,7 @@ export class MarketplaceURLs {
         }
         // Uses '+' for spaces instead of %20 (turns out it makes no difference whatsoever but fuck it im keeping it)
         const encodedSearch = searchString.replace(/ /g, '+');
-        return addUtmParams(`https://skinflow.gg/buy?search=${encodedSearch}`, 'skinflow');
+        return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`, 'skinflow');
     }
 
     // Skinland
