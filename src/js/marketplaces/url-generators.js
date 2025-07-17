@@ -361,13 +361,13 @@ export class MarketplaceURLs {
     static generateCsdeals(params, _mappings) {
         const { phaseName, encodedFullInput, encodedBaseSearchName, isStatTrak, noTradeHold, exterior, maxFloat, minFloat, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
-            let url = `https://cs.deals/new?game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}`;
+            let url = `https://cs.deals/new/?ref=dadscap&game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}`;
             url += (isStatTrak ? `&cs_stattrak=1` : '');
             return addUtmParams(url, 'csdeals');
         }
         const currentExteriorLabel = exteriorLabelMap[exterior];
         const searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
-        let url = `https://cs.deals/new?game=csgo&sort=price&sort_desc=0&name=${searchNameParam}`;
+        let url = `https://cs.deals/new/?ref=dadscap&game=csgo&sort=price&sort_desc=0&name=${searchNameParam}`;
         url += (isStatTrak ? `&cs_stattrak=1` : '');
         // CS.deals inverts the trade hold logic - adds param when trades ARE locked
         url += (noTradeHold ? "" : `&tradable_after_seconds=1`);
@@ -731,7 +731,7 @@ export class MarketplaceURLs {
     static generateMannco(params, _mappings) {
         const { baseSearchName, exterior, isStatTrak, encodedBaseSearchName, phaseName, isVanillaSearch, fullInput } = params;
         if (isSpecialItemType(fullInput)) {
-            let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=m2u5mwz`;
+            let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
             if (isStatTrak) url += `&stattrak=stattrak`;
             return addUtmParams(url, 'mannco');
         }
@@ -749,10 +749,10 @@ export class MarketplaceURLs {
             slug += `-${currentExteriorLabel.toLowerCase().replace(/\s+/g, '-')}`;
             if (phaseName) slug += `-${phaseName.replace(/\s+/g, '-')}`;
             // Uses game ID prefix (730 = CS:GO/CS2)
-            const url = `https://mannco.store/item/730-${slug}/?ref=m2u5mwz`;
+            const url = `https://mannco.store/item/730-${slug}/?ref=dadscap`;
             return addUtmParams(url, 'mannco');
         }
-        let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=m2u5mwz`;
+        let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
         if (isStatTrak) url += `&stattrak=stattrak`;
         return addUtmParams(url, 'mannco');
     }
