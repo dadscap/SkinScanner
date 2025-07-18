@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "SkinScanner 🔎",
-  "version": "2.1.2",
-  "description": "Open multiple marketplace search links for CS2 skins based on input.",
+  "name": "SkinScanner 🔎 - CS2 Multi-Market Price Checker",
+  "version": "2.1.1",
+  "description": "Search helper to find CSGO Skins across multiple CS2 marketplaces",
   "action": {
     "default_popup": "index.html"
   },
