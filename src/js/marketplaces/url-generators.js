@@ -189,7 +189,7 @@ export class MarketplaceURLs {
         const {isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat} = params;
         const { bMarketMap } = mappings || {};
         if (isSpecialItemType(fullInput)) {
-            let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}&ref=U1093250563`;
+            let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
             searchUrl += '&sort_by=price.asc';
             return addUtmParams(searchUrl, 'buffmarket');
@@ -211,11 +211,11 @@ export class MarketplaceURLs {
             }
             // If we found bMarketGoodId for vanilla knife, use it
             if (bMarketGoodId) {
-                const url = `https://buff.market/market/goods/${bMarketGoodId}&ref=U1093250563`;
+                const url = `https://buff.market/market/goods/${bMarketGoodId}`;
                 return addUtmParams(url, 'buffmarket');
             } else {
                 // Fallback to original vanilla search, i.e. return the URL for the general knife search
-                let vanillaUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&category_group=knife&search=${encodedBaseSearchName}&exterior=wearcategoryna&ref=U1093250563`;
+                let vanillaUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
                 if (isStatTrak) {
                     vanillaUrl += `&category=tag_weapon_stat`;
                 }
@@ -263,7 +263,7 @@ export class MarketplaceURLs {
         }
         // If we found bMarketGoodId, construct the URL with filters
         if (bMarketGoodId !== null) {
-            let baseUrl = `https://buff.market/market/goods/${bMarketGoodId}?tab=Sell&ref=U1093250563&`;
+            let baseUrl = `https://buff.market/market/goods/${bMarketGoodId}?tab=Sell&`;
             let fragmentParams = [];
             // Add phase tag ID based on the phase name selected by the user
             if (phaseTagId !== null) {
@@ -282,7 +282,7 @@ export class MarketplaceURLs {
         } else {
             // If we didn't find bMarketGoodId, fallback to the general search URL
             console.log("Buff.Market: Falling back to general search URL (non-vanilla).");
-            let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}&ref=U1093250563`;
+            let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
             const searchExteriorFilter = wearCategoryMap[exterior];
             searchUrl += (searchExteriorFilter ? `&exterior=${searchExteriorFilter}` : "");
