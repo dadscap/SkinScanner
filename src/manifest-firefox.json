@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "SkinScanner 🔎: CS2 Multi-Market Price Checker",
+  "version": "2.5.1",
+  "description": "Search helper to find CSGO Skins across multiple CS2 marketplaces",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "icons/skinscanner-16.png",
+    "48": "icons/skinscanner-48.png",
+    "128": "icons/skinscanner-128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "scripts": ["js/background.js"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [ "data/mappings.json" ],
+      "matches": [ "<all_urls>" ]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "skin@scanner.skinscanner",
+      "strict_min_version": "109.0"
+    }
+  }
+}
