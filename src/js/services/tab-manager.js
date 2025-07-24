@@ -1,7 +1,7 @@
 /* TabManager
  * Manages opening tabs for different marketplaces based on generated URLs.
  */
-import { TAB_OPEN_DELAY } from '../config/constants.js';
+import { StorageManager } from '../utils/storage.js';
 
 // Ensure browser API compatibility across different browsers (Chrome, Firefox, etc.)
 if (typeof browser === "undefined") {
@@ -17,6 +17,9 @@ export class TabManager {
     static async openTabs(urlsToOpen) {
         let openedCount = 0;
         const markets = Object.keys(urlsToOpen);
+        
+        // Get the user's preferred tab delay setting
+        const tabDelay = await StorageManager.getTabDelay();
         
         // Process each marketplace URL sequentially
         for (const market of markets) {
@@ -58,13 +61,13 @@ export class TabManager {
                 // Add delay between tab openings to prevent browser rate limiting
                 // Only delay if there are more tabs to open
                 if (openedCount < markets.length) {
-                    await new Promise(resolve => setTimeout(resolve, TAB_OPEN_DELAY));
+                    await new Promise(resolve => setTimeout(resolve, tabDelay));
                 }
             } catch (error) {
                 // Catch any unexpected errors during tab creation
                 console.error(`Unexpected error processing tab creation for ${market}:`, error);
                 // Use shorter delay for errors to minimize total wait time
-                await new Promise(resolve => setTimeout(resolve, TAB_OPEN_DELAY / 2));
+                await new Promise(resolve => setTimeout(resolve, tabDelay / 2));
             }
         }
         

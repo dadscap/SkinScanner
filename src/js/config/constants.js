@@ -55,6 +55,7 @@ export const phaseMappings = {
 export const STORAGE_KEY = 'skinScannerState';
 export const DARK_MODE_KEY = 'darkModePreference';
 export const RECENT_SEARCHES_KEY = 'recentSearches';
+export const TAB_DELAY_KEY = 'tabDelayPreference';
 
 // UTM
 export const UTM_SOURCE = 'skinscanner';

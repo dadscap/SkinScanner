@@ -373,4 +373,65 @@ export class StorageManager {
             }
         });
     }
+
+    /**
+     * Gets the user's tab delay preference
+     * @returns {Promise<number>} The tab delay in milliseconds (defaults to 250ms)
+     */
+    static async getTabDelay() {
+        return new Promise((resolve) => {
+            if (browser.storage && browser.storage.local) {
+                browser.storage.local.get('tabDelayPreference', (result) => {
+                    if (browser.runtime.lastError) {
+                        console.error("Error loading tab delay preference:", browser.runtime.lastError.message);
+                        resolve(250); // Default to 250ms
+                    } else {
+                        resolve(result.tabDelayPreference || 250);
+                    }
+                });
+            } else if (window.localStorage) {
+                try {
+                    const storedDelay = localStorage.getItem('tabDelayPreference');
+                    resolve(storedDelay ? parseInt(storedDelay, 10) : 250);
+                } catch (e) {
+                    console.error("Error loading tab delay preference from localStorage:", e);
+                    resolve(250);
+                }
+            } else {
+                console.warn("No storage API available for loading tab delay preference.");
+                resolve(250);
+            }
+        });
+    }
+
+    /**
+     * Sets the user's tab delay preference
+     * @param {number} delay - The tab delay in milliseconds
+     * @returns {Promise<void>} Resolves when save is complete, rejects on error
+     */
+    static async setTabDelay(delay) {
+        return new Promise((resolve, reject) => {
+            if (browser.storage && browser.storage.local) {
+                browser.storage.local.set({ tabDelayPreference: delay }, () => {
+                    if (browser.runtime.lastError) {
+                        console.error("Error saving tab delay preference:", browser.runtime.lastError.message);
+                        reject(browser.runtime.lastError);
+                    } else {
+                        resolve();
+                    }
+                });
+            } else if (window.localStorage) {
+                try {
+                    localStorage.setItem('tabDelayPreference', delay.toString());
+                    resolve();
+                } catch (e) {
+                    console.error("Error saving tab delay preference to localStorage:", e);
+                    reject(e);
+                }
+            } else {
+                console.warn("No storage API available for saving tab delay preference.");
+                reject(new Error("No storage API available."));
+            }
+        });
+    }
 }

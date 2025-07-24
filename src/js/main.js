@@ -9,6 +9,7 @@ import { DarkModeManager } from './components/dark-mode.js';
 import { FloatRangeManager } from './components/float-range.js';
 import { MarketSelector } from './components/market-selector.js';
 import { AutocompleteComponent } from './components/autocomplete.js';
+import { WhatsNewManager } from './components/whats-new.js';
 import { TabManager } from './services/tab-manager.js';
 import { SearchProcessor } from './services/search-processor.js';
 import { getMappings } from './services/data-service.js';
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchButton = document.getElementById('searchButton');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const resetFiltersButton = document.getElementById('resetFiltersButton');
+    const settingsButton = document.getElementById('settingsButton');
 
     // --- Debounced Save State Function ---
     const doSaveState = async () => {
@@ -86,6 +88,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         enableKeyboardNavigation: true,
         showResultCount: true // Show total result count
     });
+
+    // Initialize What's New manager
+    const whatsNewManager = new WhatsNewManager();
 
     // --- Load Preferences & State ---
     await darkModeManager.loadPreference();
@@ -145,6 +150,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (confirmed) {
                 await resetFiltersToDefault();
             }
+        });
+    }
+
+    // Handle settings button click
+    if (settingsButton) {
+        settingsButton.addEventListener('click', async () => {
+            await showSettingsDialog();
         });
     }
 
@@ -215,6 +227,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             searchButton.textContent = "Error: Skin data missing";
         }
     }
+
+    // --- Check and Show What's New After Everything is Loaded ---
+    await whatsNewManager.checkAndShow();
 
     // --- Form Submission ---
     if (skinForm) {
@@ -309,6 +324,101 @@ document.addEventListener('DOMContentLoaded', async () => {
                 resolve(false);
             });
             
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                    resolve(false);
+                }
+            });
+        });
+    };
+
+    // Settings dialog function
+    const showSettingsDialog = async () => {
+        // Get current tab delay setting
+        const currentDelay = await StorageManager.getTabDelay();
+        
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-content">
+                    <h3>General Settings</h3>
+                    <div class="settings-section">
+                        <h4>Tab Opening Speed</h4>
+                        <p>Controls how quickly new tabs are opened when searching multiple marketplaces.</p>
+                        <div class="tiered-bar">
+                            <button class="tiered-bar-option" data-delay="1000">VERY<br>Slow</button>
+                            <button class="tiered-bar-option" data-delay="500">Slow</button>
+                            <button class="tiered-bar-option" data-delay="250">Medium</button>
+                            <button class="tiered-bar-option" data-delay="100">Fast</button>
+                            <button class="tiered-bar-option" data-delay="50">VERY<br>Fast</button>
+                        </div>
+                        <div class="current-selection">
+                            Current: <span class="value" id="currentDelayDisplay"></span>
+                        </div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button id="saveSettingsButton" class="button-confirm">Save Settings</button>
+                        <button id="cancelSettingsButton" class="button-cancel">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Set up tiered bar functionality
+            const options = overlay.querySelectorAll('.tiered-bar-option');
+            const currentDisplay = overlay.querySelector('#currentDelayDisplay');
+            let selectedDelay = currentDelay;
+            
+            // Function to update display text
+            const updateDisplayText = (delay) => {
+                const delayTexts = {
+                    1000: 'VERY Slow (1000ms)',
+                    500: 'Slow (500ms)',
+                    250: 'Medium (250ms)',
+                    100: 'Fast (100ms)',
+                    50: 'VERY Fast (50ms)'
+                };
+                currentDisplay.textContent = delayTexts[delay] || `${delay}ms`;
+            };
+            
+            // Set initial active state and display
+            options.forEach(option => {
+                const delay = parseInt(option.dataset.delay);
+                if (delay === currentDelay) {
+                    option.classList.add('active');
+                }
+                
+                option.addEventListener('click', () => {
+                    // Remove active from all options
+                    options.forEach(opt => opt.classList.remove('active'));
+                    // Add active to clicked option
+                    option.classList.add('active');
+                    // Update selected delay
+                    selectedDelay = delay;
+                    updateDisplayText(delay);
+                });
+            });
+            
+            // Set initial display
+            updateDisplayText(currentDelay);
+            
+            // Handle save button
+            document.getElementById('saveSettingsButton').addEventListener('click', async () => {
+                await StorageManager.setTabDelay(selectedDelay);
+                document.body.removeChild(overlay);
+                resolve(true);
+            });
+            
+            // Handle cancel button
+            document.getElementById('cancelSettingsButton').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                resolve(false);
+            });
+            
+            // Handle overlay click (cancel)
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
                     document.body.removeChild(overlay);
