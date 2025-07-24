@@ -1459,3 +1459,324 @@ button#darkModeToggle:hover {
 }
 
 
+
+/* === Welcome Modal Styles === */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: welcomeFadeIn 0.3s ease-out;
+}
+
+.welcome-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.welcome-modal {
+    position: relative;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    max-width: 580px;
+    width: 95%;
+    max-height: 85vh;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    animation: welcomeSlideIn 0.3s ease-out;
+}
+
+.welcome-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--card-border);
+    background: var(--card-bg);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.welcome-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.welcome-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.welcome-close:hover {
+    background: var(--button-hover-bg);
+    color: var(--text-primary);
+}
+
+.welcome-content {
+    padding: 20px 24px;
+    max-height: calc(85vh - 140px);
+    overflow-y: auto;
+    line-height: 1.6;
+}
+
+.welcome-intro {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--button-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.welcome-intro p {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+}
+
+.welcome-intro p:last-child {
+    margin-bottom: 0;
+}
+
+.welcome-section {
+    margin-bottom: 32px;
+}
+
+.welcome-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.welcome-section-icon {
+    font-size: 20px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.welcome-section h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.welcome-section > p {
+    margin: 0 0 16px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.welcome-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+.welcome-step-number {
+    min-width: 28px;
+    height: 28px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.welcome-step-content h5 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.welcome-step-content ul {
+    margin: 0;
+    padding-left: 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.welcome-step-content li {
+    margin-bottom: 6px;
+}
+
+.welcome-sublist {
+    margin-top: 8px;
+    padding-left: 16px;
+}
+
+.welcome-filter-group {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--button-bg);
+    border-radius: 6px;
+}
+
+.welcome-filter-group h5 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.welcome-filter-group ul {
+    margin: 0;
+    padding-left: 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.welcome-filter-group li {
+    margin-bottom: 4px;
+}
+
+.welcome-reset-tip {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--button-checked-bg);
+    border: 1px solid var(--button-checked-border);
+    border-radius: 6px;
+    color: var(--button-checked-text);
+    font-size: 14px;
+    text-align: center;
+}
+
+.welcome-tip {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--button-bg);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.welcome-closing {
+    margin-top: 32px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.welcome-closing p {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.welcome-signature {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.welcome-footer {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--card-border);
+    background: var(--card-bg);
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+}
+
+.welcome-get-started {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.welcome-get-started:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.welcome-get-started:active {
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+.welcome-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.welcome-content::-webkit-scrollbar-track {
+    background: var(--button-bg);
+    border-radius: 3px;
+}
+
+.welcome-content::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 3px;
+    opacity: 0.5;
+}
+
+.welcome-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-primary);
+}
+
+@keyframes welcomeFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes welcomeSlideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Dark mode compatibility is handled automatically via CSS variables */

@@ -30,24 +30,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🔔</div>
+                            <div class="feature-icon">👋</div>
                             <div class="feature-text">
-                                <strong>Update Notifications</strong>
-                                <p>Get notified when SkinScanner updates with new features and improvements!</p>
+                                <strong>Welcome Screen for New Users</strong>
+                                <p>First-time users now see a helpful welcome guide that appears only once to get you started quickly.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🔧</div>
+                            <div class="feature-icon">🚀</div>
                             <div class="feature-text">
-                                <strong>Performance Improvements</strong>
-                                <p>Faster search processing and better marketplace integration.</p>
+                                <strong>Better Performance</strong>
+                                <p>Faster search processing and improved data handling for a smoother experience.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🛠️</div>
+                            <div class="feature-icon">💾</div>
                             <div class="feature-text">
-                                <strong>Bug Fixes</strong>
-                                <p>Various stability improvements and minor bug fixes.</p>
+                                <strong>Improved Data Persistence</strong>
+                                <p>Your settings and preferences now persist better across browser sessions.</p>
                             </div>
                         </div>
                     </div>

@@ -11,7 +11,8 @@ if (typeof browser === "undefined") {
 const STORAGE_KEYS = {
     LAST_VERSION: 'skinscanner_last_version',
     SHOW_WHATS_NEW: 'skinscanner_show_whats_new',
-    BADGE_SHOWN: 'skinscanner_badge_shown'
+    BADGE_SHOWN: 'skinscanner_badge_shown',
+    WELCOME_SEEN: 'skinscanner_has_seen_welcome'
 };
 
 // Get current extension version from manifest
@@ -58,11 +59,12 @@ const handleInstallOrUpdate = async (details) => {
         ]);
 
         if (details.reason === 'install') {
-            // Fresh installation - no need to show update notification
+            // Fresh installation - show welcome message, no update notification
             await browser.storage.local.set({
                 [STORAGE_KEYS.LAST_VERSION]: currentVersion,
                 [STORAGE_KEYS.SHOW_WHATS_NEW]: false,
-                [STORAGE_KEYS.BADGE_SHOWN]: false
+                [STORAGE_KEYS.BADGE_SHOWN]: false,
+                [STORAGE_KEYS.WELCOME_SEEN]: false
             });
             console.log('SkinScanner installed, version:', currentVersion);
             

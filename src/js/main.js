@@ -10,6 +10,7 @@ import { FloatRangeManager } from './components/float-range.js';
 import { MarketSelector } from './components/market-selector.js';
 import { AutocompleteComponent } from './components/autocomplete.js';
 import { WhatsNewManager } from './components/whats-new.js';
+import { WelcomeManager } from './components/welcome.js';
 import { TabManager } from './services/tab-manager.js';
 import { SearchProcessor } from './services/search-processor.js';
 import { getMappings } from './services/data-service.js';
@@ -91,6 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize What's New manager
     const whatsNewManager = new WhatsNewManager();
+
+    // Initialize Welcome manager
+    const welcomeManager = new WelcomeManager();
 
     // --- Load Preferences & State ---
     await darkModeManager.loadPreference();
@@ -226,6 +230,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             searchButton.disabled = true;
             searchButton.textContent = "Error: Skin data missing";
         }
+    }
+
+    // --- Check and Show Welcome Message for First-Time Users ---
+    const hasSeenWelcome = await StorageManager.getHasSeenWelcome();
+    if (!hasSeenWelcome) {
+        // Show welcome message for first-time users
+        // Note: Welcome will be marked as seen when user dismisses it
+        await welcomeManager.show();
     }
 
     // --- Check and Show What's New After Everything is Loaded ---

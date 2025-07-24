@@ -1,7 +1,7 @@
 /* StorageManager
  * Handles saving and loading state and preferences using the browser's local storage API.
  */
-import { STORAGE_KEY, DARK_MODE_KEY, RECENT_SEARCHES_KEY } from '../config/constants.js';
+import { STORAGE_KEY, DARK_MODE_KEY, RECENT_SEARCHES_KEY, WELCOME_SEEN_KEY } from '../config/constants.js';
 
 // --- Browser API Compatibility ---
 // Ensure browser API compatibility across different browsers (Chrome, Firefox, etc.)
@@ -430,6 +430,67 @@ export class StorageManager {
                 }
             } else {
                 console.warn("No storage API available for saving tab delay preference.");
+                reject(new Error("No storage API available."));
+            }
+        });
+    }
+
+    /**
+     * Gets whether the user has seen the welcome message
+     * @returns {Promise<boolean>} True if welcome has been seen, false otherwise (defaults to false)
+     */
+    static async getHasSeenWelcome() {
+        return new Promise((resolve) => {
+            if (browser.storage && browser.storage.local) {
+                browser.storage.local.get(WELCOME_SEEN_KEY, (result) => {
+                    if (browser.runtime.lastError) {
+                        console.error("Error loading welcome seen preference:", browser.runtime.lastError.message);
+                        resolve(false);
+                    } else {
+                        resolve(result[WELCOME_SEEN_KEY] || false);
+                    }
+                });
+            } else if (window.localStorage) {
+                try {
+                    const storedValue = localStorage.getItem(WELCOME_SEEN_KEY);
+                    resolve(storedValue ? JSON.parse(storedValue) : false);
+                } catch (e) {
+                    console.error("Error loading welcome seen preference from localStorage:", e);
+                    resolve(false);
+                }
+            } else {
+                console.warn("No storage API available for loading welcome seen preference.");
+                resolve(false);
+            }
+        });
+    }
+
+    /**
+     * Sets whether the user has seen the welcome message
+     * @param {boolean} hasSeen - True if welcome has been seen, false otherwise
+     * @returns {Promise<void>} Resolves when save is complete, rejects on error
+     */
+    static async setHasSeenWelcome(hasSeen) {
+        return new Promise((resolve, reject) => {
+            if (browser.storage && browser.storage.local) {
+                browser.storage.local.set({ [WELCOME_SEEN_KEY]: hasSeen }, () => {
+                    if (browser.runtime.lastError) {
+                        console.error("Error saving welcome seen preference:", browser.runtime.lastError.message);
+                        reject(browser.runtime.lastError);
+                    } else {
+                        resolve();
+                    }
+                });
+            } else if (window.localStorage) {
+                try {
+                    localStorage.setItem(WELCOME_SEEN_KEY, JSON.stringify(hasSeen));
+                    resolve();
+                } catch (e) {
+                    console.error("Error saving welcome seen preference to localStorage:", e);
+                    reject(e);
+                }
+            } else {
+                console.warn("No storage API available for saving welcome seen preference.");
                 reject(new Error("No storage API available."));
             }
         });
