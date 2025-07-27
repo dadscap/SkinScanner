@@ -1,8 +1,10 @@
 /* SearchProcessor
  * Processes user input for skin searches, handling StatTrak, exterior, float ranges, and paint seeds.
  * Returns an object with all necessary parameters for generating marketplace URLs.
+ * Includes validation logic to prevent invalid attribute combinations for different item types.
  */
 import { validatePaintSeed } from '../utils/validation.js';
+import { canHaveStatTrak, canHaveFloat, canHavePaintSeed } from '../config/constants.js';
 
 /**
  * Processes and parses CS:GO skin search inputs to extract relevant search parameters
@@ -10,13 +12,15 @@ import { validatePaintSeed } from '../utils/validation.js';
 export class SearchProcessor {
     /**
      * Processes user input and extracts all search parameters for marketplace URLs
+     * Applies validation logic to prevent invalid attribute combinations for different item types
      * @param {string} fullInput - The complete search input from the user
      * @param {boolean} isStatTrakChecked - Whether StatTrak option is selected
      * @param {string} exterior - The exterior condition (e.g., "Factory New", "Field-Tested")
      * @param {number} minFloat - Minimum float value (0-1)
      * @param {number} maxFloat - Maximum float value (0-1)
      * @param {string} paintSeedValue - Paint seed value as string
-     * @returns {Object|null} Processed search parameters object, or null if input is empty
+     * @returns {Object|null} Processed search parameters object with validated attributes, or null if input is empty
+     * @returns {Object.capabilities} Object containing boolean flags for item capabilities (canHaveStatTrak, canHaveFloat, canHavePaintSeed)
      */
     static processInput(fullInput, isStatTrakChecked, exterior, minFloat, maxFloat, paintSeedValue) {
         const trimmedFullInput = fullInput.trim();
@@ -63,10 +67,28 @@ export class SearchProcessor {
             baseSearchName = trimmedFullInput;
         }
         
-        // Prepend "StatTrak™" if the option is checked
-        const finalSearchName = isStatTrakChecked ? `StatTrak™ ${baseSearchName}` : baseSearchName;
+        // Apply validation logic based on item type capabilities
+        const itemCanHaveStatTrak = canHaveStatTrak(baseSearchName);
+        const itemCanHaveFloat = canHaveFloat(baseSearchName);
+        const itemCanHavePaintSeed = canHavePaintSeed(baseSearchName);
         
-        // Return comprehensive search parameters object
+        // Only apply StatTrak if the item type supports it
+        const validatedStatTrak = isStatTrakChecked && itemCanHaveStatTrak;
+        
+        // Prepend "StatTrak™" only if the item can have StatTrak and it's checked
+        const finalSearchName = validatedStatTrak ? `StatTrak™ ${baseSearchName}` : baseSearchName;
+        
+        // Only apply float/exterior values if the item type supports them
+        const validatedExterior = itemCanHaveFloat ? exterior : '';
+        const validatedMinFloat = itemCanHaveFloat ? minFloat : 0;
+        const validatedMaxFloat = itemCanHaveFloat ? maxFloat : 1;
+        
+        // Only apply paint seed if the item type supports it and the value is valid
+        const validatedPaintSeed = (itemCanHavePaintSeed && paintSeedValue !== '' && validatePaintSeed(paintSeedValue))
+            ? parseInt(paintSeedValue, 10)
+            : null;
+        
+        // Return comprehensive search parameters object with validations applied
         return {
             fullInput: trimmedFullInput,
             baseSearchName,
@@ -76,12 +98,17 @@ export class SearchProcessor {
             phaseName,
             dopplerType,
             isVanillaSearch,
-            isStatTrak: isStatTrakChecked,
-            exterior,
-            minFloat,
-            maxFloat,
-            // Validate and parse paint seed, return null if invalid or empty
-            paintSeed: (paintSeedValue !== '' && validatePaintSeed(paintSeedValue)) ? parseInt(paintSeedValue, 10) : null,
+            isStatTrak: validatedStatTrak,
+            exterior: validatedExterior,
+            minFloat: validatedMinFloat,
+            maxFloat: validatedMaxFloat,
+            paintSeed: validatedPaintSeed,
+            // Include capability flags for reference by URL generators
+            capabilities: {
+                canHaveStatTrak: itemCanHaveStatTrak,
+                canHaveFloat: itemCanHaveFloat,
+                canHavePaintSeed: itemCanHavePaintSeed
+            }
         };
     }
 }

@@ -128,34 +128,6 @@ export class FloatRangeManager {
         }
     }
 
-    updateFloatUIFromRange(doSave = true) {
-        // This method is now primarily used for legacy compatibility
-        // The optimized handleRangeInput method handles most range updates
-        let minRangeValue = parseFloat(this.elements.minFloatRange.value) || 0;
-        let maxRangeValue = parseFloat(this.elements.maxFloatRange.value) || 0;
-        
-        // Ensure min doesn't exceed max and max doesn't go below min
-        if (minRangeValue > maxRangeValue) {
-            minRangeValue = maxRangeValue;
-            this.elements.minFloatRange.value = minRangeValue;
-        }
-        if (maxRangeValue < minRangeValue) {
-            maxRangeValue = minRangeValue;
-            this.elements.maxFloatRange.value = maxRangeValue;
-        }
-        
-        // Update cached values
-        this.cachedValues.min = minRangeValue;
-        this.cachedValues.max = maxRangeValue;
-        
-        this.elements.minFloatInput.value = minRangeValue.toFixed(3);
-        this.elements.maxFloatInput.value = maxRangeValue.toFixed(3);
-        if (this.elements.minFloatLabel) this.elements.minFloatLabel.textContent = this.elements.minFloatInput.value;
-        if (this.elements.maxFloatLabel) this.elements.maxFloatLabel.textContent = this.elements.maxFloatInput.value;
-        this.updateRangeFillImmediate();
-        this.validateInputs();
-        if (doSave) this.onStateChange();
-    }
 
     updateSlidersFromInput(doSave = true) {
         this.isUpdating = true; // Prevent recursive updates
@@ -199,10 +171,6 @@ export class FloatRangeManager {
         }
     }
 
-    updateRangeFill() {
-        // Legacy method - now delegates to optimized version
-        this.updateRangeFillImmediate();
-    }
 
     validateInputs() {
         return validateFloatInputsDOM(this.elements.minFloatInput, this.elements.maxFloatInput, this.elements.floatRangeDiv);

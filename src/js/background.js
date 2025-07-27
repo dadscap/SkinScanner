@@ -23,15 +23,8 @@ const getCurrentVersion = () => {
 // Set badge text and background color
 const setBadge = (text = '', color = '#FF0000') => {
     try {
-        if (browser.action) {
-            // Manifest V3
-            browser.action.setBadgeText({ text: text });
-            browser.action.setBadgeBackgroundColor({ color: color });
-        } else if (browser.browserAction) {
-            // Manifest V2 fallback
-            browser.browserAction.setBadgeText({ text: text });
-            browser.browserAction.setBadgeBackgroundColor({ color: color });
-        }
+        browser.action.setBadgeText({ text: text });
+        browser.action.setBadgeBackgroundColor({ color: color });
     } catch (error) {
         console.warn('Failed to set badge:', error);
     }

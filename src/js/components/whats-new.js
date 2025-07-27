@@ -30,24 +30,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">👋</div>
+                            <div class="feature-icon">🛠️</div>
                             <div class="feature-text">
-                                <strong>Welcome Screen for New Users</strong>
-                                <p>First-time users now see a helpful welcome guide that appears only once to get you started quickly.</p>
+                                <strong>Bug Fixes & Optimizations</strong>
+                                <p>Various performance improvements and stability enhancements for a smoother experience.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🚀</div>
+                            <div class="feature-icon">🎯</div>
                             <div class="feature-text">
-                                <strong>Better Performance</strong>
-                                <p>Faster search processing and improved data handling for a smoother experience.</p>
+                                <strong>Smarter Item Categorization</strong>
+                                <p>Improved item categorization system with better support for weapons, gloves, music kits, and special items.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">💾</div>
+                            <div class="feature-icon">✅</div>
                             <div class="feature-text">
-                                <strong>Improved Data Persistence</strong>
-                                <p>Your settings and preferences now persist better across browser sessions.</p>
+                                <strong>More Accurate Search Results</strong>
+                                <p>Enhanced validation prevents invalid combinations like StatTrak on non-weapons for more precise results.</p>
                             </div>
                         </div>
                     </div>
