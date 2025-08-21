@@ -376,13 +376,13 @@ export class MarketplaceURLs {
     static generateCsdeals(params, _mappings) {
         const { phaseName, encodedFullInput, encodedBaseSearchName, isStatTrak, noTradeHold, exterior, maxFloat, minFloat, isVanillaSearch, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://cs.deals/new/?ref=dadscap&game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}`;
+            let url = `https://cs.deals/new/market?game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}&exact_match=0&ref=dadscap`;
             url += (isStatTrak ? `&cs_stattrak=1` : '');
             return addUtmParams(url, 'csdeals');
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         const searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
-        let url = `https://cs.deals/new/?ref=dadscap&game=csgo&sort=price&sort_desc=0&name=${searchNameParam}`;
+        let url = `https://cs.deals/new/market?game=csgo&sort=price&sort_desc=0&name=${searchNameParam}&exact_match=0&ref=dadscap`;
         url += (isStatTrak ? `&cs_stattrak=1` : '');
         // CS.deals inverts the trade hold logic - adds param when trades ARE locked
         url += (noTradeHold ? "" : `&tradable_after_seconds=1`);
