@@ -47,6 +47,7 @@ export class MarketSelector {
             trade: [
                 'market-cstrade',
                 'market-itradegg',
+                'market-rapidskins',
                 'market-skinflow',
                 'market-skinsmonkey',
                 'market-skinswap',

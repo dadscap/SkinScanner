@@ -30,24 +30,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🛠️</div>
+                            <div class="feature-icon">🌐</div>
                             <div class="feature-text">
-                                <strong>Bug Fixes & Optimizations</strong>
-                                <p>Various performance improvements and stability enhancements for a smoother experience.</p>
+                                <strong>Expanded Marketplace Access: Welcome RapidSkins!</strong>
+                                <p>We're excited to announce the integration of RapidSkins, offering you an even broader selection for your item searches and deeper market insights, replacing the discontinued CS7Market.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🎯</div>
+                            <div class="feature-icon">✨</div>
                             <div class="feature-text">
-                                <strong>Smarter Item Categorization</strong>
-                                <p>Improved item categorization system with better support for weapons, gloves, music kits, and special items.</p>
+                                <strong>Up-to-Date Item Mappings from Armory</strong>
+                                <p>Item database fully refreshed with the latest additions from the Armory</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">✅</div>
+                            <div class="feature-icon">⚡</div>
                             <div class="feature-text">
-                                <strong>More Accurate Search Results</strong>
-                                <p>Enhanced validation prevents invalid combinations like StatTrak on non-weapons for more precise results.</p>
+                                <strong>Performance Refinements & Bug Resolution</strong>
+                                <p>Implemented numerous optimizations and critical bug fixes to enhance overall stability and responsiveness.</p>
                             </div>
                         </div>
                     </div>

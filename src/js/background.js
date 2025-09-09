@@ -15,6 +15,56 @@ const STORAGE_KEYS = {
     WELCOME_SEEN: 'skinscanner_has_seen_welcome'
 };
 
+// ==== RapidSkins background redirect (survives popup close) ====
+if (typeof browser === 'undefined') { var browser = chrome; }
+
+const RS = {
+  key: (tabId) => `rs-${tabId}`,
+  isRapidSkinsUrl: (url) => {
+    try {
+      const u = new URL(url);
+      const hostOk = u.hostname === 'rapidskins.com' || u.hostname === 'www.rapidskins.com';
+      const notAffiliate = !u.pathname.startsWith('/a/');
+      return hostOk && notAffiliate;
+    } catch { return false; }
+  }
+};
+
+async function rsMaybeRedirect(details) {
+  try {
+    if (!details || !details.url || !RS.isRapidSkinsUrl(details.url)) return;
+
+    const key = RS.key(details.tabId);
+    const got = await browser.storage.local.get(key);
+    const finalUrl = got[key];
+    if (!finalUrl) return;
+
+    await browser.storage.local.remove(key); // guard against double-fire
+    try {
+      await browser.tabs.update(details.tabId, { url: finalUrl });
+    } catch (e) {
+      // Tab may have been closed; ignore
+    }
+  } catch (e) {
+    console.warn('RapidSkins redirect failed:', e);
+  }
+}
+
+// Fire as early as possible and again on completion (covers both fast and normal loads)
+browser.webNavigation.onCommitted.addListener(rsMaybeRedirect, {
+  url: [{ hostSuffix: 'rapidskins.com' }]
+});
+browser.webNavigation.onCompleted.addListener(rsMaybeRedirect, {
+  url: [{ hostSuffix: 'rapidskins.com' }]
+});
+
+// Clean up any orphaned keys if tab closes before the bounce back
+browser.tabs.onRemoved.addListener(async (tabId) => {
+  try { await browser.storage.local.remove(RS.key(tabId)); } catch {}
+});
+// ==== end RapidSkins block ====
+
+
 // Get current extension version from manifest
 const getCurrentVersion = () => {
     return browser.runtime.getManifest().version;

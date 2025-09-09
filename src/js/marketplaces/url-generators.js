@@ -299,7 +299,7 @@ export class MarketplaceURLs {
         const { c5Map } = mappings || {};
         
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://www.c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
+            let url = `https://c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
             url += (isStatTrak ? `&statTrak=1` : "");
             return addUtmParams(url, 'c5');
         }
@@ -345,7 +345,7 @@ export class MarketplaceURLs {
             }
             if (id) {
                 console.log(`C5Game: Found ID: ${id} for key: ${key}`);
-                let url = `https://www.c5game.com/en/csgo/${id}/1/sell?sort=2`;
+                let url = `https://c5game.com/en/csgo/${id}/1/sell?sort=2`;
                 
                 // Add float parameters
                 if (!isVanillaSearch) {
@@ -365,7 +365,7 @@ export class MarketplaceURLs {
                 return addUtmParams(url, 'c5');
             }
         }
-        let url = `https://www.c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
+        let url = `https://c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
         url += `&min_float=${minFloat}&max_float=${maxFloat}`;
@@ -525,35 +525,6 @@ export class MarketplaceURLs {
         return addUtmParams(`https://cs.trade/store?market_name=${encodedName}`, 'cstrade');
     }
 
-    // CS7.market
-    static generateCs7market(params, _mappings) {
-        const { finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
-        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            return addUtmParams(`https://cs7.market/en/catalog?r=64af74&page=1&o=price&f_s=${encodeURIComponent(finalSearchName)}`, 'cs7market');
-        }
-        let searchName = finalSearchName;
-        // CS7.market doesn't want special symbols in search
-        searchName = searchName.replace(/^★\s*/, '').replace(/StatTrak™\s*/i, '');
-        let url = `https://cs7.market/en/catalog?r=64af74&page=1&o=price&f_s=${encodeURIComponent(searchName)}`;
-        if (isVanillaSearch) {
-            // NP = "Not Painted" for vanilla items
-            url += '&f_a_qal=NP';
-        } else if (exterior && exterior !== 'Any') {
-            // CS7 uses specific codes for exteriors
-            if (exteriorMappings.cs7market[exterior]) {
-                url += `&f_a_qal=${exteriorMappings.cs7market[exterior]}`;
-            }
-        }
-        if (isStatTrak) {
-            // CS7 uses binary flag (1) for StatTrak
-            url += '&f_a_st=1';
-        }
-        if (phaseName && phaseMappings.cs7market?.[phaseName]) {
-            url += `&f_a_phase=${phaseMappings.cs7market[phaseName]}`;
-        }
-        return addUtmParams(url, 'cs7market');
-    }
-
     // DMarket
     static generateDmarket(params, _mappings) {
         const { encodedBaseSearchName, minFloat, maxFloat, isVanillaSearch, isStatTrak, exterior, noTradeHold, paintSeed, phaseName, fullInput } = params;
@@ -618,7 +589,7 @@ export class MarketplaceURLs {
         const { baseSearchName, fullInput, finalSearchName, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch, minFloat, maxFloat } = params;
         const { c5Map } = mappings || {};
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://www.haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
+            let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
             url += (isStatTrak ? `&statTrak=1` : "");
             return addUtmParams(url, 'haloskins');
         }
@@ -655,11 +626,11 @@ export class MarketplaceURLs {
             if (id) {
                 console.log(`Haloskins: Found ID: ${id} for key: ${key}`);
                 // Direct market ID URL instead of search
-                const url = `https://www.haloskins.io/market/${id}`;
+                const url = `https://haloskins.io/market/${id}`;
                 return addUtmParams(url, 'haloskins');
             }
         }
-        let url = `https://www.haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
+        let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
         url += `&min_float=${minFloat}&max_float=${maxFloat}`;
@@ -801,11 +772,71 @@ export class MarketplaceURLs {
         return url + '&utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
     }
 
+    // RapidSkins
+    static generateRapidskins(params, _mappings) {
+        const { fullInput, baseSearchName, exterior, isStatTrak, isVanillaSearch, noTradeHold, phaseName, encodedBaseSearchName } = params;
+        const category = getItemCategory(fullInput);
+        const exteriorLabel = exteriorMappings.labels[exterior];
+        // Convert spaces to '+' (RapidSkins expects literal '+' separators)
+        const plus = (s) => (s || '').trim().replace(/\s+/g, '+');
+        // Wrap final target in affiliate hash (tab-manager will decode and navigate)
+        const wrap = (query) => `https://rapidskins.com/a/dadscap#rsredir=${encodeURIComponent(`https://www.rapidskins.com/buy?${query}`)}`;
+        // Specials: use broad search
+        if (category === ITEM_CATEGORIES.SPECIAL) {
+            let query = `search=${plus(baseSearchName)}`;
+            if (noTradeHold) query += `&maximumUnlockDays=0`;
+            return wrap(query);
+        }
+        // Vanilla knives: exact name with proper prefix, ignore exterior
+        const isVanillaByName = /\|\s*Vanilla/i.test(baseSearchName) || /\|\s*Vanilla/i.test(fullInput || '');
+        // Also treat bare knife names (no "|") as vanilla even if category detection misclassifies
+        const isVanillaKnifeNoSkin = !/\|/.test(baseSearchName) && /\b(knife|bayonet|karambit|butterfly|flip|gut|huntsman|bowie|falchion|stiletto|kukri|navaja|talon|ursus|paracord|survival|nomad|skeleton|classic|shadow\s*daggers|m9)\b/i.test(baseSearchName);
+        if (isVanillaSearch || isVanillaByName || isVanillaKnifeNoSkin) {
+            // Normalize: strip "| Vanilla" and any existing leading star to avoid duplicates
+            const knifeName = baseSearchName.replace(/\s*\|\s*Vanilla/i, '').replace(/^★\s*/, '');
+            const proper = isStatTrak ? `★ StatTrak™ ${knifeName}` : `★ ${knifeName}`;
+            let query = `marketHashNames=${plus(proper)}`;
+            if (noTradeHold) query += `&maximumUnlockDays=0`;
+            return wrap(query);
+        }
+        // Name-based knife detection fallback ensures star prefix even if category lookup fails
+        const knifeNameRegex = /\b(knife|bayonet|karambit|butterfly|flip|gut|huntsman|bowie|falchion|stiletto|kukri|navaja|talon|ursus|paracord|survival|nomad|skeleton|classic|shadow\s*daggers|m9)\b/i;
+        const isKnife = (category === ITEM_CATEGORIES.KNIFE) || knifeNameRegex.test(baseSearchName);
+        const isGlove = category === ITEM_CATEGORIES.GLOVE;
+        const isWeapon = category === ITEM_CATEGORIES.WEAPON;
+        // Broad search when no exterior selected (and not vanilla)
+        const useSearch = (isKnife || isGlove || isWeapon) && !exteriorLabel && !isVanillaSearch && !(/\|\s*Vanilla/i.test(baseSearchName) || /\|\s*Vanilla/i.test(fullInput || ''));
+        if (useSearch) {
+            let query = `search=${plus(baseSearchName)}`;
+            if (noTradeHold) query += `&maximumUnlockDays=0`;
+            return wrap(query);
+        }
+        // Precise marketHashNames (prefix + exterior + phase)
+        const star = (isKnife || isGlove) ? '★ ' : '';
+        let prefix;
+        if (isStatTrak) {
+            prefix = isKnife ? '★ StatTrak™ ' : `StatTrak™ ${star}`;
+        } else {
+            prefix = star;
+        }
+        let properName = `${prefix}${baseSearchName}`;
+        const isDopplerLike = /\bDoppler\b/i.test(baseSearchName);
+        if (exteriorLabel) {
+            properName += ` (${exteriorLabel})`;
+            if (isDopplerLike && phaseName) {
+                properName += ` - ${phaseName}`;
+            }
+        }
+        let query = `marketHashNames=${plus(properName)}`;
+        if (noTradeHold) query += `&maximumUnlockDays=0`;
+        return wrap(query);
+    }
+    
     // ShadowPay
     static generateShadowpay(params, _mappings) {
         const { exterior, minFloat, maxFloat, encodedBaseSearchName, isVanillaSearch, phaseName, isStatTrak, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://shadowpay.com/csgo-items?search=${encodedBaseSearchName}&sort_column=discount&sort_dir=desc`;
+            let url = `https://shadowpay.com/csgo-items?search=${encodedBaseSearchName}&sort_column=price&sort_dir=asc`;
             if (isStatTrak) url += `&is_stattrak=1`;
             url += `&utm_campaign=KzvAR2XJATjoT8y`;
             return ShadowPayUtmParams(url, 'shadowpay');
@@ -821,7 +852,7 @@ export class MarketplaceURLs {
             // Phase names are appended to search string, not as separate param
             searchString += phaseMappings.shadowpay[phaseName];
         }
-        let url = `https://shadowpay.com/csgo-items?search=${searchString}&sort_column=discount&sort_dir=desc`;
+        let url = `https://shadowpay.com/csgo-items?search=${searchString}&sort_column=price&sort_dir=asc`;
         if (isVanillaSearch) {
             url += `&vanilla_only=1`;
         } else {
@@ -861,11 +892,11 @@ export class MarketplaceURLs {
     static generateSkinbid(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, paintSeed, dopplerType, phaseName, isVanillaSearch, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://skinbid.com/market?sort=popular%23desc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
+            let url = `https://skinbid.com/market?sort=price%23asc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
             url += isStatTrak ? `&Category=StatTrak%23true` : '';
             return addUtmParams(url, 'skinbid');
         }
-        let url = `https://skinbid.com/market?sort=popular%23desc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
+        let url = `https://skinbid.com/market?sort=price%23asc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
         url += isStatTrak ? `&Category=StatTrak%23true` : '';
         if (!isVanillaSearch) {
             // Special handling for FN with custom float ranges
@@ -1439,12 +1470,12 @@ export class MarketplaceURLs {
             if (id) {
                 console.log(`YouPin898: Found ID: ${id} for key: ${key}`);
                 // Uses templateId and gameId=730 (CS:GO) parameters
-                const url = `https://www.youpin898.com/market/goods-list?listType=10&templateId=${id}&gameId=730`;
+                const url = `https://youpin898.com/market/goods-list?listType=10&templateId=${id}&gameId=730`;
                 return addUtmParams(url, 'youpin');
             }
         }
         // Fallback to basic keyword search without exterior or float parameters
-        let url = `https://www.youpin898.com/market/goods-list?listType=10&gameId=730&keyword=${encodedBaseSearchName}`;
+        let url = `https://youpin898.com/market/goods-list?listType=10&gameId=730&keyword=${encodedBaseSearchName}`;
         url += (isStatTrak ? `&statTrak=1` : "");
         return addUtmParams(url, 'youpin');
     }    

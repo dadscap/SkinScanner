@@ -62,12 +62,13 @@ export const TAB_OPEN_DELAY = 250;
 // Enhanced Item Type Categorization System
 export const ITEM_CATEGORIES = {
     WEAPON: 'weapon',
+    KNIFE: 'knife',
     GLOVE: 'glove',
     MUSIC_KIT: 'music_kit',
     SPECIAL: 'special'
 };
 
-// Weapon type identifiers (guns and knives)
+// Weapon type identifiers (guns)
 export const WEAPON_IDENTIFIERS = [
     // Rifles
     'AK-47', 'M4A4', 'M4A1-S', 'AWP', 'AUG', 'FAMAS', 'Galil AR', 'SG 553', 'SCAR-20', 'G3SG1',
@@ -78,8 +79,11 @@ export const WEAPON_IDENTIFIERS = [
     // Shotguns
     'Nova', 'XM1014', 'Sawed-Off', 'MAG-7',
     // Machine Guns
-    'M249', 'Negev',
-    // Knives
+    'M249', 'Negev'
+];
+
+// Knife identifiers
+export const KNIFE_IDENTIFIERS = [
     'Bayonet', 'M9 Bayonet', 'Karambit', 'Huntsman Knife', 'Flip Knife', 'Gut Knife', 'Falchion Knife',
     'Bowie Knife', 'Shadow Daggers', 'Butterfly Knife', 'Navaja Knife', 'Stiletto Knife', 'Talon Knife',
     'Ursus Knife', 'Classic Knife', 'Paracord Knife', 'Survival Knife', 'Nomad Knife', 'Skeleton Knife'
@@ -183,6 +187,15 @@ export function getItemCategory(itemName) {
             return ITEM_CATEGORIES.SPECIAL;
         }
     }
+
+    /**  
+     * Check for Knives
+    for (const knifeType of KNIFE_IDENTIFIERS) {
+        if (cleanName.includes(knifeType)) {
+            return ITEM_CATEGORIES.KNIFE;
+        }
+    }
+    */
 
     // Check for Gloves
     for (const gloveType of GLOVE_IDENTIFIERS) {
