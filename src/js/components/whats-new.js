@@ -30,24 +30,10 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🌐</div>
+                            <div class="feature-icon">🎨</div>
                             <div class="feature-text">
-                                <strong>Expanded Marketplace Access: Welcome RapidSkins!</strong>
-                                <p>We're excited to announce the integration of RapidSkins, offering you an even broader selection for your item searches and deeper market insights, replacing the discontinued CS7Market.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">✨</div>
-                            <div class="feature-text">
-                                <strong>Up-to-Date Item Mappings from Armory</strong>
-                                <p>Item database fully refreshed with the latest additions from the Armory</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">⚡</div>
-                            <div class="feature-text">
-                                <strong>Performance Refinements & Bug Resolution</strong>
-                                <p>Implemented numerous optimizations and critical bug fixes to enhance overall stability and responsiveness.</p>
+                                <strong>New Genesis Collection Items Added</strong>
+                                <p>Added mappings for items from the <a href="https://steamcommunity.com/games/CSGO/announcements/detail/514095143786120352" target="_blank">NEW Genesis Collection</a> and the "Sealed Genesis Terminal", including various weapon skins such as the "M4A4 | Full Throttle", "AK-47 | The Oligarch", and others! <b>Start searching on 8/24/2025!</b></p>
                             </div>
                         </div>
                     </div>
