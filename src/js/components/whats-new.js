@@ -30,10 +30,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
+                            <div class="feature-icon">🔄</div>
+                            <div class="feature-text">
+                                <strong>Marketplace Updates</strong>
+                                <p>Major marketplace changes! Added support for <b>Ecosteam</b>, <b>PirateSwap</b>, and <b>Skins.com</b>. Removed unresponsive and defunct marketplaces (CS.Trade, SkinBid (rip), and SkinLand) for better reliability and performance.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔗</div>
+                            <div class="feature-text">
+                                <strong>Improved URL Generation</strong>
+                                <p>Completely updated URL generation logic for all marketplaces ensures more reliable links, faster item matching, and better overall performance!</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
                             <div class="feature-icon">🎨</div>
                             <div class="feature-text">
-                                <strong>New Genesis Collection Items Added</strong>
-                                <p>Added mappings for items from the <a href="https://steamcommunity.com/games/CSGO/announcements/detail/514095143786120352" target="_blank">NEW Genesis Collection</a> and the "Sealed Genesis Terminal", including various weapon skins such as the "M4A4 | Full Throttle", "AK-47 | The Oligarch", and others! <b>Start searching on 8/24/2025!</b></p>
+                                <strong>Enhanced UI & Autocomplete</strong>
+                                <p>New header design with social icons and improved autocomplete component with better data loading handling for smoother user experience! 99.91% coverage of all items in the game in search!</p>
                             </div>
                         </div>
                     </div>
@@ -47,7 +61,6 @@ export class WhatsNewManager {
         return overlay;
     }
 
-    // Add CSS styles for the What's New overlay
     injectStyles() {
         if (document.getElementById('whatsNewStyles')) return;
 

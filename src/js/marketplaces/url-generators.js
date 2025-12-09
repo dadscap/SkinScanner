@@ -6,18 +6,18 @@ import {
 } from '../config/constants.js';
 import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
 
-// Regex to extract phase information from doppler skins (e.g., "Phase 1", "Ruby", etc.)
 const phaseRegex = /\s*\((Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)\)/i;
 
 export class MarketplaceURLs {
+
     // Avanmarket
     static generateAvanmarket(params, _mappings) {
         const { encodedBaseSearchName, minFloat, maxFloat, isStatTrak, phaseName, isVanillaSearch, fullInput } = params;
-        let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap&sort=1`;
+        let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap`;
         // Special handling for special items like stickers, patches, charms, etc.
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Special items bypass all float/wear/phase logic entirely
-            return addUtmParams(url, 'avanmarket');
+            return addUtmParams(url);
         }
         // Vanilla knives don't have float values, so float params are only added for non-vanilla items
         if (!isVanillaSearch) {
@@ -29,7 +29,7 @@ export class MarketplaceURLs {
             // If the phaseName is defined and exists in phaseMappings for Avanmarket, we can add it to the URL
             url += `&phase=${phaseMappings.avanmarket[phaseName]}`;
         }
-        return addUtmParams(url, 'avanmarket');
+        return addUtmParams(url);
     }
 
     // Bitskins
@@ -41,7 +41,7 @@ export class MarketplaceURLs {
                 order: [{ field: "price", order: "ASC" }],
                 where: { skin_name: finalSearchName }
             }))}&ref_alias=dadscap`;
-            return addUtmParams(baseUrl, 'bitskins');
+            return addUtmParams(baseUrl);
         }
         const currentExteriorId = exteriorMappings.default[exterior];
         // Bitskins uses JSON search queries with complex where clauses
@@ -67,18 +67,25 @@ export class MarketplaceURLs {
             order: [{ field: "price", order: "ASC" }],
             where: whereClause
         }))}&ref_alias=dadscap`;
-        return addUtmParams(baseUrl, 'bitskins');
+        return addUtmParams(baseUrl);
     }
 
     // Buff163
     static generateBuff(params, mappings) {
         const {isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat} = params;
         const { buffMap } = mappings || {};
+        // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            // Try to find a direct mapping for the item
+            const itemData = buffMap ? buffMap[fullInput] : null;
+            if (itemData && itemData.goods_id) {
+                const url = `https://buff.163.com/goods/${itemData.goods_id}?from=market`;
+                return addUtmParams(url);
+            }
+            // Fallback to search URL
             let searchUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
-            searchUrl += '&sort_by=price.asc';
-            return addUtmParams(searchUrl, 'buff');
+            return addUtmParams(searchUrl);
         }
         // If it's a vanilla knife search, we need to handle it differently
         if (isVanillaSearch) {
@@ -100,8 +107,8 @@ export class MarketplaceURLs {
             }
             if (buffGoodId !== null) {
                 // Direct goods URL is much more efficient than search
-                let baseUrl = `https://buff.163.com/goods/${buffGoodId}?from=market#sort_by=price.asc`;
-                return addUtmParams(baseUrl, 'buff');
+                let baseUrl = `https://buff.163.com/goods/${buffGoodId}?from=market`;
+                return addUtmParams(baseUrl);
             } else {
                 // Fallback uses 'wearcategoryna' for vanilla (Not Applicable wear)
                 let vanillaUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&category_group=knife&search=${encodedBaseSearchName}&exterior=wearcategoryna`;
@@ -109,7 +116,7 @@ export class MarketplaceURLs {
                     vanillaUrl += `&category=tag_weapon_stat`;
                 }
                 vanillaUrl += '&tab=selling';
-                return addUtmParams(vanillaUrl, 'buff');
+                return addUtmParams(vanillaUrl);
             }
         }
         // For non-vanilla searches, we need to find the buffGoodId based on exterior and phase (if Doppler)
@@ -164,22 +171,20 @@ export class MarketplaceURLs {
             // BUFF163 calls float values 'paintwear' instead of 'float'
             fragmentParams.push(`min_paintwear=${minFloat}`);
             fragmentParams.push(`max_paintwear=${maxFloat}`);
-            fragmentParams.push('sort_by=price.asc');
             baseUrl += fragmentParams.join('&');
-            return addUtmParams(baseUrl, 'buff');
+            return addUtmParams(baseUrl);
         } else {
             // If we didn't find buffGoodId, fallback to the general search URL
             console.log("Buff163: Falling back to general search URL (non-vanilla).");
             let searchUrl = `https://buff.163.com/market/csgo#game=csgo&page_num=1&search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
             // Add exterior filter if specified
-            const searchExteriorFilter = exteriorMappings.buffmarket[exterior];
+            const searchExteriorFilter = exteriorMappings.wearCategory[exterior];
             searchUrl += (searchExteriorFilter ? `&exterior=${searchExteriorFilter}` : "");
             if (paintSeed !== null) {
                 searchUrl += `&paintseed=${paintSeed}`;
             }
-            searchUrl += '&sort_by=price.asc';
-            return addUtmParams(searchUrl, 'buff');
+            return addUtmParams(searchUrl);
         }
     }
 
@@ -187,11 +192,18 @@ export class MarketplaceURLs {
     static generateBuffmarket(params, mappings) {
         const {isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat} = params;
         const { bMarketMap } = mappings || {};
+        // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            // Try to find a direct mapping for the item
+            const itemData = bMarketMap ? bMarketMap[fullInput] : null;
+            if (itemData && itemData.goods_id) {
+                const url = `https://buff.market/market/goods/${itemData.goods_id}`;
+                return addUtmParams(url);
+            }
+            // Fallback to search URL
             let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
-            searchUrl += '&sort_by=price.asc';
-            return addUtmParams(searchUrl, 'buffmarket');
+            return addUtmParams(searchUrl);
         }
         if (isVanillaSearch) {
             // Special handling for vanilla knives - try to find bMarketGoodId first
@@ -211,7 +223,7 @@ export class MarketplaceURLs {
             // If we found bMarketGoodId for vanilla knife, use it
             if (bMarketGoodId) {
                 const url = `https://buff.market/market/goods/${bMarketGoodId}`;
-                return addUtmParams(url, 'buffmarket');
+                return addUtmParams(url);
             } else {
                 // Fallback to original vanilla search, i.e. return the URL for the general knife search
                 let vanillaUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
@@ -219,7 +231,7 @@ export class MarketplaceURLs {
                     vanillaUrl += `&category=tag_weapon_stat`;
                 }
                 vanillaUrl += '&tab=selling';
-                return addUtmParams(vanillaUrl, 'buffmarket');
+                return addUtmParams(vanillaUrl);
             }
         }
         // For non-vanilla searches, we need to find the bMarketGoodId in bMarketMap (defined in constants.js) based on exterior and phase (if Doppler)
@@ -275,21 +287,19 @@ export class MarketplaceURLs {
             // Add float wear parameters
             fragmentParams.push(`min_paintwear=${minFloat}`);
             fragmentParams.push(`max_paintwear=${maxFloat}`);
-            fragmentParams.push('sort_by=price.asc');
             baseUrl += fragmentParams.join('&');
-            return addUtmParams(baseUrl, 'buffmarket');
+            return addUtmParams(baseUrl);
         } else {
             // If we didn't find bMarketGoodId, fallback to the general search URL
             console.log("Buff.Market: Falling back to general search URL (non-vanilla).");
             let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
-            const searchExteriorFilter = exteriorMappings.buffmarket[exterior];
+            const searchExteriorFilter = exteriorMappings.wearCategory[exterior];
             searchUrl += (searchExteriorFilter ? `&exterior=${searchExteriorFilter}` : "");
             if (paintSeed !== null) {
                 searchUrl += `&paintseed=${paintSeed}`;
             }
-            searchUrl += '&sort_by=price.asc';
-            return addUtmParams(searchUrl, 'buffmarket');
+            return addUtmParams(searchUrl);
         }
     }
 
@@ -297,24 +307,33 @@ export class MarketplaceURLs {
     static generateC5(params, mappings) {
         const { baseSearchName, fullInput, finalSearchName, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch, minFloat, maxFloat, paintSeed, phaseName } = params;
         const { c5Map } = mappings || {};
-        
+        // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
+            // Try to find a direct mapping for the item
+            const id = c5Map ? c5Map[fullInput] : null;
+            if (id) {
+                const encodedItemName = encodeURIComponent(fullInput);
+                const url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell`;
+                return addUtmParams(url);
+            }
+            // Fallback to search URL
+            let url = `https://c5game.com/csgo?keyword=${encodedBaseSearchName}`;
             url += (isStatTrak ? `&statTrak=1` : "");
-            return addUtmParams(url, 'c5');
+            return addUtmParams(url);
         }
-        const currentWearCategory = exteriorMappings.buffmarket[exterior];
+        const currentWearCategory = exteriorMappings.wearCategory[exterior];
         if (isVanillaSearch || (exterior && exterior !== 'Any')) {
             let key;
             let secondaryKey;
             if (isVanillaSearch) {
-                // Special handling for vanilla knives
+                // Special handling for vanilla knives - keep " | Vanilla" in the key
                 if (fullInput.includes(' | Vanilla')) {
-                    const knifeName = fullInput.replace(' | Vanilla', '');
                     if (isStatTrak) {
-                        key = `★ StatTrak™ ${knifeName}`;
+                        // fullInput already contains ★, so we only need to add StatTrak™
+                        key = fullInput.replace('★', '★ StatTrak™');
                     } else {
-                        key = `★ ${knifeName}`;
+                        // Use fullInput directly (includes " | Vanilla")
+                        key = fullInput;
                     }
                 } else {
                     if (isStatTrak) {
@@ -344,55 +363,53 @@ export class MarketplaceURLs {
                 id = c5Map[secondaryKey];
             }
             if (id) {
-                console.log(`C5Game: Found ID: ${id} for key: ${key}`);
-                let url = `https://c5game.com/en/csgo/${id}/1/sell?sort=2`;
-                
+                // URL format: https://c5game.com/en/csgo/{id}/{encodedItemName}/sell
+                const encodedItemName = encodeURIComponent(key);
+                let url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell?`;
                 // Add float parameters
                 if (!isVanillaSearch) {
                     url += `&minWear=${minFloat}&maxWear=${maxFloat}`;
                 }
-                
                 // Add paint seed parameter
                 if (paintSeed !== null && paintSeed !== undefined) {
                     url += `&paintSeed=${paintSeed}`;
                 }
-                
                 // Handle Gamma/Doppler phases using the processed phaseName
                 if (phaseName && phaseMappings.c5game?.[phaseName]) {
                     url += `&levelIds=${phaseMappings.c5game[phaseName]}`;
                 }
-                
-                return addUtmParams(url, 'c5');
+                return addUtmParams(url);
             }
         }
-        let url = `https://c5game.com/en/csgo?keyword=${encodedBaseSearchName}&sort=1`;
+        let url = `https://c5game.com/csgo?keyword=${encodedBaseSearchName}`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
         url += `&min_float=${minFloat}&max_float=${maxFloat}`;
-        return addUtmParams(url, 'c5');
+        return addUtmParams(url);
     }
 
     // CS.Deals
     static generateCsdeals(params, _mappings) {
-        const { phaseName, encodedFullInput, encodedBaseSearchName, isStatTrak, noTradeHold, exterior, maxFloat, minFloat, isVanillaSearch, fullInput } = params;
-        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://cs.deals/new/market?game=csgo&sort=price&sort_desc=0&name=${encodedBaseSearchName}&exact_match=0&ref=dadscap`;
-            url += (isStatTrak ? `&cs_stattrak=1` : '');
-            return addUtmParams(url, 'csdeals');
+        const { phaseName, encodedFullInput, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch } = params;
+        const currentExteriorLabel = exteriorMappings.wearCategory[exterior];
+        let baseName;
+        if (phaseName) {
+            baseName = decodeURIComponent(encodedFullInput).replace(/\s*\(Phase\s*\d+\)/i, '');
+        } else {
+            baseName = decodeURIComponent(encodedBaseSearchName);
         }
-        const currentExteriorLabel = exteriorMappings.labels[exterior];
-        const searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
-        let url = `https://cs.deals/new/market?game=csgo&sort=price&sort_desc=0&name=${searchNameParam}&exact_match=0&ref=dadscap`;
-        url += (isStatTrak ? `&cs_stattrak=1` : '');
-        // CS.deals inverts the trade hold logic - adds param when trades ARE locked
-        url += (noTradeHold ? "" : `&tradable_after_seconds=1`);
-        if (!isVanillaSearch) {
-            // Uses human-readable exterior labels instead of IDs
-            url += (currentExteriorLabel ? `&cs_exterior=${encodeURIComponent(currentExteriorLabel)}` : "");
-            url += `&cs_max_paintwear=${maxFloat}&cs_min_paintwear=${minFloat}`;
+        if (isStatTrak) {
+            baseName = "StatTrak™ " + baseName;
         }
-        return addUtmParams(url, 'csdeals');
-    }    
+        const searchNameParam = encodeURIComponent(baseName);
+        let url = `https://cs.deals/new/p2p?sort=price&sort_desc=0&name=${searchNameParam}&exact_match=1&ref=dadscap`;
+        if (isVanillaSearch) {
+            url += `&exterior=WearCategoryNA`;
+        } else {
+            url += (currentExteriorLabel ? `&exterior=${encodeURIComponent(currentExteriorLabel)}` : "");
+        }
+        return addUtmParams(url);
+    }
 
     // CSFloat
     static generateCsfloat(params, mappings) {
@@ -446,11 +463,10 @@ export class MarketplaceURLs {
                 url += `&min_float=${minFloat}&max_float=${maxFloat}`;
             }
             // 'instant_sale_only' filters to P2P listings without trade hold
-            url += (noTradeHold ? `&instant_sale_only=true` : "");
+            url += (noTradeHold ? `&type=buy_now` : "");
             url += (paintSeed !== null ? `&paint_seed=${paintSeed}` : "");
         }
-        url += `&sort_by=lowest_price`;
-        return addUtmParams(url, 'csfloat');
+        return addUtmParams(url);
     }
 
     // CS.Money
@@ -460,7 +476,7 @@ export class MarketplaceURLs {
             const searchNameParam = encodedBaseSearchName;
             let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
             url += (isStatTrak ? `&isStatTrak=true` : "");
-            return addUtmParams(url, 'csmoney');
+            return addUtmParams(url);
         }
         let searchNameParam;
         if (isVanillaSearch) {
@@ -478,51 +494,7 @@ export class MarketplaceURLs {
         }
         url += (isStatTrak ? `&isStatTrak=true` : "");
         url += (paintSeed !== null ? `&pattern=${paintSeed}` : "");
-        return addUtmParams(url, 'csmoney');
-    }
-
-    // CS.trade
-    static generateCstrade(params, _mappings) {
-        const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
-        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            const encodedName = encodeURIComponent(finalSearchName);
-            return addUtmParams(`https://cs.trade/store?market_name=${encodedName}`, 'cstrade');
-        }
-        let searchName = finalSearchName;
-        // Handle vanilla knives
-        if (isVanillaSearch) {
-            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
-            if (isStatTrak) {
-                vanillaName = `★ StatTrak™ ${baseSearchName.replace(/^★\s*/, '')}`;
-            }
-            const encodedName = encodeURIComponent(vanillaName);
-            return addUtmParams(`https://cs.trade/store?market_name=${encodedName}`, 'cstrade');
-        }
-        // Handle knives and gloves
-        const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
-        if (isKnifeOrGlove && !searchName.startsWith('★')) {
-            searchName = `★ ${searchName}`;
-        }
-        // Handle StatTrak
-        if (isStatTrak && !searchName.includes('StatTrak™')) {
-            if (searchName.startsWith('★')) {
-                searchName = `★ StatTrak™ ${searchName.substring(2)}`;
-            } else {
-                searchName = `StatTrak™ ${searchName}`;
-            }
-        }
-        // Handle phases for doppler
-        if (phaseName) {
-            searchName = searchName.replace(/\(Phase\s*\d+\)/i, phaseName);
-        }
-        // Add exterior if specified
-        if (exterior && exterior !== 'Any') {
-            if (exteriorMappings.labels[exterior]) {
-                searchName += ` (${exteriorMappings.labels[exterior]})`;
-            }
-        }
-        const encodedName = encodeURIComponent(searchName);
-        return addUtmParams(`https://cs.trade/store?market_name=${encodedName}`, 'cstrade');
+        return addUtmParams(url);
     }
 
     // DMarket
@@ -532,7 +504,7 @@ export class MarketplaceURLs {
             let url = `https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodedBaseSearchName}`;
             if (isStatTrak) url += `&category_0=stattrak_tm`;
             url += `&ref=4iYenTCg2m&orderBy=price&orderDir=asc`;
-            return addUtmParams(url, 'dmarket');
+            return addUtmParams(url);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         let url = `https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodedBaseSearchName}`;
@@ -553,7 +525,53 @@ export class MarketplaceURLs {
             url += `&phase=${phaseMappings.dmarket[phaseName]}`;
         }
         url += `&ref=4iYenTCg2m&orderBy=price&orderDir=asc`;
-        return addUtmParams(url, 'dmarket');
+        return addUtmParams(url);
+    }
+
+    // Ecosteam
+    static generateEcosteam(params, mappings) {
+        const { fullInput, baseSearchName, finalSearchName, isStatTrak, exterior, isVanillaSearch } = params;
+        const { ecoMap } = mappings || {};
+        // For special items (agents, stickers, etc.), try mapping first, then fallback to search
+        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            // Try to find a direct mapping for the item
+            const goodsId = ecoMap ? ecoMap[fullInput] : null;
+            if (goodsId) {
+                const url = `https://www.ecosteam.cn/goods/730-${goodsId}-1-laypagesale-0-1.html`;
+                return addUtmParams(url);
+            }
+            // Fallback to search URL
+            let url = `https://www.ecosteam.cn/market/730-1.html?k=${encodeURIComponent(baseSearchName)}`;
+            url += (isStatTrak ? `&isStatTrak=true` : "");
+            return addUtmParams(url);
+        }
+        let key;
+        let secondaryKey;
+        if (isVanillaSearch) {
+            if (isStatTrak) {
+                key = fullInput.replace('★', '★ StatTrak™');
+            } else {
+                key = fullInput;
+            }
+        } else {
+            const label = exteriorMappings.labels[exterior];
+            key = `${finalSearchName}${label ? ` (${label})` : ''}`;
+            secondaryKey = baseSearchName;
+        }
+        // Look up the goodsId from ecoMap
+        let goodsId = ecoMap ? ecoMap[key] : null;
+        if (!goodsId && secondaryKey && ecoMap) {
+            goodsId = ecoMap[secondaryKey];
+        }
+        if (goodsId) {
+            // Direct goods URL
+            const url = `https://www.ecosteam.cn/goods/730-${goodsId}-1-laypagesale-0-1.html`;
+            return addUtmParams(url);
+        }
+        // Fallback to search URL
+        let url = `https://www.ecosteam.cn/market/730-1.html?k=${encodeURIComponent(baseSearchName)}`;
+        url += (isStatTrak ? `&isStatTrak=true` : "");
+        return addUtmParams(url);
     }
 
     // Gamerpay
@@ -562,8 +580,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://gamerpay.gg/?query=${encodedBaseSearchName}&sortBy=price&ascending=true&page=1`;
             url += (isStatTrak ? `&statTrak=True` : "");
-            url += `&ref=764d43667d`;
-            return addUtmParams(url, 'gamerpay');
+            return addUtmParams(url);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         // Gamerpay expects "| Vanilla" suffix for vanilla searches in the query
@@ -580,30 +597,39 @@ export class MarketplaceURLs {
         if (phaseName && phaseMappings.gamerpay?.[phaseName]) {
             url += `&phases=${phaseMappings.gamerpay[phaseName]}`;
         }
-        url += `&ref=764d43667d`;
-        return addUtmParams(url, 'gamerpay');
+        return addUtmParams(url);
     }
 
     // Haloskins
     static generateHaloskins(params, mappings) {
         const { baseSearchName, fullInput, finalSearchName, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch, minFloat, maxFloat } = params;
         const { c5Map } = mappings || {};
+        // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            // Try to find a direct mapping for the item
+            const id = c5Map ? c5Map[fullInput] : null;
+            if (id) {
+                const url = `https://haloskins.io/market/${id}`;
+                return addUtmParams(url);
+            }
+            // Fallback to search URL
             let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
             url += (isStatTrak ? `&statTrak=1` : "");
-            return addUtmParams(url, 'haloskins');
+            return addUtmParams(url);
         }
-        const currentWearCategory = exteriorMappings.buffmarket[exterior];
+        const currentWearCategory = exteriorMappings.wearCategory[exterior];
         if (isVanillaSearch || (exterior && exterior !== 'Any')) {
             let key;
             let secondaryKey;
             if (isVanillaSearch) {
+                // Special handling for vanilla knives - keep " | Vanilla" in the key
                 if (fullInput.includes(' | Vanilla')) {
-                    const knifeName = fullInput.replace(' | Vanilla', '');
                     if (isStatTrak) {
-                        key = `★ StatTrak™ ${knifeName}`;
+                        // fullInput already contains ★, so we only need to add StatTrak™
+                        key = fullInput.replace('★', '★ StatTrak™');
                     } else {
-                        key = `★ ${knifeName}`;
+                        // Use fullInput directly (includes " | Vanilla")
+                        key = fullInput;
                     }
                 } else {
                     if (isStatTrak) {
@@ -624,17 +650,17 @@ export class MarketplaceURLs {
                 id = c5Map[secondaryKey];
             }
             if (id) {
-                console.log(`Haloskins: Found ID: ${id} for key: ${key}`);
                 // Direct market ID URL instead of search
+
                 const url = `https://haloskins.io/market/${id}`;
-                return addUtmParams(url, 'haloskins');
+                return addUtmParams(url);
             }
         }
         let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
         url += `&min_float=${minFloat}&max_float=${maxFloat}`;
-        return addUtmParams(url, 'haloskins');
+        return addUtmParams(url);
     }
 
     // itrade.gg
@@ -642,7 +668,7 @@ export class MarketplaceURLs {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`, 'itradegg');
+            return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
@@ -651,7 +677,7 @@ export class MarketplaceURLs {
                 vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
-            return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`, 'itradegg');
+            return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove && !searchName.startsWith('★')) {
@@ -680,7 +706,7 @@ export class MarketplaceURLs {
         }
         // spaces become '+' but '|' becomes '+|+'
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`, 'itradegg');
+        return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
     }    
 
     // LisSkins
@@ -690,7 +716,7 @@ export class MarketplaceURLs {
             let url = `https://lis-skins.com/market/csgo/?sort_by=price_asc&query=${encodedBaseSearchName}`;
             url += (isStatTrak ? `&is_stattrak=1` : "");
             url += `&rf=1878725`;
-            return addUtmParams(url, 'lisskins');
+            return addUtmParams(url);
         }
         const currentLisSkinsExteriorId = exteriorMappings.lisskins[exterior];
         let url = `https://lis-skins.com/market/csgo/?sort_by=price_asc&query=${encodedBaseSearchName}`;
@@ -710,7 +736,7 @@ export class MarketplaceURLs {
             url += `&phase=${phaseMappings.lisskins[phaseName]}`;
         }
         url += `&rf=1878725`;
-        return addUtmParams(url, 'lisskins');
+        return addUtmParams(url);
     }
 
     // Mannco.store
@@ -719,7 +745,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
             if (isStatTrak) url += `&stattrak=stattrak`;
-            return addUtmParams(url, 'mannco');
+            return addUtmParams(url);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         if (!isVanillaSearch && exterior && exterior !== 'Any') {
@@ -736,11 +762,11 @@ export class MarketplaceURLs {
             if (phaseName) slug += `-${phaseName.replace(/\s+/g, '-')}`;
             // Uses game ID prefix (730 = CS:GO/CS2)
             const url = `https://mannco.store/item/730-${slug}/?ref=dadscap`;
-            return addUtmParams(url, 'mannco');
+            return addUtmParams(url);
         }
         let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
         if (isStatTrak) url += `&stattrak=stattrak`;
-        return addUtmParams(url, 'mannco');
+        return addUtmParams(url);
     }
 
     // Market.CSGO
@@ -772,9 +798,50 @@ export class MarketplaceURLs {
         return url + '&utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
     }
 
+    // Pirateswap
+    static generatePirateswap(params, mappings) {
+        const { fullInput, baseSearchName, exterior, phaseName, isStatTrak, isVanillaSearch } = params;
+        const { pirateMap } = mappings || {};
+
+        // Build full market hash name with exterior (e.g., "AK-47 | Searing Rage (Factory New)")
+        const exteriorLabel = exteriorMappings.labels[exterior];
+        let marketHashName = baseSearchName;
+        if (!isVanillaSearch && exteriorLabel) {
+            marketHashName = `${baseSearchName} (${exteriorLabel})`;
+        }
+        const encodedMarketHashName = encodeURIComponent(marketHashName);
+
+        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            let url = `https://pirateswap.com/?ref=dadscap&mhn=${encodedMarketHashName}`;
+            return addUtmParams(url);
+        }
+        const key = baseSearchName;
+        const pirateEntry = pirateMap?.[key];
+        if (!pirateEntry) {
+            console.log(`Pirateswap: No pirateEntry found for key: ${key}`);
+            let url = `https://pirateswap.com/?ref=dadscap&mhn=${encodedMarketHashName}`;
+            return addUtmParams(url);
+        }
+        // pirateMap uses keys like fn, mw, ft, ww, bs for regular items
+        // and st_fn, st_mw, st_ft, st_ww, st_bs for StatTrak items
+        const wearKey = isStatTrak ? `st_${exterior}` : exterior;
+        let mhnc = pirateEntry[wearKey];
+        // For Doppler items, mhnc is an object with phase names as keys
+        if (phaseName && typeof mhnc === 'object') {
+            mhnc = mhnc[phaseName];
+        }
+        if (!mhnc) {
+            console.log(`Pirateswap: No mhnc found for key: ${key} with wearKey: ${wearKey} and phaseName: ${phaseName}`);
+            let url = `https://pirateswap.com/?ref=dadscap&mhn=${encodedMarketHashName}`;
+            return addUtmParams(url);
+        }
+        let url = `https://pirateswap.com/?ref=dadscap&mhn=${encodedMarketHashName}&mhnc=${mhnc}`;
+        return addUtmParams(url);
+    }
+
     // RapidSkins
     static generateRapidskins(params, _mappings) {
-        const { fullInput, baseSearchName, exterior, isStatTrak, isVanillaSearch, noTradeHold, phaseName, encodedBaseSearchName } = params;
+        const { fullInput, baseSearchName, exterior, isStatTrak, isVanillaSearch, noTradeHold, phaseName } = params;
         const category = getItemCategory(fullInput);
         const exteriorLabel = exteriorMappings.labels[exterior];
         // Convert spaces to '+' (RapidSkins expects literal '+' separators)
@@ -870,7 +937,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=CF&affiliateId=854`;
             url += (isStatTrak ? `&statTrak=true` : "");
-            return addUtmParams(url, 'skinbaron');
+            return addUtmParams(url);
         }
         const { wearGt, wearLt } = params;
         const currentExteriorId = exteriorMappings.default[exterior];
@@ -883,42 +950,8 @@ export class MarketplaceURLs {
             url += `&unpainted=true`;
         }
         url += (isStatTrak ? `&statTrak=true` : "");
-        url += (noTradeHold ? `&tli=0&otherCurrency=USD` : "");
-        return addUtmParams(url, 'skinbaron');
-    }
-
-    // Skinbid
-    // Note: Skinbid has unique float handling and phase mappings
-    static generateSkinbid(params, _mappings) {
-        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, paintSeed, dopplerType, phaseName, isVanillaSearch, fullInput } = params;
-        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://skinbid.com/market?sort=price%23asc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
-            url += isStatTrak ? `&Category=StatTrak%23true` : '';
-            return addUtmParams(url, 'skinbid');
-        }
-        let url = `https://skinbid.com/market?sort=price%23asc&sellType=fixed_price&search=${encodedBaseSearchName}&take=60&skip=0`;
-        url += isStatTrak ? `&Category=StatTrak%23true` : '';
-        if (!isVanillaSearch) {
-            // Special handling for FN with custom float ranges
-            if (exterior === "fn" && (minFloat > 0 || maxFloat < 0.07)) {
-                // Uses float range format with 3 decimal precision
-                url += `&wear=${minFloat.toFixed(3)}-${maxFloat.toFixed(3)}`;
-            } else if (exteriorMappings.skinbid && exteriorMappings.skinbid[exterior]) {
-                // Uses capitalized 'Wear' param for standard exteriors
-                url += `&Wear=${exteriorMappings.skinbid[exterior]}`;
-            }
-        }
-        url += (noTradeHold ? '&instasell=1' : '');
-        url += (paintSeed !== null ? `&PatternID=${paintSeed}` : "");
-        if (!isVanillaSearch) {
-            // Skinbid has nested phase mappings by doppler type
-            if (dopplerType && phaseName && phaseMappings.skinbid?.[dopplerType]?.[phaseName]) {
-                url += `&Phase=${phaseMappings.skinbid[dopplerType][phaseName]}`;
-            } else if (phaseName && phaseMappings.skinbid?.[phaseName] && !dopplerType) {
-                url += `&Phase=${phaseMappings.skinbid[phaseName]}`;
-            }
-        }
-        return addUtmParams(url, 'skinbid');
+        url += (noTradeHold ? `&tli=0&` : "");
+        return addUtmParams(url);
     }
 
     // Skinflow
@@ -926,7 +959,7 @@ export class MarketplaceURLs {
         const { finalSearchName, exterior, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
-            return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`, 'skinflow');
+            return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         let searchString = finalSearchName;
@@ -936,80 +969,7 @@ export class MarketplaceURLs {
         }
         // Uses '+' for spaces instead of %20 (turns out it makes no difference whatsoever but fuck it im keeping it)
         const encodedSearch = searchString.replace(/ /g, '+');
-        return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`, 'skinflow');
-    }
-
-    // Skinland
-    static generateSkinland(params, _mappings) {
-        const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, noTradeHold, minFloat, maxFloat, phaseName, fullInput } = params;
-        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let searchTerm = encodeURIComponent(finalSearchName);
-            let url = `https://skin.land/market/csgo/?query=${searchTerm}&sort_by=price_asc`;
-            if (isStatTrak) url += '&extras=is_stattrak';
-            return addUtmParams(url, 'skinland');
-        }
-        // Handle vanilla knives separately - they don't follow the normal rules
-        if (isVanillaSearch) {
-            // Skinland uses dashes in URL paths, similar to skinplace and others im pretty sure
-            let vanillaName = baseSearchName.replace(/^★\s*/, '').toLowerCase().replace(/\s+/g, '-');
-            let url = `https://skin.land/market/csgo/★-${isStatTrak ? 'stattrak-' : ''}${vanillaName}/`;
-            url += '?sort_by=price_asc';
-            if (noTradeHold) url += '&hold=-1';
-            return addUtmParams(url, 'skinland');
-        }
-        // For specific exterior searches
-        if (exterior && exterior !== 'Any') {
-            let searchName = finalSearchName;
-            let url = 'https://skin.land/market/csgo/';
-            // Check if it's a knife or gloves
-            const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Bayonet') || searchName.includes('Karambit') || searchName.includes('Shadow Daggers') ||
-            searchName.includes('Gloves') || searchName.includes('Hand Wraps');
-            if (isKnifeOrGlove) {
-                // ★ becomes part of the URL path structure
-                url += '★-';
-            }
-            if (isStatTrak) {
-                // StatTrak prefix is identical regardless of item type
-                if (isKnifeOrGlove) {
-                    url += 'stattrak-';
-                } else {
-                    url += 'stattrak-';
-                }
-            }
-            // Normalize the name
-            let normalizedName = searchName
-                .replace(/^★\s*/, '')
-                .replace(/StatTrak™\s*/i, '')
-                .replace(/\s*\|\s*/g, '-')
-                .replace(/[()]/g, '')
-                .toLowerCase()
-                .replace(/\s+/g, '-');
-            // Add phase for doppler
-            if (phaseName) {
-                normalizedName += `-${phaseName.toLowerCase().replace(/\s+/g, '-')}`;
-            }
-            // Add exterior
-            if (exteriorMappings.urlFormatted[exterior]) {
-                normalizedName += `-${exteriorMappings.urlFormatted[exterior]}`;
-            }
-            url += normalizedName + '/';
-            url += '?sort_by=price_asc';
-            if (noTradeHold) url += '&hold=-1';
-            if (minFloat > 0 || maxFloat < 1) {
-                url += `&float_from=${minFloat}&float_to=${maxFloat}`;
-            }
-            return addUtmParams(url, 'skinland');
-        }
-        // For "Any" exterior searches
-        let searchTerm = encodeURIComponent(finalSearchName);
-        let url = `https://skin.land/market/csgo/?query=${searchTerm}&sort_by=price_asc`;
-        if (isStatTrak) url += '&extras=is_stattrak';
-        if (phaseName) url += `&phase=${encodeURIComponent(phaseName)}`;
-        if (noTradeHold) url += '&hold=-1';
-        if (minFloat > 0 || maxFloat < 1) {
-            url += `&float_from=${minFloat}&float_to=${maxFloat}`;
-        }
-        return addUtmParams(url, 'skinland');
+        return addUtmParams(`https://skinflow.gg/buy?referral=DADSCAP&search=${encodedSearch}`);
     }
 
     // Skinout
@@ -1023,7 +983,7 @@ export class MarketplaceURLs {
             }
             const encodedSkinoutSearchTerm = encodeURIComponent(skinoutSearchTerm);
             let url = `https://skinout.gg/en/market?search=${encodedSkinoutSearchTerm}&sort=price_asc`;
-            return addUtmParams(url, 'skinout');
+            return addUtmParams(url);
         }
         
         // Handle vanilla searches with special URL format
@@ -1037,7 +997,7 @@ export class MarketplaceURLs {
                 url = `https://skinout.gg/en/market/★-${knifeName}`;
             }
             url += (noTradeHold ? `?selected_hold=0` : "");
-            return addUtmParams(url, 'skinout');
+            return addUtmParams(url);
         }
         
         let skinoutSearchTerm = baseSearchName;
@@ -1052,19 +1012,18 @@ export class MarketplaceURLs {
         if (phaseName && phaseMappings.skinout?.[phaseName]) {
             url += `&selected_phase=${phaseMappings.skinout[phaseName]}`;
         }
-        return addUtmParams(url, 'skinout');
+        return addUtmParams(url);
     }
 
     // Skinplace
     static generateSkinplace(params, _mappings) {
         const { finalSearchName, exterior, isVanillaSearch, isStatTrak, minFloat, maxFloat, phaseName, noTradeHold, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc`;
+            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc&utm_campaign=US5shYfSgvPfQCV`;
             if (isStatTrak) {
                 url += '&is_stattrak=1';
             }
-            let finalUrl = addUtmParams(url, 'skinplace');
-            return finalUrl.replace('&utm_campaign=search', '&utm_campaign=US5shYfSgvPfQCV');
+            return addUtmParams(url);
         }
         // Handle vanilla searches with special URL format
         if (isVanillaSearch) {
@@ -1083,12 +1042,11 @@ export class MarketplaceURLs {
             if (queryParams.length > 0) {
                 url += '?' + queryParams.join('&');
             }
-            let finalUrl = addUtmParams(url, 'skinplace');
-            return finalUrl.replace('&utm_campaign=search', '&utm_campaign=US5shYfSgvPfQCV');
+            return addUtmParams(url);
         }
         // For "Any" exterior searches (non-vanilla)
         if (!exterior || exterior === 'Any') {
-            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc`;
+            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc&utm_campaign=US5shYfSgvPfQCV`;
             if (isStatTrak) {
                 url += '&is_stattrak=1';
             }
@@ -1100,8 +1058,8 @@ export class MarketplaceURLs {
             if (noTradeHold) {
                 url += '&is_hold=0';
             }
-            let finalUrl = addUtmParams(url, 'skinplace');
-            return finalUrl.replace('&utm_campaign=search', '&utm_campaign=US5shYfSgvPfQCV');
+            return addUtmParams(url);
+            
         }
         // Creates SEO-friendly URL slugs from item names
         let normalizedName = finalSearchName
@@ -1115,7 +1073,7 @@ export class MarketplaceURLs {
             normalizedName += `-${phaseName.toLowerCase().replace(/\s+/g, '-')}`;
         }
         // Direct item page URL instead of search
-        let url = `https://skin.place/buy-cs2-skins/${normalizedName}/`;
+        let url = `https://skin.place/buy-cs2-skins/${normalizedName}?utm_campaign=US5shYfSgvPfQCV`;
         const queryParams = [];
         if (isStatTrak) {
             queryParams.push('is_stattrak=1');
@@ -1129,19 +1087,18 @@ export class MarketplaceURLs {
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
-        let finalUrl = addUtmParams(url, 'skinplace');
-        return finalUrl.replace('&utm_campaign=search', '&utm_campaign=US5shYfSgvPfQCV');
+        return addUtmParams(url);
     }    
 
     // Skinport
     static generateSkinport(params, _mappings) {
         const { encodedBaseSearchName, isVanillaSearch, exterior, isStatTrak, noTradeHold, paintSeed, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            const skinportSearchParam = encodedBaseSearchName.replace(/%20/g, '+');
+            const skinportSearchParam = encodedBaseSearchName;
             let url = `https://skinport.com/market?search=${skinportSearchParam}&order=asc&sort=price`;
             if (isStatTrak) url += `&stattrak=1`;
             url += `&r=dadscap`;
-            return addUtmParams(url, 'skinport');
+            return addUtmParams(url);
         }
         const { wearGt, wearLt } = params;
         const currentSpExteriorId = exteriorMappings.skinport[exterior];
@@ -1162,7 +1119,50 @@ export class MarketplaceURLs {
             url += `&phase=${phaseMappings.skinport[phaseName]}`;
         }
         url += `&r=dadscap`;
-        return addUtmParams(url, 'skinport');
+        return addUtmParams(url);
+    }
+
+    // Skins.com
+    static generateSkinscom(params, _mappings) {
+        const { baseSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
+        // Build the slug: remove star, StatTrak, pipe -> dash, spaces -> dash, lowercase, alphanumeric only
+        const slug = baseSearchName
+            .replace(/★\s*/g, '')              // Remove star
+            .replace(/StatTrak™\s*/gi, '')     // Remove StatTrak (will be query param)
+            .replace(/\s*\|\s*/g, '-')         // Replace pipe with dash
+            .replace(/\s+/g, '-')              // Replace spaces with dashes
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, '')        // Remove non-alphanumeric (keep dashes)
+            .replace(/-+/g, '-')               // Collapse multiple dashes into one
+            .replace(/^-|-$/g, '');            // Remove leading/trailing dashes
+        // For special items, just return the slug URL with no query params
+        if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
+            return addUtmParams(`https://skins.com/item/${slug}`);
+        }
+        // Build query parameters
+        const queryParams = [];
+
+        // Add exterior if specified (vanilla items don't have exterior)
+        if (!isVanillaSearch && exterior && exterior !== 'Any') {
+            queryParams.push(`exterior=${exterior}`);
+        }
+
+        // Add StatTrak
+        if (isStatTrak) {
+            queryParams.push('st=true');
+        }
+
+        // Add phase
+        if (phaseName) {
+            queryParams.push(`phase=${encodeURIComponent(phaseName)}`);
+        }
+
+        let url = `https://skins.com/item/${slug}`;
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+
+        return addUtmParams(url);
     }
 
     // SkinsMonkey
@@ -1170,7 +1170,7 @@ export class MarketplaceURLs {
         const { finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730`, 'skinsmonkey');
+            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
@@ -1186,7 +1186,7 @@ export class MarketplaceURLs {
                 vanillaName = `StatTrak™ ★ ${baseWithoutStar}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730`, 'skinsmonkey');
+            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove && !searchName.startsWith('★')) {
@@ -1212,7 +1212,7 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730`, 'skinsmonkey');
+        return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
     }
 
     // SkinSwap
@@ -1220,7 +1220,7 @@ export class MarketplaceURLs {
         const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
+            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
@@ -1229,7 +1229,7 @@ export class MarketplaceURLs {
                 vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
-            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
+            return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove && !searchName.startsWith('★')) {
@@ -1255,7 +1255,7 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`, 'skinswap');
+        return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
     }    
 
     // Steam
@@ -1264,7 +1264,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const steamSearchName = finalSearchName;
             const baseUrl = `https://steamcommunity.com/market/search?q=${encodeURIComponent(steamSearchName)}&appid=730`;
-            return addUtmParams(baseUrl, 'steam');
+            return addUtmParams(baseUrl);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         if (isVanillaSearch) {
@@ -1277,7 +1277,7 @@ export class MarketplaceURLs {
             const encoded = encodeURIComponent(name);
             // Direct market listing URL for exact items
             const url = `https://steamcommunity.com/market/listings/730/${encoded}`;
-            return addUtmParams(url, 'steam');
+            return addUtmParams(url);
         }
         if (exterior && exterior !== 'Any') {
             // Specific identifiers to detect knives and gloves
@@ -1292,38 +1292,40 @@ export class MarketplaceURLs {
             const encoded = encodeURIComponent(itemName);
             // 730 is the Steam app ID for CS:GO/CS2
             const url = `https://steamcommunity.com/market/listings/730/${encoded}`;
-            return addUtmParams(url, 'steam');
+            return addUtmParams(url);
         }
         const steamSearchName = finalSearchName + (currentExteriorLabel && !isVanillaSearch ? ` (${currentExteriorLabel})` : "");
         const baseUrl = `https://steamcommunity.com/market/search?q=${encodeURIComponent(steamSearchName)}&appid=730`;
-        return addUtmParams(baseUrl, 'steam');
+        return addUtmParams(baseUrl);
     }
     
     // Swap.gg
     static generateSwapgg(params, _mappings) {
-        const { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
+        let { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
+        baseSearchName = baseSearchName.replace(/StatTrak™/g, 'StatTrak');
+        finalSearchName = finalSearchName.replace(/StatTrak™/g, 'StatTrak');
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://swap.gg/trade?search=${formattedName}&r=NZ5SmDRJfT`, 'swapgg');
+            return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
-            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `${baseSearchName}`;
             if (isStatTrak) {
-                vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
+                vanillaName = `StatTrak ★ ${baseSearchName.replace(/^★\s*/, '')}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
-            return addUtmParams(`https://swap.gg/trade?search=${formattedName}&r=NZ5SmDRJfT`, 'swapgg');
+            return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove && !searchName.startsWith('★')) {
-            searchName = `★ ${searchName}`;
+            searchName = `${searchName}`;
         }
-        if (isStatTrak && !searchName.includes('StatTrak™')) {
+        if (isStatTrak && !searchName.includes('StatTrak')) {
             if (searchName.startsWith('★')) {
-                searchName = `StatTrak™ ${searchName}`;
+                searchName = `StatTrak ${searchName}`;
             } else {
-                searchName = `StatTrak™ ${searchName}`;
+                searchName = `StatTrak ${searchName}`;
             }
         }
         if (phaseName) {
@@ -1339,7 +1341,7 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://swap.gg/trade?search=${formattedName}&r=NZ5SmDRJfT`, 'swapgg');
+        return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
     }
     
     // Tradeit
@@ -1348,7 +1350,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
             const baseUrl = `https://tradeit.gg/csgo/store?aff=Dadscap&search=${encodedSearch}`;
-            return addUtmParams(baseUrl, 'tradeit');
+            return addUtmParams(baseUrl);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         let searchString;
@@ -1360,37 +1362,35 @@ export class MarketplaceURLs {
                 searchString = `${searchString} (${currentExteriorLabel})`;
             }
         }
+        if (getItemCategory(fullInput) === ITEM_CATEGORIES.KNIFE || getItemCategory(fullInput) === ITEM_CATEGORIES.GLOVE) {
+            searchString = "★ " + searchString;
+        }
         const encodedSearch = searchString.replace(/ /g, '+');
         const baseUrl = `https://tradeit.gg/csgo/store?aff=Dadscap&search=${encodedSearch}`;
-        return addUtmParams(baseUrl, 'tradeit');
+        return addUtmParams(baseUrl);
     }
 
     // Waxpeer
     static generateWaxpeer(params, _mappings) {
-        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, noTradeHold, phaseName, isVanillaSearch, fullInput } = params;
+        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, phaseName, isVanillaSearch, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://waxpeer.com/en/r/dadscap?sort=ASC&order=price&all=0&search=${encodedBaseSearchName}`;
+            let url = `https://waxpeer.com/r/dadscap?all=0&search=${encodedBaseSearchName}`;
             url += (isStatTrak ? `&stat_trak=1` : "");
-            return addUtmParams(url, 'waxpeer');
+            return addUtmParams(url);
         }
         // Waxpeer adds a '★ ' prefix for vanilla knife searches (filling the space with '%20' to make sure it registers)
-        const searchQuery = isVanillaSearch ? `★%20${encodedBaseSearchName}` : encodedBaseSearchName;
-        let url = `https://waxpeer.com/en/r/dadscap?sort=ASC&order=price&all=0&search=${searchQuery}`;
+        const searchQuery = isVanillaSearch ? `${encodedBaseSearchName}&exact=1` : encodedBaseSearchName;
+        let url = `https://waxpeer.com/r/dadscap?all=0&search=${searchQuery}`;
         url += (isStatTrak ? `&stat_trak=1` : "");
         if (!isVanillaSearch) {
             // Exterior codes must be uppercase (FN, MW, etc.)
             url += (exterior ? `&exterior=${exterior.toUpperCase()}` : "");
             url += `&min_float=${minFloat}&max_float=${maxFloat}`;
         }
-        url += (noTradeHold ? `&instant=1` : "");
         if (!isVanillaSearch && phaseName && phaseMappings.waxpeer?.[phaseName]) {
             url += `&phase=${phaseMappings.waxpeer[phaseName]}`;
         }
-        if (isVanillaSearch) {
-            // exact=1 for exact match on vanilla items
-            url += `&exact=1`;
-        }
-        return addUtmParams(url, 'waxpeer');
+        return addUtmParams(url);
     }
 
     // Whitemarket
@@ -1399,7 +1399,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://white.market/market?name=${encodedBaseSearchName}&sort=pr_a&unique=false&ref=SkinScanner`;
             url += (isStatTrak ? `&stattrak=true` : "");
-            return addUtmParams(url, 'whitemarket');
+            return addUtmParams(url);
         }
         const currentWhitemarketExteriorCode = exteriorMappings.whitemarket[exterior];
         let url = `https://white.market/market?name=${encodedBaseSearchName}&sort=pr_a&unique=false&ref=SkinScanner`;
@@ -1417,26 +1417,27 @@ export class MarketplaceURLs {
         if (!isVanillaSearch && phaseName && phaseMappings.whitemarket?.[phaseName]) {
             url += `&phase=${phaseMappings.whitemarket[phaseName]}`;
         }
-        return addUtmParams(url, 'whitemarket');
+        return addUtmParams(url);
     }
 
     // YouPin898 (chinese marketplace)
     static generateYoupin(params, mappings) {
-        const { baseSearchName, fullInput, finalSearchName, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch, minFloat, maxFloat } = params;
+        const { baseSearchName, fullInput, finalSearchName, encodedBaseSearchName, isStatTrak, exterior, isVanillaSearch } = params;
         const { uuMap } = mappings || {};
-        const currentWearCategory = exteriorMappings.buffmarket[exterior];
         // YouPin handles special items the same way as regular items with IDs
         // For vanilla items, exterior is completely ignored
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL || isVanillaSearch || (!isVanillaSearch && exterior && exterior !== 'Any')) {
             let key;
             let secondaryKey;
             if (isVanillaSearch) {
+                // Special handling for vanilla knives - keep " | Vanilla" in the key
                 if (fullInput.includes(' | Vanilla')) {
-                    const knifeName = fullInput.replace(' | Vanilla', '');
                     if (isStatTrak) {
-                        key = `★ StatTrak™ ${knifeName}`;
+                        // fullInput already contains ★, so we only need to add StatTrak™
+                        key = fullInput.replace('★', '★ StatTrak™');
                     } else {
-                        key = `★ ${knifeName}`;
+                        // Use fullInput directly (includes " | Vanilla")
+                        key = fullInput;
                     }
                 } else {
                     if (isStatTrak) {
@@ -1450,7 +1451,7 @@ export class MarketplaceURLs {
                 // Special handling for Dopplers and Gamma Dopplers - ignore phase and use basic doppler ID
                 const isDoppler = finalSearchName.includes('Doppler') && !finalSearchName.includes('Gamma');
                 const isGammaDoppler = finalSearchName.includes('Gamma Doppler');
-                
+
                 if (isDoppler || isGammaDoppler) {
                     // Strip phase information and use base doppler name with exterior condition
                     let baseDopplerName = finalSearchName.replace(phaseRegex, '').trim();
@@ -1468,17 +1469,16 @@ export class MarketplaceURLs {
                 id = uuMap[secondaryKey];
             }
             if (id) {
-                console.log(`YouPin898: Found ID: ${id} for key: ${key}`);
                 // Uses templateId and gameId=730 (CS:GO) parameters
                 const url = `https://youpin898.com/market/goods-list?listType=10&templateId=${id}&gameId=730`;
-                return addUtmParams(url, 'youpin');
+                return addUtmParams(url);
             }
         }
         // Fallback to basic keyword search without exterior or float parameters
         let url = `https://youpin898.com/market/goods-list?listType=10&gameId=730&keyword=${encodedBaseSearchName}`;
         url += (isStatTrak ? `&statTrak=1` : "");
-        return addUtmParams(url, 'youpin');
-    }    
+        return addUtmParams(url);
+    }
 
     // --- Master URL Generation Method ---
     static generateAll(params, selectedMarkets, mappings) {

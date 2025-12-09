@@ -24,6 +24,9 @@ export class AutocompleteComponent {
         this.debounceTimer = null;
         this.scrollPosition = 0; // For scroll position memory
         this.resultCache = new Map(); // For result caching
+        this.dataReady = false; // Ensures we don't search before data is loaded
+        this.pendingQuery = null; // Stores the user's input while data loads
+        this.activeQueryId = 0; // Prevents stale renders from out-of-order searches
         
         this.init();
     }
@@ -67,15 +70,16 @@ export class AutocompleteComponent {
         this.emptyElement.className = 'autocomplete-empty';
         this.emptyElement.textContent = 'No results found';
 
-        // Create result count element
+        // Create result count
         this.resultCountElement = document.createElement('div');
         this.resultCountElement.className = 'autocomplete-result-count';
+        this.resultCountElement.style.display = 'none';
         
         // Append elements
         this.dropdown.appendChild(this.resultsContainer);
         this.dropdown.appendChild(this.loadingElement);
         this.dropdown.appendChild(this.emptyElement);
-        this.dropdown.appendChild(this.resultCountElement); // Add result count element
+        this.dropdown.appendChild(this.resultCountElement);
         this.container.appendChild(this.dropdown);
 
         // Add clear button to input
@@ -180,50 +184,83 @@ export class AutocompleteComponent {
     
     handleInput(value) {
         clearTimeout(this.debounceTimer);
+        const trimmedValue = value.trim();
         
-        if (value.length < this.options.minSearchLength) {
+        if (trimmedValue.length < this.options.minSearchLength) {
             this.hide();
+            this.pendingQuery = null;
+            return;
+        }
+
+        // If data hasn't loaded yet, remember the query and show a spinner
+        if (!this.dataReady) {
+            this.pendingQuery = trimmedValue;
+            this.showLoading();
+            this.show();
             return;
         }
         
         // Check for perfect match immediately to hide dropdown faster
-        const normalizedValue = value.toLowerCase();
+        const normalizedValue = trimmedValue.toLowerCase();
         const hasPerfectMatch = this.data.some(item => item.toLowerCase() === normalizedValue);
         
         if (hasPerfectMatch) {
             this.hide();
+            this.pendingQuery = null;
             return;
         }
         
         this.debounceTimer = setTimeout(() => {
-            this.search(value);
+            this.search(trimmedValue);
         }, this.options.debounceDelay);
     }
     
     search(query) {
-        if (!query || query.length < this.options.minSearchLength) {
+        const trimmedQuery = query.trim();
+        if (!trimmedQuery || trimmedQuery.length < this.options.minSearchLength) {
             this.hide();
+            this.updateResultCount(0, this.data.length);
+            this.pendingQuery = null;
+            return;
+        }
+
+        // If we still don't have data, queue the request until data loads
+        if (!this.dataReady) {
+            this.pendingQuery = trimmedQuery;
+            this.showLoading();
             return;
         }
         
-        this.showLoading();
+        this.pendingQuery = null;
+        const cacheKey = trimmedQuery.toLowerCase();
+        const isCached = this.resultCache.has(cacheKey);
+
+        // Only show the spinner when we're doing real work
+        if (!isCached) {
+            this.showLoading();
+        } else {
+            this.hideEmpty();
+            this.hideLoading();
+        }
+
+        const currentQueryId = ++this.activeQueryId;
 
         // Check cache first
-        if (this.resultCache.has(query)) {
-            this.filteredData = this.resultCache.get(query);
+        if (isCached) {
+            this.filteredData = this.resultCache.get(cacheKey);
             this.renderResults();
-            this.showOrHideBasedOnMatch(query);
+            this.showOrHideBasedOnMatch(trimmedQuery);
             return;
         }
         
-        // Simulate async search (in real implementation, this could be async)
-        setTimeout(() => {
-            const results = this.filterData(query);
-            this.filteredData = results;
-            this.resultCache.set(query, results); // Cache results
-            this.renderResults();
-            this.showOrHideBasedOnMatch(query);
-        }, 50);
+        const results = this.filterData(trimmedQuery);
+        // Ignore stale renders if a newer query started
+        if (currentQueryId !== this.activeQueryId) return;
+
+        this.filteredData = results;
+        this.resultCache.set(cacheKey, results); // Cache results
+        this.renderResults();
+        this.showOrHideBasedOnMatch(trimmedQuery);
     }
     
     showOrHideBasedOnMatch(query) {
@@ -353,7 +390,10 @@ export class AutocompleteComponent {
         this.selectedIndex = -1;
         
         if (this.filteredData.length === 0) {
-            this.hide();
+            this.hideLoading();
+            this.showEmpty();
+            this.updateResultCount(0, this.data.length);
+            this.show();
             return;
         }
         
@@ -499,12 +539,15 @@ export class AutocompleteComponent {
         this.emptyElement.style.display = 'none';
         this.resultsContainer.style.display = 'none';
         this.resultCountElement.style.display = 'none';
+        // Ensure dropdown is visible so the spinner can be seen
+        if (!this.isOpen) {
+            this.show();
+        }
     }
     
     hideLoading() {
         this.loadingElement.style.display = 'none';
         this.resultsContainer.style.display = 'block';
-        this.resultCountElement.style.display = 'block';
     }
     
     showEmpty() {
@@ -526,23 +569,28 @@ export class AutocompleteComponent {
         }
     }
 
-    updateResultCount(current, total) {
-        if (this.options.showResultCount && current > 0) {
-            this.resultCountElement.textContent = `Showing ${current} of ${total} results`;
-            this.resultCountElement.style.display = 'block';
-        } else {
-            this.resultCountElement.style.display = 'none';
-        }
-    }
-
     
     // Public API methods
     setData(data) {
         this.data = Array.isArray(data) ? data : [];
+        this.dataReady = true;
+        this.resultCache.clear();
+
+        let ranQueuedSearch = false;
+        if (this.pendingQuery && this.pendingQuery.length >= this.options.minSearchLength) {
+            const queuedQuery = this.pendingQuery;
+            this.pendingQuery = null;
+            this.search(queuedQuery);
+            ranQueuedSearch = true;
+        }
+        return ranQueuedSearch;
     }
     
     updateData(data) {
-        this.setData(data);
+        const ranQueuedSearch = this.setData(data);
+        // If a queued search already ran, avoid double-triggering
+        if (ranQueuedSearch) return;
+
         if (this.input.value.length >= this.options.minSearchLength) {
             this.search(this.input.value);
         }
@@ -581,5 +629,18 @@ export class AutocompleteComponent {
         this.input.removeAttribute('aria-activedescendant');
         
         clearTimeout(this.debounceTimer);
+    }
+
+    updateResultCount(visibleCount, totalCount) {
+        if (!this.options.showResultCount || !this.resultCountElement) return;
+
+        if (!visibleCount) {
+            this.resultCountElement.style.display = 'none';
+            return;
+        }
+
+        const formatter = new Intl.NumberFormat();
+        this.resultCountElement.textContent = `Showing ${formatter.format(visibleCount)} of ${formatter.format(totalCount)} results`;
+        this.resultCountElement.style.display = 'block';
     }
 }

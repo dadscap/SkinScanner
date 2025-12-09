@@ -25,7 +25,6 @@ export class MarketSelector {
                 'market-csdeals',
                 'market-csfloat',
                 'market-csmoney',
-                'market-cs7market',
                 'market-dmarket',
                 'market-gamerpay',
                 'market-haloskins',
@@ -34,8 +33,7 @@ export class MarketSelector {
                 'market-csgo',
                 'market-shadowpay',
                 'market-skinbaron',
-                'market-skinbid',
-                'market-skinland',
+                'market-skinscom',
                 'market-skinout',
                 'market-skinplace',
                 'market-skinport',
@@ -45,8 +43,8 @@ export class MarketSelector {
             ],
             // Trade marketplaces - focused on item-for-item trades
             trade: [
-                'market-cstrade',
                 'market-itradegg',
+                'market-pirateswap',
                 'market-rapidskins',
                 'market-skinflow',
                 'market-skinsmonkey',
@@ -58,6 +56,7 @@ export class MarketSelector {
             china: [
                 'market-buff',
                 'market-c5',
+                'market-ecosteam',
                 'market-youpin'
             ]
         };

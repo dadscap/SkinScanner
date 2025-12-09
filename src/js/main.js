@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (mappings && mappings.skinMap && Object.keys(mappings.skinMap).length > 0) {
         // Extract skin names for autocomplete
         const skinNames = Object.keys(mappings.skinMap);
-        autocomplete.setData(skinNames);
+        autocomplete.updateData(skinNames);
         console.log(`Loaded ${skinNames.length} skin names for autocomplete`);
         
         if (searchButton) searchButton.disabled = marketSelector.getSelectedMarkets().length === 0;

@@ -1,7 +1,7 @@
 /* Url Helpers
  * Utility functions for URL manipulation and debouncing.
  */
-import { UTM_SOURCE, UTM_MEDIUM, UTM_CAMPAIGN } from '../config/constants.js';
+import { UTM_SOURCE } from '../config/constants.js';
 
 /**
  * Creates a debounced version of a function that delays invoking the function until after
@@ -22,21 +22,18 @@ export function debounce(func, wait) {
 }
 
 /**
- * Adds UTM tracking parameters to a URL for analytics purposes
+ * Adds default UTM tracking parameters to a URL for analytics purposes
  * @param {string} url - The base URL to add UTM parameters to
- * @param {string} marketKey - The marketplace identifier used as utm_content
+ * @param {string} _marketKey - Marketplace identifier (currently unused but kept for compatibility)
  * @returns {string|null} The URL with UTM parameters appended, or null if no URL provided
  */
-export function addUtmParams(url, marketKey) {
+export function addUtmParams(url, _marketKey) {
     if (!url)
         return null;
     
-    // Build UTM parameters object with values from constants and the market key
+    // Build UTM parameters object with default values
     const utmParams = {
-        utm_source: UTM_SOURCE,
-        utm_medium: UTM_MEDIUM,
-        utm_campaign: UTM_CAMPAIGN,
-        utm_content: marketKey
+        utm_source: UTM_SOURCE
     };
     
     // Filter out any undefined/null UTM values and encode for URL safety
@@ -69,19 +66,17 @@ export function addUtmParams(url, marketKey) {
 
 /**
  * Special UTM parameter handler for ShadowPay marketplace
- * Similar to addUtmParams but excludes utm_campaign and always appends with &
+ * Similar to addUtmParams but always appends with &
  * @param {string} url - The base URL to add UTM parameters to
- * @param {string} marketKey - The marketplace identifier used as utm_content
+ * @param {string} _marketKey - Marketplace identifier (currently unused but kept for compatibility)
  * @returns {string|null} The URL with UTM parameters appended, or null if no URL provided
  */
-export function ShadowPayUtmParams(url, marketKey) {
+export function ShadowPayUtmParams(url, _marketKey) {
     if (!url) return null;
     
-    // ShadowPay only uses source, medium, and content (no campaign)
+    // ShadowPay only uses default utm_source; campaign handled upstream
     const utmParams = {
-        utm_source: UTM_SOURCE,
-        utm_medium: UTM_MEDIUM,
-        utm_content: marketKey
+        utm_source: UTM_SOURCE
     };
     
     // Filter and encode UTM parameters
