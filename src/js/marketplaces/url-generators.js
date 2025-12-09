@@ -77,9 +77,49 @@ export class MarketplaceURLs {
         // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Try to find a direct mapping for the item
-            const itemData = buffMap ? buffMap[fullInput] : null;
-            if (itemData && itemData.goods_id) {
-                const url = `https://buff.163.com/goods/${itemData.goods_id}?from=market`;
+            let itemData = buffMap ? buffMap[fullInput] : null;
+            // If direct lookup fails, try fuzzy matching by normalizing keys
+            if (!itemData && buffMap) {
+                // Normalize the input key for comparison
+                const normalizedInput = fullInput
+                    .replace(/['"]/g, "'")  // Standardize quote characters
+                    .replace(/\s+/g, ' ')   // Normalize whitespace
+                    .trim();
+                // Find a key in buffMap that matches when normalized
+                for (const [key, value] of Object.entries(buffMap)) {
+                    const normalizedKey = key
+                        .replace(/['"]/g, "'")  // Standardize quote characters
+                        .replace(/\s+/g, ' ')   // Normalize whitespace
+                        .trim();
+                    if (normalizedInput === normalizedKey) {
+                        itemData = value;
+                        break;
+                    }
+                }
+                // Additional fallback: try exact match with original input
+                if (!itemData) {
+                    itemData = buffMap[fullInput];
+                }
+                // Debug logging to help diagnose mapping issues
+                if (!itemData) {
+                    console.log(`Buff163: Could not find mapping for "${fullInput}". Available keys:`, Object.keys(buffMap).slice(0, 10) + '...');
+                }
+            }
+            // Determine goods ID from various possible fields in mapping:
+            // 1) goods_id (direct mapping for specials)
+            // 2) vanilla / st_vanilla (re-using vanilla style mappings for specials)
+            let goodsId = null;
+            if (itemData) {
+                if (itemData.goods_id) {
+                    goodsId = itemData.goods_id;
+                } else if (isStatTrak && itemData.st_vanilla) {
+                    goodsId = itemData.st_vanilla;
+                } else if (!isStatTrak && itemData.vanilla) {
+                    goodsId = itemData.vanilla;
+                }
+            }
+            if (goodsId !== null) {
+                const url = `https://buff.163.com/goods/${goodsId}?from=market`;
                 return addUtmParams(url);
             }
             // Fallback to search URL
@@ -195,7 +235,34 @@ export class MarketplaceURLs {
         // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Try to find a direct mapping for the item
-            const itemData = bMarketMap ? bMarketMap[fullInput] : null;
+            let itemData = bMarketMap ? bMarketMap[fullInput] : null;
+            // If direct lookup fails, try fuzzy matching by normalizing keys
+            if (!itemData && bMarketMap) {
+                // Normalize the input key for comparison
+                const normalizedInput = fullInput
+                    .replace(/['"]/g, "'")  // Standardize quote characters
+                    .replace(/\s+/g, ' ')   // Normalize whitespace
+                    .trim();
+                // Find a key in bMarketMap that matches when normalized
+                for (const [key, value] of Object.entries(bMarketMap)) {
+                    const normalizedKey = key
+                        .replace(/['"]/g, "'")  // Standardize quote characters
+                        .replace(/\s+/g, ' ')   // Normalize whitespace
+                        .trim();
+                    if (normalizedInput === normalizedKey) {
+                        itemData = value;
+                        break;
+                    }
+                }
+                // Additional fallback: try exact match with original input
+                if (!itemData) {
+                    itemData = bMarketMap[fullInput];
+                }
+                // Debug logging to help diagnose mapping issues
+                if (!itemData) {
+                    console.log(`Buff.Market: Could not find mapping for "${fullInput}". Available keys:`, Object.keys(bMarketMap).slice(0, 10) + '...');
+                }
+            }
             if (itemData && itemData.goods_id) {
                 const url = `https://buff.market/market/goods/${itemData.goods_id}`;
                 return addUtmParams(url);
@@ -310,7 +377,26 @@ export class MarketplaceURLs {
         // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Try to find a direct mapping for the item
-            const id = c5Map ? c5Map[fullInput] : null;
+            let id = c5Map ? c5Map[fullInput] : null;
+            // If direct lookup fails, try fuzzy matching by normalizing keys
+            if (!id && c5Map) {
+                // Normalize the input key for comparison
+                const normalizedInput = fullInput
+                    .replace(/['"]/g, "'")  // Standardize quote characters
+                    .replace(/\s+/g, ' ')   // Normalize whitespace
+                    .trim();
+                // Find a key in c5Map that matches when normalized
+                for (const [key, value] of Object.entries(c5Map)) {
+                    const normalizedKey = key
+                        .replace(/['"]/g, "'")  // Standardize quote characters
+                        .replace(/\s+/g, ' ')   // Normalize whitespace
+                        .trim();
+                    if (normalizedInput === normalizedKey) {
+                        id = value;
+                        break;
+                    }
+                }
+            }
             if (id) {
                 const encodedItemName = encodeURIComponent(fullInput);
                 const url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell`;
@@ -322,7 +408,7 @@ export class MarketplaceURLs {
             return addUtmParams(url);
         }
         const currentWearCategory = exteriorMappings.wearCategory[exterior];
-        if (isVanillaSearch || (exterior && exterior !== 'Any')) {
+        if (isVanillaSearch || exterior) {
             let key;
             let secondaryKey;
             if (isVanillaSearch) {
@@ -607,7 +693,26 @@ export class MarketplaceURLs {
         // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Try to find a direct mapping for the item
-            const id = c5Map ? c5Map[fullInput] : null;
+            let id = c5Map ? c5Map[fullInput] : null;
+            // If direct lookup fails, try fuzzy matching by normalizing keys
+            if (!id && c5Map) {
+                // Normalize the input key for comparison
+                const normalizedInput = fullInput
+                    .replace(/['"]/g, "'")  // Standardize quote characters
+                    .replace(/\s+/g, ' ')   // Normalize whitespace
+                    .trim();
+                // Find a key in c5Map that matches when normalized
+                for (const [key, value] of Object.entries(c5Map)) {
+                    const normalizedKey = key
+                        .replace(/['"]/g, "'")  // Standardize quote characters
+                        .replace(/\s+/g, ' ')   // Normalize whitespace
+                        .trim();
+                    if (normalizedInput === normalizedKey) {
+                        id = value;
+                        break;
+                    }
+                }
+            }
             if (id) {
                 const url = `https://haloskins.io/market/${id}`;
                 return addUtmParams(url);
