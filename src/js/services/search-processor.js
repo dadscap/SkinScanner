@@ -26,45 +26,46 @@ export class SearchProcessor {
         const trimmedFullInput = fullInput.trim();
         // Return null for empty searches
         if (!trimmedFullInput) return null;
-        
+
+        // Remove star prefix before doing anything else
+        const isKnife = trimmedFullInput.startsWith('★ ');
+        const cleanedInput = trimmedFullInput.replace(/^★\s*/, '');
+
         // Check if searching for a Vanilla skin (skins without any paint/pattern)
-        const isVanillaSearch = trimmedFullInput.endsWith(" | Vanilla");
-        
+        const isVanillaSearch = cleanedInput.endsWith(" | Vanilla");
+
         // Initialize Doppler-related variables
         let dopplerType = null;
         let phaseName = null;
-        
+
         // Regex to match Doppler phases in parentheses (e.g., "(Phase 2)", "(Ruby)")
         const phaseRegex = /\s*\((Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)\)/i;
         // Regex to identify Doppler or Gamma Doppler skins
         const phaseTypeRegex = /\b(Doppler|Gamma Doppler)/i;
-        
+
         let phaseMatch = null;
         // Only look for Doppler phases if not searching for Vanilla
         if (!isVanillaSearch) {
-            phaseMatch = trimmedFullInput.match(phaseRegex);
+            phaseMatch = cleanedInput.match(phaseRegex);
             if (phaseMatch && phaseMatch.length > 1) {
                 // Extract the phase name (e.g., "Phase 2", "Ruby")
                 phaseName = phaseMatch[1].trim();
                 // Determine if it's regular Doppler or Gamma Doppler
-                const typeMatch = trimmedFullInput.match(phaseTypeRegex);
+                const typeMatch = cleanedInput.match(phaseTypeRegex);
                 if (typeMatch) {
                     dopplerType = typeMatch[0].trim();
                 }
             }
         }
-        
+
         // Extract the base search name by removing special suffixes
         let baseSearchName;
         if (isVanillaSearch) {
             // Remove " | Vanilla" suffix
-            baseSearchName = trimmedFullInput.substring(0, trimmedFullInput.lastIndexOf(" | Vanilla")).trim();
-        } else if (phaseName) {
-            // Remove Doppler phase information from the search
-            baseSearchName = trimmedFullInput.replace(phaseRegex, '').trim();
+            baseSearchName = cleanedInput.substring(0, cleanedInput.lastIndexOf(" | Vanilla")).trim();
         } else {
-            // Use the full input as base search name
-            baseSearchName = trimmedFullInput;
+            // Use the cleaned input as base search name
+            baseSearchName = cleanedInput;
         }
         
         // Apply validation logic based on item type capabilities
@@ -76,7 +77,19 @@ export class SearchProcessor {
         const validatedStatTrak = isStatTrakChecked && itemCanHaveStatTrak;
         
         // Prepend "StatTrak™" only if the item can have StatTrak and it's checked
-        const finalSearchName = validatedStatTrak ? `StatTrak™ ${baseSearchName}` : baseSearchName;
+        // For knives/gloves (items that had ★), insert StatTrak™ after the star
+        let finalSearchName;
+        if (validatedStatTrak) {
+            if (isKnife) {
+                // Insert StatTrak™ after the star: "★ StatTrak™ Bayonet..."
+                finalSearchName = `★ StatTrak™ ${baseSearchName}`;
+            } else {
+                // Regular items: prepend StatTrak™
+                finalSearchName = `StatTrak™ ${baseSearchName}`;
+            }
+        } else {
+            finalSearchName = baseSearchName;
+        }
         
         // Only apply float/exterior values if the item type supports them
         const validatedExterior = itemCanHaveFloat ? exterior : '';
