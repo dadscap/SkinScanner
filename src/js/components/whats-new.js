@@ -30,24 +30,21 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🔄</div>
-                            <div class="feature-text">
-                                <strong>Marketplace Updates</strong>
-                                <p>Major marketplace changes! Added support for <b>Ecosteam</b>, <b>PirateSwap</b>, and <b>Skins.com</b>. Removed unresponsive and defunct marketplaces (CS.Trade, SkinBid (rip), and SkinLand) for better reliability and performance.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
                             <div class="feature-icon">🔗</div>
                             <div class="feature-text">
-                                <strong>Improved URL Generation</strong>
-                                <p>Completely updated URL generation logic for all marketplaces ensures more reliable links, faster item matching, and better overall performance!</p>
+                                <strong>Debugged URL generation</strong>
+                                <ul>
+                                    <li>Fixed issue with URL generation misplacing/duplicating characters. All should work correctly on every market.</li>
+                                    <li>If you find any issues, report them on the <a href="https://github.com/dadscap/SkinScanner/issues">GitHub page</a>.</li>
+                                    <li>Or send an email to <a href="mailto:dadscaptv@gmail.com">dadscaptv@gmail.com</a>.</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🎨</div>
+                            <div class="feature-icon">🔍</div>
                             <div class="feature-text">
-                                <strong>Enhanced UI & Autocomplete</strong>
-                                <p>New header design with social icons and improved autocomplete component with better data loading handling for smoother user experience! 99.91% coverage of all items in the game in search!</p>
+                                <strong>Updated mappings</strong>
+                                <p>New items searchable on BUFF163, BUFF.Market, C5Game, Ecosteam, Pirateswaap and Youpin.</p>
                             </div>
                         </div>
                     </div>

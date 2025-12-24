@@ -6,14 +6,12 @@ import {
 } from '../config/constants.js';
 import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
 
-const phaseRegex = /\s*\((Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)\)/i;
-
 export class MarketplaceURLs {
 
     // Avanmarket
     static generateAvanmarket(params, _mappings) {
         const { encodedBaseSearchName, minFloat, maxFloat, isStatTrak, phaseName, isVanillaSearch, fullInput } = params;
-        let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap`;
+        let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap&sort=1`;
         // Special handling for special items like stickers, patches, charms, etc.
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             // Special items bypass all float/wear/phase logic entirely
@@ -82,12 +80,14 @@ export class MarketplaceURLs {
             if (!itemData && buffMap) {
                 // Normalize the input key for comparison
                 const normalizedInput = fullInput
+                    .replace(/^★\s*/, '')     // Remove star prefix
                     .replace(/['"]/g, "'")  // Standardize quote characters
                     .replace(/\s+/g, ' ')   // Normalize whitespace
                     .trim();
                 // Find a key in buffMap that matches when normalized
                 for (const [key, value] of Object.entries(buffMap)) {
                     const normalizedKey = key
+                        .replace(/^★\s*/, '')     // Remove star prefix
                         .replace(/['"]/g, "'")  // Standardize quote characters
                         .replace(/\s+/g, ' ')   // Normalize whitespace
                         .trim();
@@ -164,7 +164,7 @@ export class MarketplaceURLs {
         let phaseTagId = null;
         if (exterior && buffMap) {
             // Different lookup key for phase items (uses base name) vs regular items (uses full name)
-            const buffMapLookupKey = phaseName ? baseSearchName : fullInput;
+            const buffMapLookupKey = phaseName ? `★ ${baseSearchName}` : fullInput;
             const buffItemData = buffMap[buffMapLookupKey];
             if (buffItemData) {
                 // Key format includes 'st_' prefix for StatTrak items
@@ -240,12 +240,14 @@ export class MarketplaceURLs {
             if (!itemData && bMarketMap) {
                 // Normalize the input key for comparison
                 const normalizedInput = fullInput
+                    .replace(/^★\s*/, '')     // Remove star prefix
                     .replace(/['"]/g, "'")  // Standardize quote characters
                     .replace(/\s+/g, ' ')   // Normalize whitespace
                     .trim();
                 // Find a key in bMarketMap that matches when normalized
                 for (const [key, value] of Object.entries(bMarketMap)) {
                     const normalizedKey = key
+                        .replace(/^★\s*/, '')     // Remove star prefix
                         .replace(/['"]/g, "'")  // Standardize quote characters
                         .replace(/\s+/g, ' ')   // Normalize whitespace
                         .trim();
@@ -306,7 +308,7 @@ export class MarketplaceURLs {
         let phaseTagId = null;
         // Check if exterior is defined and bMarketMap exists
         if (exterior && bMarketMap) {
-            const bMarketMapLookupKey = phaseName ? baseSearchName : fullInput;
+            const bMarketMapLookupKey = phaseName ? `★ ${baseSearchName}` : fullInput;
             const bMarketItemData = bMarketMap[bMarketMapLookupKey];
             // Check if bMarketItemData exists for the given key
             if (bMarketItemData) {
@@ -431,23 +433,22 @@ export class MarketplaceURLs {
                 }
             } else {
                 // Special handling for Dopplers and Gamma Dopplers - ignore phase and use basic doppler ID
+                const isKnife = fullInput.startsWith('★');
                 const isDoppler = finalSearchName.includes('Doppler') && !finalSearchName.includes('Gamma');
                 const isGammaDoppler = finalSearchName.includes('Gamma Doppler');
-                
+                const label = exteriorMappings.labels[exterior];
                 if (isDoppler || isGammaDoppler) {
-                    // Strip phase information and use base doppler name with exterior
-                    let baseDopplerName = finalSearchName.replace(phaseRegex, '').trim();
-                    const label = exteriorMappings.labels[exterior];
-                    key = `${baseDopplerName}${label ? ` (${label})` : ''}`;
+                    // Use base doppler name with exterior
+                    key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
                 } else {
-                    const label = exteriorMappings.labels[exterior];
-                    key = `${finalSearchName}${label ? ` (${label})` : ''}`;
+                    key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
                 }
             }
-            let id = c5Map ? c5Map[key] : null;
-            if (!id && secondaryKey && c5Map) {
-                id = c5Map[secondaryKey];
-            }
+                // Look up the goodsId from c5Map
+                let id = c5Map ? c5Map[key] : null;
+                if (!id && secondaryKey && c5Map) {
+                    id = c5Map[secondaryKey];
+                }
             if (id) {
                 // URL format: https://c5game.com/en/csgo/{id}/{encodedItemName}/sell
                 const encodedItemName = encodeURIComponent(key);
@@ -505,8 +506,8 @@ export class MarketplaceURLs {
         if (!csfloatEntry && skinMap) {
             // Fuzzy matching fallback - normalizes and compares without phases/formatting
             const baseMatchKey = Object.keys(skinMap).find(k => {
-                const normalizedKey = k.toLowerCase().replace(phaseRegex, '').replace(/[|\s]+/g, ' ').trim();
-                const normalizedInput = baseSearchName.toLowerCase().replace(/[|\s]+/g, ' ').trim();
+                const normalizedKey = k.toLowerCase().replace(/[|\s]+/g, ' ').trim();
+                const normalizedInput = baseSearchName.replace(/^StatTrak™\s*/i, '').toLowerCase().replace(/[|\s]+/g, ' ').trim();
                 return normalizedKey === normalizedInput;
             });
             if (baseMatchKey) { csfloatEntry = skinMap[baseMatchKey]; }
@@ -616,7 +617,7 @@ export class MarketplaceURLs {
 
     // Ecosteam
     static generateEcosteam(params, mappings) {
-        const { fullInput, baseSearchName, finalSearchName, isStatTrak, exterior, isVanillaSearch } = params;
+        const { fullInput, baseSearchName, isStatTrak, exterior, isVanillaSearch } = params;
         const { ecoMap } = mappings || {};
         // For special items (agents, stickers, etc.), try mapping first, then fallback to search
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
@@ -640,8 +641,9 @@ export class MarketplaceURLs {
                 key = fullInput;
             }
         } else {
+            const isKnife = fullInput.startsWith('★');
             const label = exteriorMappings.labels[exterior];
-            key = `${finalSearchName}${label ? ` (${label})` : ''}`;
+            key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
             secondaryKey = baseSearchName;
         }
         // Look up the goodsId from ecoMap
@@ -698,13 +700,17 @@ export class MarketplaceURLs {
             if (!id && c5Map) {
                 // Normalize the input key for comparison
                 const normalizedInput = fullInput
+                    .replace(/^★\s*/, '')     // Remove star prefix
                     .replace(/['"]/g, "'")  // Standardize quote characters
+                    .replace(/\s+(Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)$/i, '')  // Remove phase at end
                     .replace(/\s+/g, ' ')   // Normalize whitespace
                     .trim();
                 // Find a key in c5Map that matches when normalized
                 for (const [key, value] of Object.entries(c5Map)) {
                     const normalizedKey = key
+                        .replace(/^★\s*/, '')     // Remove star prefix
                         .replace(/['"]/g, "'")  // Standardize quote characters
+                        .replace(/\s+(Phase\s*\d+|Ruby|Sapphire|Black Pearl|Emerald)$/i, '')  // Remove phase at end
                         .replace(/\s+/g, ' ')   // Normalize whitespace
                         .trim();
                     if (normalizedInput === normalizedKey) {
@@ -746,8 +752,9 @@ export class MarketplaceURLs {
                     }
                 }
             } else {
+                const isKnife = fullInput.startsWith('★');
                 const label = exteriorMappings.labels[exterior];
-                key = `${finalSearchName}${label ? ` (${label})` : ''}`;
+                key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
             }
             // Haloskins/C5 share the same ID mapping (c5Map)
             let id = c5Map ? c5Map[key] : null;
@@ -775,25 +782,23 @@ export class MarketplaceURLs {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
             return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
         }
-        let searchName = finalSearchName;
+        let searchName = finalSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
         if (isVanillaSearch) {
-            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            let vanillaName = baseSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
             if (isStatTrak) {
-                vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
+                vanillaName = `StatTrak™ ★ ${vanillaName}`;
+            } else {
+                vanillaName = `★ ${vanillaName}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
             return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
-        if (isKnifeOrGlove && !searchName.startsWith('★')) {
+        if (isKnifeOrGlove) {
             searchName = `★ ${searchName}`;
         }
-        if (isStatTrak && !searchName.includes('StatTrak™')) {
-            if (searchName.startsWith('★')) {
-                searchName = `StatTrak™ ${searchName}`;
-            } else {
-                searchName = `StatTrak™ ${searchName}`;
-            }
+        if (isStatTrak) {
+            searchName = `StatTrak™ ${searchName}`;
         }
         if (phaseName) {
             if (phaseName.includes('Phase')) {
@@ -819,13 +824,13 @@ export class MarketplaceURLs {
         const { encodedBaseSearchName, isStatTrak, minFloat, maxFloat, isVanillaSearch, exterior, noTradeHold, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://lis-skins.com/market/csgo/?sort_by=price_asc&query=${encodedBaseSearchName}`;
-            url += (isStatTrak ? `&is_stattrak=1` : "");
+            url += (isStatTrak ? `&extras=is_stattrak` : "");
             url += `&rf=1878725`;
             return addUtmParams(url);
         }
         const currentLisSkinsExteriorId = exteriorMappings.lisskins[exterior];
         let url = `https://lis-skins.com/market/csgo/?sort_by=price_asc&query=${encodedBaseSearchName}`;
-        url += (isStatTrak ? `&is_stattrak=1` : "");
+        url += (isStatTrak ? `&extras=is_stattrak` : "");
         if (isVanillaSearch) {
             // LisSkins uses exterior=5 specifically for vanilla items
             url += `&exterior=5`;
@@ -907,7 +912,6 @@ export class MarketplaceURLs {
     static generatePirateswap(params, mappings) {
         const { fullInput, baseSearchName, exterior, phaseName, isStatTrak, isVanillaSearch } = params;
         const { pirateMap } = mappings || {};
-
         // Build full market hash name with exterior (e.g., "AK-47 | Searing Rage (Factory New)")
         const exteriorLabel = exteriorMappings.labels[exterior];
         let marketHashName = baseSearchName;
@@ -1040,13 +1044,13 @@ export class MarketplaceURLs {
     static generateSkinbaron(params, _mappings) {
         const { encodedBaseSearchName, isStatTrak, exterior, noTradeHold, isVanillaSearch, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=CF&affiliateId=854`;
+            let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=PA&affiliateId=854`;
             url += (isStatTrak ? `&statTrak=true` : "");
             return addUtmParams(url);
         }
         const { wearGt, wearLt } = params;
         const currentExteriorId = exteriorMappings.default[exterior];
-        let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=CF&affiliateId=854`;
+        let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=PA&affiliateId=854`;
         if (!isVanillaSearch) {
             url += `&wlb=${wearGt}&wub=${wearLt}`;
             url += (currentExteriorId ? `&exterior=${currentExteriorId}` : "");
@@ -1090,7 +1094,6 @@ export class MarketplaceURLs {
             let url = `https://skinout.gg/en/market?search=${encodedSkinoutSearchTerm}&sort=price_asc`;
             return addUtmParams(url);
         }
-        
         // Handle vanilla searches with special URL format
         if (isVanillaSearch) {
             // Convert knife name to slug format (lowercase, spaces to hyphens, remove ★)
@@ -1104,7 +1107,6 @@ export class MarketplaceURLs {
             url += (noTradeHold ? `?selected_hold=0` : "");
             return addUtmParams(url);
         }
-        
         let skinoutSearchTerm = baseSearchName;
         if (isStatTrak) {
             skinoutSearchTerm = `StatTrak™ ${baseSearchName}`;
@@ -1151,7 +1153,7 @@ export class MarketplaceURLs {
         }
         // For "Any" exterior searches (non-vanilla)
         if (!exterior || exterior === 'Any') {
-            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName)}&sort_column=price&sort_dir=asc&utm_campaign=US5shYfSgvPfQCV`;
+            let url = `https://skin.place/buy-cs2-skins?search=${encodeURIComponent(finalSearchName.replace(/^★\s*/, ''))}&sort_column=price&sort_dir=asc&utm_campaign=US5shYfSgvPfQCV`;
             if (isStatTrak) {
                 url += '&is_stattrak=1';
             }
@@ -1178,8 +1180,9 @@ export class MarketplaceURLs {
             normalizedName += `-${phaseName.toLowerCase().replace(/\s+/g, '-')}`;
         }
         // Direct item page URL instead of search
-        let url = `https://skin.place/buy-cs2-skins/${normalizedName}?utm_campaign=US5shYfSgvPfQCV`;
+        let url = `https://skin.place/buy-cs2-skins/${normalizedName}`;
         const queryParams = [];
+        queryParams.push('utm_campaign=US5shYfSgvPfQCV');
         if (isStatTrak) {
             queryParams.push('is_stattrak=1');
         }
@@ -1246,27 +1249,22 @@ export class MarketplaceURLs {
         }
         // Build query parameters
         const queryParams = [];
-
         // Add exterior if specified (vanilla items don't have exterior)
         if (!isVanillaSearch && exterior && exterior !== 'Any') {
             queryParams.push(`exterior=${exterior}`);
         }
-
         // Add StatTrak
         if (isStatTrak) {
             queryParams.push('st=true');
         }
-
         // Add phase
         if (phaseName) {
             queryParams.push(`phase=${encodeURIComponent(phaseName)}`);
         }
-
         let url = `https://skins.com/item/${slug}`;
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
-
         return addUtmParams(url);
     }
 
@@ -1275,34 +1273,26 @@ export class MarketplaceURLs {
         const { finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
+            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=relevance`);
         }
-        let searchName = finalSearchName;
+        let searchName = finalSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
         if (isVanillaSearch) {
             // For skinsmonkey, use fullInput which contains " | Vanilla" instead of stripped baseSearchName
-            let vanillaName = fullInput;
-            if (!vanillaName.startsWith('★')) {
-                // Add ★ prefix if not present
+            let vanillaName = fullInput.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
+            if (isStatTrak) {
+                vanillaName = `StatTrak™ ★ ${vanillaName}`;
+            } else {
                 vanillaName = `★ ${vanillaName}`;
             }
-            if (isStatTrak) {
-                // Handle StatTrak for vanilla items
-                const baseWithoutStar = vanillaName.replace(/^★\s*/, '');
-                vanillaName = `StatTrak™ ★ ${baseWithoutStar}`;
-            }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
+            return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=relevance`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
-        if (isKnifeOrGlove && !searchName.startsWith('★')) {
+        if (isKnifeOrGlove) {
             searchName = `★ ${searchName}`;
         }
-        if (isStatTrak && !searchName.includes('StatTrak™')) {
-            if (searchName.startsWith('★')) {
-                searchName = `StatTrak™ ${searchName}`;
-            } else {
-                searchName = `StatTrak™ ${searchName}`;
-            }
+        if (isStatTrak) {
+            searchName = `StatTrak™ ${searchName}`;
         }
         if (phaseName) {
             if (phaseName.includes('Phase')) {
@@ -1317,7 +1307,7 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=price-asc`);
+        return addUtmParams(`https://skinsmonkey.com/trade?q=${formattedName}&r=DADSCAP&appId=730&sort=relevance`);
     }
 
     // SkinSwap
@@ -1327,25 +1317,23 @@ export class MarketplaceURLs {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
             return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
         }
-        let searchName = finalSearchName;
+        let searchName = finalSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
         if (isVanillaSearch) {
-            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            let vanillaName = baseSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
             if (isStatTrak) {
-                vanillaName = `StatTrak™ ★ ${baseSearchName.replace(/^★\s*/, '')}`;
+                vanillaName = `StatTrak™ ★ ${vanillaName}`;
+            } else {
+                vanillaName = `★ ${vanillaName}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
             return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
-        if (isKnifeOrGlove && !searchName.startsWith('★')) {
+        if (isKnifeOrGlove) {
             searchName = `★ ${searchName}`;
         }
-        if (isStatTrak && !searchName.includes('StatTrak™')) {
-            if (searchName.startsWith('★')) {
-                searchName = `StatTrak™ ${searchName}`;
-            } else {
-                searchName = `StatTrak™ ${searchName}`;
-            }
+        if (isStatTrak) {
+            searchName = `StatTrak™ ${searchName}`;
         }
         if (phaseName) {
             if (phaseName.includes('Phase')) {
@@ -1423,15 +1411,13 @@ export class MarketplaceURLs {
             return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
-        if (isKnifeOrGlove && !searchName.startsWith('★')) {
-            searchName = `${searchName}`;
+        if (isKnifeOrGlove) {
+            searchName = searchName.replace(/★/g, '').trim();
         }
         if (isStatTrak && !searchName.includes('StatTrak')) {
-            if (searchName.startsWith('★')) {
-                searchName = `StatTrak ${searchName}`;
-            } else {
-                searchName = `StatTrak ${searchName}`;
-            }
+            searchName = `StatTrak ${searchName.replace(/★/g, '').trim()}`;
+        } else {
+            searchName = searchName.replace(/★/g, '').trim();
         }
         if (phaseName) {
             if (phaseName.includes('Phase')) {
@@ -1556,16 +1542,13 @@ export class MarketplaceURLs {
                 // Special handling for Dopplers and Gamma Dopplers - ignore phase and use basic doppler ID
                 const isDoppler = finalSearchName.includes('Doppler') && !finalSearchName.includes('Gamma');
                 const isGammaDoppler = finalSearchName.includes('Gamma Doppler');
-
+                const isKnife = fullInput.startsWith('★');
+                const label = exteriorMappings.labels[exterior];
                 if (isDoppler || isGammaDoppler) {
-                    // Strip phase information and use base doppler name with exterior condition
-                    let baseDopplerName = finalSearchName.replace(phaseRegex, '').trim();
-                    const label = exteriorMappings.labels[exterior];
-                    // Construct key with base doppler name + exterior condition, ignoring phase
-                    key = `${baseDopplerName}${label ? ` (${label})` : ''}`;
+                    // Use base doppler name with exterior condition
+                    key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
                 } else {
-                    const label = exteriorMappings.labels[exterior];
-                    key = `${finalSearchName}${label ? ` (${label})` : ''}`;
+                    key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
                 }
             }
             // YouPin uses uuMap for templateId lookups
