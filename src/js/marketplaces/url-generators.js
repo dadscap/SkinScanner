@@ -720,11 +720,11 @@ export class MarketplaceURLs {
                 }
             }
             if (id) {
-                const url = `https://haloskins.io/market/${id}`;
+                const url = `https://haloskins.com/market/${id}`;
                 return addUtmParams(url);
             }
             // Fallback to search URL
-            let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
+            let url = `https://haloskins.com/market?keyword=${encodedBaseSearchName}&sort=1`;
             url += (isStatTrak ? `&statTrak=1` : "");
             return addUtmParams(url);
         }
@@ -764,11 +764,11 @@ export class MarketplaceURLs {
             if (id) {
                 // Direct market ID URL instead of search
 
-                const url = `https://haloskins.io/market/${id}`;
+                const url = `https://haloskins.com/market/${id}`;
                 return addUtmParams(url);
             }
         }
-        let url = `https://haloskins.io/market?keyword=${encodedBaseSearchName}&sort=1`;
+        let url = `https://haloskins.com/market?keyword=${encodedBaseSearchName}&sort=1`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
         url += `&min_float=${minFloat}&max_float=${maxFloat}`;

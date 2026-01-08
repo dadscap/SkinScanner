@@ -1,28 +1,19 @@
 // URL Presets
-export const exteriorPresets = {fn: [0.00, 0.07], mw: [0.07, 0.15], ft: [0.15, 0.38], ww: [0.38, 0.45], bs: [0.45, 1.00]};
+export const exteriorPresets = {
+    fn: [0.00, 0.07], mw: [0.07, 0.15], ft: [0.15, 0.38], ww: [0.38, 0.45], bs: [0.45, 1.00]
+};
 
 // Exterior mappings organized by marketplace
 export const exteriorMappings = {
-    // Labels - common across all marketplaces
     labels: {fn: "Factory New", mw: "Minimal Wear", ft: "Field-Tested", ww: "Well-Worn", bs: "Battle-Scarred"},
-    
-    // Default/generic exterior IDs
     default: {fn: 1, mw: 2, ft: 3, ww: 4, bs: 5},
-    
-    // Wear category mappings
     wearCategory: {fn: "WearCategory0", mw: "WearCategory1", ft: "WearCategory2", ww: "WearCategory3", bs: "WearCategory4"},
-
-    // Marketplace-specific exterior mappings
     skinport: {fn: 2, mw: 4, ft: 3, ww: 5, bs: 1},
     lisskins: {fn: 2, mw: 4, ft: 3, ww: 6, bs: 1},
     whitemarket: {fn: 'e0', mw: 'e1', ft: 'e2', ww: 'e3', bs: 'e4'},
-
-    // URL-formatted exterior mappings (lowercase with dashes)
     urlFormatted: {fn: 'factory-new', mw: 'minimal-wear', ft: 'field-tested', ww: 'well-worn', bs: 'battle-scarred'},
-    
-    // URL-formatted exterior mappings (with plus signs)
     urlFormattedPlus: {fn: 'Factory+New', mw: 'Minimal+Wear', ft: 'Field-Tested', ww: 'Well-Worn', bs: 'Battle-Scarred'},
-    };
+};
 
 export const phaseMappings = {
     avanmarket: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" },
@@ -181,8 +172,8 @@ export function getItemCategory(itemName) {
         }
     }
 
-    /**  
-     * Check for Knives
+    /*  
+     Idj why but uncommenting this breaks everything. to figure out one day in the future 
     for (const knifeType of KNIFE_IDENTIFIERS) {
         if (cleanName.includes(knifeType)) {
             return ITEM_CATEGORIES.KNIFE;

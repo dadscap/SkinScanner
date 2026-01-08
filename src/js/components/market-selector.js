@@ -2,9 +2,7 @@
  * Handles the selection and management of market checkboxes in the UI.
  */
 
-/**
- * Manages marketplace checkbox selections with category groupings and state persistence
- */
+// Manages marketplace checkbox selections with category groupings and state persistence
 export class MarketSelector {
     /**
      * Initialize the market selector with DOM elements and state change callback
