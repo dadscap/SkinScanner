@@ -15,8 +15,7 @@
     "https://www.rapidskins.com/*"
   ],
   "background": {
-    "service_worker": "js/background.js",
-    "scripts": ["js/background.js"]
+    "service_worker": "js/background.js"
   },
   "web_accessible_resources": [
     {
@@ -35,8 +34,10 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "skin@scanner.skinscanner",
-      "strict_min_version": "109.0",
-      "data_collection_permissions": ["none"]
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "none": true
+      }
     }
   },
   "minimum_chrome_version": "121"
