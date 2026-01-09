@@ -1,32 +1,21 @@
 /* StorageManager
  * Handles saving and loading state and preferences using the browser's local storage API.
  */
+
 import { STORAGE_KEY, DARK_MODE_KEY, RECENT_SEARCHES_KEY, WELCOME_SEEN_KEY } from '../config/constants.js';
 
-// --- Browser API Compatibility ---
-// Ensure browser API compatibility across different browsers (Chrome, Firefox, etc.)
 if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
-// Storage keys for different preferences
 const SKIP_RESET_CONFIRMATION_KEY = 'skipResetConfirmation';
 const SKIP_MARKET_WARNING_KEY = 'skipMarketWarning';
-const MAX_RECENT_SEARCHES = 10; // Limit the number of recent searches
+const MAX_RECENT_SEARCHES = 10;
 
-/**
- * Manages persistent storage for extension state and user preferences
- * Uses browser.storage.local API for cross-session data persistence
- */
 export class StorageManager {
-    /**
-     * Saves the application state to browser local storage
-     * @param {Object} state - The application state object to persist
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
+
     static async saveState(state) {
         return new Promise((resolve, reject) => {
-            // Check if browser storage API is available
             if (browser.storage && browser.storage.local) {
                 browser.storage.local.set({ [STORAGE_KEY]: state }, () => {
                     if (browser.runtime.lastError) {
@@ -51,10 +40,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Loads the application state from browser local storage
-     * @returns {Promise<Object|undefined>} The saved state object, or undefined if not found/error
-     */
     static async loadState() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -81,11 +66,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Saves the user's dark mode preference
-     * @param {boolean} isDark - True if dark mode is enabled, false otherwise
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
     static async saveDarkMode(isDark) {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {
@@ -112,10 +92,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Loads the user's dark mode preference, with system preference fallback
-     * @returns {Promise<boolean>} True if dark mode should be enabled, false otherwise
-     */
     static async loadDarkMode() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -150,10 +126,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Gets the user's preference for skipping reset confirmation dialogs
-     * @returns {Promise<boolean>} True if confirmation should be skipped, false otherwise
-     */
     static async getSkipResetConfirmation() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -180,11 +152,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Sets the user's preference for skipping reset confirmation dialogs
-     * @param {boolean} skipConfirmation - True to skip confirmations, false to show them
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
     static async setSkipResetConfirmation(skipConfirmation) {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {
@@ -211,10 +178,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Gets the user's preference for skipping the market selection warning
-     * @returns {Promise<boolean>} True if the warning should be skipped, false otherwise
-     */
     static async getSkipMarketWarning() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -241,11 +204,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Sets the user's preference for skipping the market selection warning
-     * @param {boolean} skipWarning - True to skip the warning, false to show it
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
     static async setSkipMarketWarning(skipWarning) {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {
@@ -272,20 +230,13 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Adds a search query to the list of recent searches.
-     * @param {string} query - The search query to add.
-     * @returns {Promise<void>}
-     */
     static async addRecentSearch(query) {
         if (!query || typeof query !== 'string') {
             return;
         }
         let recentSearches = await StorageManager.loadRecentSearches();
-        // Remove duplicates and add to the front
         recentSearches = recentSearches.filter(search => search !== query);
         recentSearches.unshift(query);
-        // Trim to max size
         if (recentSearches.length > MAX_RECENT_SEARCHES) {
             recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
         }
@@ -314,10 +265,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Loads the list of recent searches.
-     * @returns {Promise<string[]>} An array of recent search queries.
-     */
     static async loadRecentSearches() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -344,10 +291,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Clears all recent searches.
-     * @returns {Promise<void>}
-     */
     static async clearRecentSearches() {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {
@@ -374,17 +317,13 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Gets the user's tab delay preference
-     * @returns {Promise<number>} The tab delay in milliseconds (defaults to 250ms)
-     */
     static async getTabDelay() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
                 browser.storage.local.get('tabDelayPreference', (result) => {
                     if (browser.runtime.lastError) {
                         console.error("Error loading tab delay preference:", browser.runtime.lastError.message);
-                        resolve(250); // Default to 250ms
+                        resolve(250);
                     } else {
                         resolve(result.tabDelayPreference || 250);
                     }
@@ -404,11 +343,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Sets the user's tab delay preference
-     * @param {number} delay - The tab delay in milliseconds
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
     static async setTabDelay(delay) {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {
@@ -435,10 +369,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Gets whether the user has seen the welcome message
-     * @returns {Promise<boolean>} True if welcome has been seen, false otherwise (defaults to false)
-     */
     static async getHasSeenWelcome() {
         return new Promise((resolve) => {
             if (browser.storage && browser.storage.local) {
@@ -465,11 +395,6 @@ export class StorageManager {
         });
     }
 
-    /**
-     * Sets whether the user has seen the welcome message
-     * @param {boolean} hasSeen - True if welcome has been seen, false otherwise
-     * @returns {Promise<void>} Resolves when save is complete, rejects on error
-     */
     static async setHasSeenWelcome(hasSeen) {
         return new Promise((resolve, reject) => {
             if (browser.storage && browser.storage.local) {

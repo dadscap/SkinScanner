@@ -1,6 +1,7 @@
-/* Main Script for SkinScanner Extension
+/* Main.js
  * Handles initialization, event listeners, and interactions between components.
  */
+
 import { debounce } from './utils/url-helpers.js';
 import { StorageManager } from './utils/storage.js';
 import { updatePaintSeedInputValidationClass } from './utils/validation.js';

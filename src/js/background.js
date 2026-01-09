@@ -2,21 +2,16 @@
  * Handles extension updates, badge management, and version tracking
  */
 
-// Cross-browser compatibility
 if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
-// Constants for storage keys
 const STORAGE_KEYS = {
     LAST_VERSION: 'skinscanner_last_version',
     SHOW_WHATS_NEW: 'skinscanner_show_whats_new',
     BADGE_SHOWN: 'skinscanner_badge_shown',
     WELCOME_SEEN: 'skinscanner_has_seen_welcome'
 };
-
-// ==== RapidSkins background redirect (survives popup close) ====
-if (typeof browser === 'undefined') { var browser = chrome; }
 
 const RS = {
   key: (tabId) => `rs-${tabId}`,
@@ -39,18 +34,16 @@ async function rsMaybeRedirect(details) {
     const finalUrl = got[key];
     if (!finalUrl) return;
 
-    await browser.storage.local.remove(key); // guard against double-fire
+    await browser.storage.local.remove(key);
     try {
       await browser.tabs.update(details.tabId, { url: finalUrl });
     } catch (e) {
-      // Tab may have been closed; ignore
     }
   } catch (e) {
     console.warn('RapidSkins redirect failed:', e);
   }
 }
 
-// Fire as early as possible and again on completion (covers both fast and normal loads)
 browser.webNavigation.onCommitted.addListener(rsMaybeRedirect, {
   url: [{ hostSuffix: 'rapidskins.com' }]
 });
@@ -58,19 +51,14 @@ browser.webNavigation.onCompleted.addListener(rsMaybeRedirect, {
   url: [{ hostSuffix: 'rapidskins.com' }]
 });
 
-// Clean up any orphaned keys if tab closes before the bounce back
 browser.tabs.onRemoved.addListener(async (tabId) => {
   try { await browser.storage.local.remove(RS.key(tabId)); } catch {}
 });
-// ==== end RapidSkins block ====
 
-
-// Get current extension version from manifest
 const getCurrentVersion = () => {
     return browser.runtime.getManifest().version;
 };
 
-// Set badge text and background color
 const setBadge = (text = '', color = '#FF0000') => {
     try {
         browser.action.setBadgeText({ text: text });
@@ -80,17 +68,14 @@ const setBadge = (text = '', color = '#FF0000') => {
     }
 };
 
-// Clear the badge
 const clearBadge = () => {
     setBadge('');
 };
 
-// Show the "NEW" badge
 const showNewBadge = () => {
     setBadge('NEW', '#FF4444');
 };
 
-// Check if this is a fresh install or update
 const handleInstallOrUpdate = async (details) => {
     const currentVersion = getCurrentVersion();
     
@@ -102,7 +87,6 @@ const handleInstallOrUpdate = async (details) => {
         ]);
 
         if (details.reason === 'install') {
-            // Fresh installation - show welcome message, no update notification
             await browser.storage.local.set({
                 [STORAGE_KEYS.LAST_VERSION]: currentVersion,
                 [STORAGE_KEYS.SHOW_WHATS_NEW]: false,
@@ -115,14 +99,12 @@ const handleInstallOrUpdate = async (details) => {
             const lastVersion = storage[STORAGE_KEYS.LAST_VERSION];
             
             if (lastVersion && lastVersion !== currentVersion) {
-                // Extension was updated to a new version
                 await browser.storage.local.set({
                     [STORAGE_KEYS.LAST_VERSION]: currentVersion,
                     [STORAGE_KEYS.SHOW_WHATS_NEW]: true,
                     [STORAGE_KEYS.BADGE_SHOWN]: true
                 });
                 
-                // Show the "NEW" badge
                 showNewBadge();
                 console.log(`SkinScanner updated from ${lastVersion} to ${currentVersion}`);
             }
@@ -132,7 +114,6 @@ const handleInstallOrUpdate = async (details) => {
     }
 };
 
-// Check if we should show the badge on startup
 const checkBadgeOnStartup = async () => {
     try {
         const storage = await browser.storage.local.get([
@@ -150,14 +131,11 @@ const checkBadgeOnStartup = async () => {
     }
 };
 
-// Handle popup opened - this will be called from the popup script
 const handlePopupOpened = async () => {
     try {
         const storage = await browser.storage.local.get([STORAGE_KEYS.SHOW_WHATS_NEW]);
         
         if (storage[STORAGE_KEYS.SHOW_WHATS_NEW]) {
-            // User opened popup with pending "What's New" - clear badge after a delay
-            // This gives the popup time to show the what's new message
             setTimeout(async () => {
                 await browser.storage.local.set({
                     [STORAGE_KEYS.BADGE_SHOWN]: false
@@ -170,13 +148,11 @@ const handlePopupOpened = async () => {
     }
 };
 
-// Message listener for communication with popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'popupOpened') {
         handlePopupOpened();
         sendResponse({ success: true });
     } else if (message.action === 'whatsNewViewed') {
-        // User has viewed the what's new message
         browser.storage.local.set({
             [STORAGE_KEYS.SHOW_WHATS_NEW]: false,
             [STORAGE_KEYS.BADGE_SHOWN]: false
@@ -187,9 +163,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.error('Error marking what\'s new as viewed:', error);
             sendResponse({ success: false, error: error.message });
         });
-        return true; // Keep message channel open for async response
+        return true;
     } else if (message.action === 'getBadgeStatus') {
-        // Get current badge/update status
         browser.storage.local.get([
             STORAGE_KEYS.SHOW_WHATS_NEW,
             STORAGE_KEYS.BADGE_SHOWN,
@@ -205,15 +180,13 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.error('Error getting badge status:', error);
             sendResponse({ error: error.message });
         });
-        return true; // Keep message channel open for async response
+        return true;
     }
 });
 
-// Event listeners
 browser.runtime.onInstalled.addListener(handleInstallOrUpdate);
 browser.runtime.onStartup.addListener(checkBadgeOnStartup);
 
-// Initialize on script load
 checkBadgeOnStartup();
 
 console.log('SkinScanner background script initialized');

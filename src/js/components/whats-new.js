@@ -1,19 +1,18 @@
-/* What's New Component for SkinScanner Extension
+/* WhatsNewManager
  * Displays update notifications and manages the "What's New" overlay
  */
 
-// Cross-browser compatibility
 if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
 export class WhatsNewManager {
+    
     constructor() {
         this.overlay = null;
         this.isShown = false;
     }
 
-    // Create the What's New overlay HTML
     createOverlay() {
         const overlay = document.createElement('div');
         overlay.id = 'whatsNewOverlay';
@@ -285,7 +284,6 @@ export class WhatsNewManager {
         document.head.appendChild(style);
     }
 
-    // Show the What's New overlay
     async show() {
         if (this.isShown) return;
 
@@ -294,7 +292,6 @@ export class WhatsNewManager {
         document.body.appendChild(this.overlay);
         this.isShown = true;
 
-        // Add event listeners
         const closeBtn = this.overlay.querySelector('.whats-new-close');
         const gotItBtn = this.overlay.querySelector('.whats-new-got-it');
         const backdrop = this.overlay.querySelector('.whats-new-backdrop');
@@ -305,25 +302,20 @@ export class WhatsNewManager {
         gotItBtn.addEventListener('click', closeHandler);
         backdrop.addEventListener('click', closeHandler);
 
-        // Prevent scrolling on the main body while overlay is shown
         document.body.style.overflow = 'hidden';
     }
 
-    // Hide the What's New overlay
     async hide() {
         if (!this.isShown || !this.overlay) return;
 
-        // Notify background script that user has viewed the what's new message
         try {
             await browser.runtime.sendMessage({ action: 'whatsNewViewed' });
         } catch (error) {
             console.warn('Failed to notify background script:', error);
         }
 
-        // Restore body scrolling
         document.body.style.overflow = '';
 
-        // Remove overlay with animation
         this.overlay.style.animation = 'whatsNewFadeIn 0.2s ease-in reverse';
         setTimeout(() => {
             if (this.overlay && this.overlay.parentNode) {
@@ -334,18 +326,13 @@ export class WhatsNewManager {
         }, 200);
     }
 
-    // Check if we should show the What's New overlay
     async checkAndShow() {
         try {
             const response = await browser.runtime.sendMessage({ action: 'getBadgeStatus' });
-            
             if (response && response.showWhatsNew) {
-                // Small delay to ensure popup is fully loaded
                 setTimeout(() => {
                     this.show();
                 }, 300);
-                
-                // Notify background script that popup was opened
                 browser.runtime.sendMessage({ action: 'popupOpened' });
             }
         } catch (error) {

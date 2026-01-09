@@ -1,8 +1,7 @@
-/* Welcome Component for SkinScanner Extension
+/* WelcomeManager
  * Displays welcome guide for new users
  */
 
-// Cross-browser compatibility
 if (typeof browser === "undefined") {
     var browser = chrome;
 }
@@ -10,12 +9,12 @@ if (typeof browser === "undefined") {
 import { StorageManager } from '../utils/storage.js';
 
 export class WelcomeManager {
+    
     constructor() {
         this.overlay = null;
         this.isShown = false;
     }
 
-    // Create the Welcome overlay HTML
     createOverlay() {
         const overlay = document.createElement('div');
         overlay.id = 'welcomeOverlay';
@@ -144,9 +143,6 @@ export class WelcomeManager {
         return overlay;
     }
 
-    // CSS styles are now included in src/styles.css with .welcome-* prefixes
-
-    // Show the Welcome overlay
     async show() {
         if (this.isShown) return;
 
@@ -154,7 +150,6 @@ export class WelcomeManager {
         document.body.appendChild(this.overlay);
         this.isShown = true;
 
-        // Add event listeners
         const closeBtn = this.overlay.querySelector('.welcome-close');
         const getStartedBtn = this.overlay.querySelector('.welcome-get-started');
         const backdrop = this.overlay.querySelector('.welcome-backdrop');
@@ -165,30 +160,24 @@ export class WelcomeManager {
         getStartedBtn.addEventListener('click', closeHandler);
         backdrop.addEventListener('click', closeHandler);
 
-        // Prevent scrolling on the main body while overlay is shown
         document.body.style.overflow = 'hidden';
 
-        // Focus management for accessibility
         setTimeout(() => {
             this.overlay.querySelector('.welcome-close').focus();
         }, 100);
     }
 
-    // Hide the Welcome overlay
     async hide() {
         if (!this.isShown || !this.overlay) return;
 
-        // Mark welcome as seen when user dismisses it
         try {
             await StorageManager.setHasSeenWelcome(true);
         } catch (error) {
             console.error('Failed to mark welcome as seen:', error);
         }
 
-        // Restore body scrolling
         document.body.style.overflow = '';
 
-        // Remove overlay with animation
         this.overlay.style.animation = 'welcomeFadeIn 0.2s ease-in reverse';
         setTimeout(() => {
             if (this.overlay && this.overlay.parentNode) {
@@ -199,9 +188,7 @@ export class WelcomeManager {
         }, 200);
     }
 
-    // Show welcome modal for new users (to be called when needed)
     async showWelcome() {
-        // Small delay to ensure popup is fully loaded
         setTimeout(() => {
             this.show();
         }, 300);

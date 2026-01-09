@@ -1,22 +1,19 @@
+/* Data Service
+ * Fetches and parses the individual map JSON files and returns a combined mappings object.
+ */
+
 let cachedData = null;
 
-/**
- * Fetches and parses the individual map JSON files
- * and returns a combined mappings object.
- * Caches the result so they're only loaded once per session.
- * @returns {Promise<Object|null>} A promise that resolves to the combined maps, or null on error.
- */
 export async function getMappings() {
   if (cachedData) {
     return cachedData;
   }
 
-  // Helper to resolve URL for extension vs regular web page
   const resolveUrl = (relPath) => {
     if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL) {
       return chrome.runtime.getURL(relPath);
     }
-    return relPath; // regular web page
+    return relPath;
   };
 
   const files = {

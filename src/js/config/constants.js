@@ -1,9 +1,11 @@
-// URL Presets
+/* Constants Configs
+ * Constants and mappings used throughout the extension  
+ */
+
 export const exteriorPresets = {
     fn: [0.00, 0.07], mw: [0.07, 0.15], ft: [0.15, 0.38], ww: [0.38, 0.45], bs: [0.45, 1.00]
 };
 
-// Exterior mappings organized by marketplace
 export const exteriorMappings = {
     labels: {fn: "Factory New", mw: "Minimal Wear", ft: "Field-Tested", ww: "Well-Worn", bs: "Battle-Scarred"},
     default: {fn: 1, mw: 2, ft: 3, ww: 4, bs: 5},
@@ -30,20 +32,16 @@ export const phaseMappings = {
     whitemarket: { "Phase 1": "PHASE1", "Phase 2": "PHASE2", "Phase 3": "PHASE3", "Phase 4": "PHASE4", "Sapphire": "SAPPHIRE", "Ruby": "RUBY", "Black Pearl": "BLACK_PEARL", "Emerald": "EMERALD" }
 };
 
-// Persistence Keys
 export const STORAGE_KEY = 'skinScannerState';
 export const DARK_MODE_KEY = 'darkModePreference';
 export const RECENT_SEARCHES_KEY = 'recentSearches';
 export const TAB_DELAY_KEY = 'tabDelayPreference';
 export const WELCOME_SEEN_KEY = 'skinscanner_has_seen_welcome';
 
-// UTM
 export const UTM_SOURCE = 'skinscanner-ext';
 
-// Tab Delay
 export const TAB_OPEN_DELAY = 250;
 
-// Enhanced Item Type Categorization System
 export const ITEM_CATEGORIES = {
     WEAPON: 'weapon',
     KNIFE: 'knife',
@@ -51,40 +49,25 @@ export const ITEM_CATEGORIES = {
     MUSIC_KIT: 'music_kit',
     SPECIAL: 'special'
 };
-
-// Weapon type identifiers (guns)
 export const WEAPON_IDENTIFIERS = [
-    // Rifles
     'AK-47', 'M4A4', 'M4A1-S', 'AWP', 'AUG', 'FAMAS', 'Galil AR', 'SG 553', 'SCAR-20', 'G3SG1',
-    // SMGs
     'P90', 'MP7', 'MP9', 'MP5-SD', 'UMP-45', 'PP-Bizon', 'MAC-10',
-    // Pistols
     'Glock-18', 'USP-S', 'P2000', 'Desert Eagle', 'Five-SeveN', 'Tec-9', 'CZ75-Auto', 'P250', 'Dual Berettas', 'R8 Revolver',
-    // Shotguns
     'Nova', 'XM1014', 'Sawed-Off', 'MAG-7',
-    // Machine Guns
     'M249', 'Negev'
 ];
-
-// Knife identifiers
 export const KNIFE_IDENTIFIERS = [
     'Bayonet', 'M9 Bayonet', 'Karambit', 'Huntsman Knife', 'Flip Knife', 'Gut Knife', 'Falchion Knife',
     'Bowie Knife', 'Shadow Daggers', 'Butterfly Knife', 'Navaja Knife', 'Stiletto Knife', 'Talon Knife',
     'Ursus Knife', 'Classic Knife', 'Paracord Knife', 'Survival Knife', 'Nomad Knife', 'Skeleton Knife'
 ];
-
-// Glove identifiers
 export const GLOVE_IDENTIFIERS = [
     'Hand Wraps', 'Moto Gloves', 'Specialist Gloves', 'Sport Gloves', 'Driver Gloves',
     'Bloodhound Gloves', 'Hydra Gloves', 'Broken Fang Gloves'
 ];
-
-// Music Kit identifiers
 export const MUSIC_KIT_PREFIXES = [
     "Music Kit |"
 ];
-
-// Agent identifiers
 export const AGENT_IDENTIFIERS = [
     "| Elite Crew",
     "| Guerrilla Warfare",
@@ -101,8 +84,6 @@ export const AGENT_IDENTIFIERS = [
     " TACP",
     " SEAL"
 ];
-
-// Special item identifiers
 export const SPECIAL_ITEM_PREFIXES = [
     "Sticker |",
     "Patch |",
@@ -127,26 +108,19 @@ export const SPECIAL_ITEM_INCLUSIONS = [
     "Operation "
 ];
 
-/**
- * Determines the category of an item based on its name
- * @param {string} itemName - The name of the item
- * @returns {string} The item category (WEAPON, GLOVE, MUSIC_KIT, or SPECIAL)
- */
 export function getItemCategory(itemName) {
     if (!itemName || typeof itemName !== 'string') {
         return ITEM_CATEGORIES.SPECIAL;
     }
 
-    const cleanName = itemName.replace(/StatTrak™\s+/, ''); // Remove StatTrak prefix for analysis
+    const cleanName = itemName.replace(/StatTrak™\s+/, '');
 
-    // Check for Music Kits first
     for (const prefix of MUSIC_KIT_PREFIXES) {
         if (cleanName.startsWith(prefix)) {
             return ITEM_CATEGORIES.MUSIC_KIT;
         }
     }
 
-    // Check for Special items
     for (const prefix of SPECIAL_ITEM_PREFIXES) {
         if (cleanName.startsWith(prefix)) {
             return ITEM_CATEGORIES.SPECIAL;
@@ -165,65 +139,46 @@ export function getItemCategory(itemName) {
         }
     }
 
-    // Check for Agents (exact string matches anywhere in the name)
     for (const agentIdentifier of AGENT_IDENTIFIERS) {
         if (cleanName.includes(agentIdentifier)) {
             return ITEM_CATEGORIES.SPECIAL;
         }
     }
 
-    /*  
-     Idj why but uncommenting this breaks everything. to figure out one day in the future 
-    for (const knifeType of KNIFE_IDENTIFIERS) {
-        if (cleanName.includes(knifeType)) {
-            return ITEM_CATEGORIES.KNIFE;
-        }
-    }
+    /* Idk why but uncommenting this breaks everything. to figure out one day in the (far) future (maybe):
+    *
+    * for (const knifeType of KNIFE_IDENTIFIERS) {
+    *    if (cleanName.includes(knifeType)) {
+    *        return ITEM_CATEGORIES.KNIFE;
+    *    }
+    * }
     */
 
-    // Check for Gloves
     for (const gloveType of GLOVE_IDENTIFIERS) {
         if (cleanName.includes(gloveType)) {
             return ITEM_CATEGORIES.GLOVE;
         }
     }
 
-    // Check for Weapons
     for (const weaponType of WEAPON_IDENTIFIERS) {
         if (cleanName.includes(weaponType)) {
             return ITEM_CATEGORIES.WEAPON;
         }
     }
 
-    // Default to weapon if no other category matches
     return ITEM_CATEGORIES.WEAPON;
 }
 
-/**
- * Determines if an item can have StatTrak
- * @param {string} itemName - The name of the item
- * @returns {boolean} True if the item can have StatTrak
- */
 export function canHaveStatTrak(itemName) {
     const category = getItemCategory(itemName);
     return category === ITEM_CATEGORIES.WEAPON || category === ITEM_CATEGORIES.MUSIC_KIT;
 }
 
-/**
- * Determines if an item can have float/exterior values
- * @param {string} itemName - The name of the item
- * @returns {boolean} True if the item can have float/exterior values
- */
 export function canHaveFloat(itemName) {
     const category = getItemCategory(itemName);
     return category === ITEM_CATEGORIES.WEAPON || category === ITEM_CATEGORIES.GLOVE;
 }
 
-/**
- * Determines if an item can have paint seed/pattern values
- * @param {string} itemName - The name of the item
- * @returns {boolean} True if the item can have paint seed/pattern values
- */
 export function canHavePaintSeed(itemName) {
     const category = getItemCategory(itemName);
     return category === ITEM_CATEGORIES.WEAPON || category === ITEM_CATEGORIES.GLOVE;

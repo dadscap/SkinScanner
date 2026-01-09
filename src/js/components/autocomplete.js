@@ -1,10 +1,10 @@
-
-/**
- * Modern Autocomplete Component
+/* AutocompleteComponent
  * Replaces the native datalist with a custom dropdown implementation
+ * Note: Won't work for local installs (go back a few commits and download the massive JSON file in '/data')
  */
 
 export class AutocompleteComponent {
+    
     constructor(inputElement, options = {}) {
         this.input = inputElement;
         this.options = {
@@ -22,11 +22,11 @@ export class AutocompleteComponent {
         this.selectedIndex = -1;
         this.isOpen = false;
         this.debounceTimer = null;
-        this.scrollPosition = 0; // For scroll position memory
-        this.resultCache = new Map(); // For result caching
-        this.dataReady = false; // Ensures we don't search before data is loaded
-        this.pendingQuery = null; // Stores the user's input while data loads
-        this.activeQueryId = 0; // Prevents stale renders from out-of-order searches
+        this.scrollPosition = 0;
+        this.resultCache = new Map();
+        this.dataReady = false;
+        this.pendingQuery = null;
+        this.activeQueryId = 0;
         
         this.init();
     }
@@ -39,7 +39,6 @@ export class AutocompleteComponent {
     }
     
     createDropdownElements() {
-        // Create container wrapper around input if it doesn't exist
         const existingContainer = this.input.parentElement.querySelector('.autocomplete-container');
         if (!existingContainer) {
             const container = document.createElement('div');
@@ -50,47 +49,39 @@ export class AutocompleteComponent {
         
         this.container = this.input.parentElement;
         
-        // Create dropdown element
         this.dropdown = document.createElement('div');
         this.dropdown.className = 'autocomplete-dropdown';
         this.dropdown.setAttribute('role', 'listbox');
         this.dropdown.setAttribute('aria-label', 'Autocomplete suggestions');
 
-        // Create results container
         this.resultsContainer = document.createElement('div');
         this.resultsContainer.className = 'autocomplete-results';
         
-        // Create loading indicator
         this.loadingElement = document.createElement('div');
         this.loadingElement.className = 'autocomplete-loading';
         this.loadingElement.innerHTML = '<div class="loading-spinner"></div><span>Loading...</span>';
         
-        // Create empty state
         this.emptyElement = document.createElement('div');
         this.emptyElement.className = 'autocomplete-empty';
         this.emptyElement.textContent = 'No results found';
 
-        // Create result count
         this.resultCountElement = document.createElement('div');
         this.resultCountElement.className = 'autocomplete-result-count';
         this.resultCountElement.style.display = 'none';
         
-        // Append elements
         this.dropdown.appendChild(this.resultsContainer);
         this.dropdown.appendChild(this.loadingElement);
         this.dropdown.appendChild(this.emptyElement);
         this.dropdown.appendChild(this.resultCountElement);
         this.container.appendChild(this.dropdown);
 
-        // Add clear button to input
         this.clearButton = document.createElement('button');
         this.clearButton.className = 'autocomplete-clear-button';
-        this.clearButton.innerHTML = '&times;'; // '×' character
+        this.clearButton.innerHTML = '&times;';
         this.clearButton.setAttribute('aria-label', 'Clear search input');
-        this.clearButton.style.display = 'none'; // Hidden by default
+        this.clearButton.style.display = 'none';
         this.container.appendChild(this.clearButton);
         
-        // Set up ARIA attributes
         this.input.setAttribute('role', 'combobox');
         this.input.setAttribute('aria-expanded', 'false');
         this.input.setAttribute('aria-autocomplete', 'list');
@@ -98,7 +89,6 @@ export class AutocompleteComponent {
     }
     
     setupEventListeners() {
-        // Input events
         this.input.addEventListener('input', (e) => {
             this.handleInput(e.target.value);
             this.updateClearButtonVisibility();
@@ -112,8 +102,7 @@ export class AutocompleteComponent {
             }
         });
         
-        this.input.addEventListener('blur', (e) => {
-            // Delay hiding to allow click on dropdown items
+        this.input.addEventListener('blur', () => {
             setTimeout(() => {
                 if (!this.dropdown.contains(document.activeElement) && !this.clearButton.contains(document.activeElement)) {
                     this.hide();
@@ -121,14 +110,12 @@ export class AutocompleteComponent {
             }, 150);
         });
         
-        // Click outside to close
         document.addEventListener('click', (e) => {
             if (!this.container.contains(e.target) && !this.clearButton.contains(e.target)) {
                 this.hide();
             }
         });
         
-        // Dropdown item clicks
         this.dropdown.addEventListener('click', (e) => {
             const item = e.target.closest('.autocomplete-item');
             if (item) {
@@ -136,7 +123,6 @@ export class AutocompleteComponent {
             }
         });
 
-        // Clear button click
         this.clearButton.addEventListener('click', () => {
             this.clear();
             this.input.focus();
@@ -144,7 +130,6 @@ export class AutocompleteComponent {
             this.hide();
         });
         
-        // Prevent dropdown from closing when clicking inside
         this.dropdown.addEventListener('mousedown', (e) => {
             e.preventDefault();
         });
@@ -192,7 +177,6 @@ export class AutocompleteComponent {
             return;
         }
 
-        // If data hasn't loaded yet, remember the query and show a spinner
         if (!this.dataReady) {
             this.pendingQuery = trimmedValue;
             this.showLoading();
@@ -200,7 +184,6 @@ export class AutocompleteComponent {
             return;
         }
         
-        // Check for perfect match immediately to hide dropdown faster
         const normalizedValue = trimmedValue.toLowerCase();
         const hasPerfectMatch = this.data.some(item => item.toLowerCase() === normalizedValue);
         
@@ -224,7 +207,6 @@ export class AutocompleteComponent {
             return;
         }
 
-        // If we still don't have data, queue the request until data loads
         if (!this.dataReady) {
             this.pendingQuery = trimmedQuery;
             this.showLoading();
@@ -235,7 +217,6 @@ export class AutocompleteComponent {
         const cacheKey = trimmedQuery.toLowerCase();
         const isCached = this.resultCache.has(cacheKey);
 
-        // Only show the spinner when we're doing real work
         if (!isCached) {
             this.showLoading();
         } else {
@@ -245,7 +226,6 @@ export class AutocompleteComponent {
 
         const currentQueryId = ++this.activeQueryId;
 
-        // Check cache first
         if (isCached) {
             this.filteredData = this.resultCache.get(cacheKey);
             this.renderResults();
@@ -254,17 +234,15 @@ export class AutocompleteComponent {
         }
         
         const results = this.filterData(trimmedQuery);
-        // Ignore stale renders if a newer query started
         if (currentQueryId !== this.activeQueryId) return;
 
         this.filteredData = results;
-        this.resultCache.set(cacheKey, results); // Cache results
+        this.resultCache.set(cacheKey, results);
         this.renderResults();
         this.showOrHideBasedOnMatch(trimmedQuery);
     }
     
     showOrHideBasedOnMatch(query) {
-        // Check if there's a perfect match
         const normalizedQuery = query.toLowerCase();
         const hasPerfectMatch = this.data.some(item => item.toLowerCase() === normalizedQuery);
         
@@ -279,7 +257,6 @@ export class AutocompleteComponent {
         const normalizedQuery = query.toLowerCase();
         const results = [];
         
-        // First pass: exact matches and starts with
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
             if (normalizedItem === normalizedQuery) {
@@ -289,7 +266,6 @@ export class AutocompleteComponent {
             }
         }
         
-        // Second pass: contains matches
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
             if (!normalizedItem.startsWith(normalizedQuery) &&
@@ -298,7 +274,6 @@ export class AutocompleteComponent {
             }
         }
         
-        // Third pass: fuzzy matches (word boundaries)
         const queryWords = normalizedQuery.split(/\s+/);
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
@@ -322,7 +297,6 @@ export class AutocompleteComponent {
             }
         }
         
-        // Sort by relevance and limit results
         return results
             .sort((a, b) => b.relevance - a.relevance)
             .slice(0, this.options.maxResults)
@@ -330,8 +304,6 @@ export class AutocompleteComponent {
     }
 
     getWeaponType(itemName) {
-        // This is a simplified example. A more robust solution would involve a mapping
-        // or a more sophisticated parsing logic based on a comprehensive list of weapon names.
         const weaponTypes = [
             "AK-47", "M4A4", "M4A1-S", "AWP", "Desert Eagle", "Glock-18", "USP-S", "P250",
             "Five-SeveN", "Tec-9", "MP9", "MAC-10", "UMP-45", "P90", "PP-Bizon", "Nova",
@@ -345,11 +317,10 @@ export class AutocompleteComponent {
                 return type;
             }
         }
-        // Handle knives and gloves as special cases if they don't fit the above
         if (itemName.includes("Knife")) return "Knife";
         if (itemName.includes("Gloves")) return "Gloves";
         
-        return "Other"; // Default category
+        return "Other";
     }
 
     groupResults(results) {
@@ -362,9 +333,7 @@ export class AutocompleteComponent {
             grouped[type].push(item);
         });
 
-        // Sort groups (e.g., by number of items, or a predefined order)
         const sortedGroupKeys = Object.keys(grouped).sort((a, b) => {
-            // Prioritize common weapon types or those with more results
             const order = ["AK-47", "M4A4", "AWP", "Desert Eagle", "Knife", "Gloves", "Other"];
             const indexA = order.indexOf(a);
             const indexB = order.indexOf(b);
@@ -374,7 +343,7 @@ export class AutocompleteComponent {
             }
             if (indexA !== -1) return -1;
             if (indexB !== -1) return 1;
-            return grouped[b].length - grouped[a].length; // Fallback to quantity
+            return grouped[b].length - grouped[a].length;
         });
 
         return sortedGroupKeys
@@ -403,7 +372,7 @@ export class AutocompleteComponent {
         const query = this.input.value.toLowerCase();
         let totalRenderedItems = 0;
 
-        this.filteredData.forEach((item, index) => {
+        this.filteredData.forEach((item) => {
             const itemElement = document.createElement('div');
             itemElement.className = 'autocomplete-item';
             itemElement.setAttribute('role', 'option');
@@ -462,7 +431,6 @@ export class AutocompleteComponent {
             if (index === this.selectedIndex) {
                 item.classList.add('selected');
                 item.setAttribute('aria-selected', 'true');
-                // Smooth scroll into view
                 item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 this.input.setAttribute('aria-activedescendant', item.id = 'autocomplete-item-' + Date.now() + '-' + index);
             } else {
@@ -478,17 +446,14 @@ export class AutocompleteComponent {
         this.input.focus();
         this.hide();
 
-        // Visual feedback
         itemElement.classList.add('selected-confirm');
         setTimeout(() => {
             itemElement.classList.remove('selected-confirm');
-        }, 500); // brief highlight flash
+        }, 500);
 
-        // Trigger change event
         const changeEvent = new Event('change', { bubbles: true });
         this.input.dispatchEvent(changeEvent);
         
-        // Trigger input event for any listeners
         const inputEvent = new Event('input', { bubbles: true });
         this.input.dispatchEvent(inputEvent);
     }
@@ -507,9 +472,7 @@ export class AutocompleteComponent {
         this.dropdown.classList.add('open');
         this.input.setAttribute('aria-expanded', 'true');
         
-        // Position dropdown
         this.positionDropdown();
-        // Restore scroll position
         this.resultsContainer.scrollTop = this.scrollPosition;
     }
     
@@ -520,15 +483,12 @@ export class AutocompleteComponent {
         this.dropdown.classList.remove('open');
         this.input.setAttribute('aria-expanded', 'false');
         this.selectedIndex = -1;
-        // Save scroll position
         this.scrollPosition = this.resultsContainer.scrollTop;
     }
     
     positionDropdown() {
         const inputRect = this.input.getBoundingClientRect();
-        const containerRect = this.container.getBoundingClientRect();
         
-        // Position dropdown below input
         this.dropdown.style.width = `${inputRect.width}px`;
         this.dropdown.style.left = '0';
         this.dropdown.style.top = `${inputRect.height + 2}px`;
@@ -539,7 +499,6 @@ export class AutocompleteComponent {
         this.emptyElement.style.display = 'none';
         this.resultsContainer.style.display = 'none';
         this.resultCountElement.style.display = 'none';
-        // Ensure dropdown is visible so the spinner can be seen
         if (!this.isOpen) {
             this.show();
         }
@@ -569,8 +528,6 @@ export class AutocompleteComponent {
         }
     }
 
-    
-    // Public API methods
     setData(data) {
         this.data = Array.isArray(data) ? data : [];
         this.dataReady = true;
@@ -588,7 +545,6 @@ export class AutocompleteComponent {
     
     updateData(data) {
         const ranQueuedSearch = this.setData(data);
-        // If a queued search already ran, avoid double-triggering
         if (ranQueuedSearch) return;
 
         if (this.input.value.length >= this.options.minSearchLength) {
@@ -612,7 +568,6 @@ export class AutocompleteComponent {
     }
     
     destroy() {
-        // Clean up event listeners and DOM elements
         this.hide();
         if (this.dropdown && this.dropdown.parentNode) {
             this.dropdown.parentNode.removeChild(this.dropdown);
@@ -621,7 +576,6 @@ export class AutocompleteComponent {
             this.clearButton.parentNode.removeChild(this.clearButton);
         }
         
-        // Reset input attributes
         this.input.removeAttribute('role');
         this.input.removeAttribute('aria-expanded');
         this.input.removeAttribute('aria-autocomplete');
