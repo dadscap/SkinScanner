@@ -2,8 +2,14 @@
  * Generates marketplace URLs based on user input and selected parameters.
  */
 
-import { phaseMappings, exteriorMappings, getItemCategory, ITEM_CATEGORIES } from '../config/constants.js';
+import { phaseMappings, exteriorMappings, exteriorPresets, getItemCategory, ITEM_CATEGORIES } from '../config/constants.js';
 import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
+
+function isDefaultFloatRange(exterior, minFloat, maxFloat) {
+    if (!exterior || !exteriorPresets[exterior]) return false;
+    const [defaultMin, defaultMax] = exteriorPresets[exterior];
+    return parseFloat(minFloat) === defaultMin && parseFloat(maxFloat) === defaultMax;
+}
 
 export class MarketplaceURLs {
 
@@ -14,7 +20,7 @@ export class MarketplaceURLs {
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             return addUtmParams(url);
         }
-        if (!isVanillaSearch) {
+        if (!isVanillaSearch && !isDefaultFloatRange(exterior, minFloat, maxFloat)) {
             url += `&float_min=${minFloat}&float_max=${maxFloat}`;
         }
         url += (isStatTrak ? '&special=StatTrak™' : '');
@@ -35,11 +41,11 @@ export class MarketplaceURLs {
             return addUtmParams(baseUrl);
         }
         const currentExteriorId = exteriorMappings.default[exterior];
+        const includeFloatRange = !isDefaultFloatRange(exterior, minFloat, maxFloat);
         let whereClause = {
             skin_name: finalSearchName,
             ...(isVanillaSearch ? { "exterior_id": [6] } : {
-                float_value_from: minFloat,
-                float_value_to: maxFloat,
+                ...(includeFloatRange ? { float_value_from: minFloat, float_value_to: maxFloat } : {}),
                 ...(exterior ? { exterior_id: [currentExteriorId] } : {})
             }),
             ...(noTradeHold ? { tradehold_to: 0 } : {}),
@@ -166,8 +172,10 @@ export class MarketplaceURLs {
             if (paintSeed !== null) {
                 fragmentParams.push(`paintseed=${paintSeed}`);
             }
-            fragmentParams.push(`min_paintwear=${minFloat}`);
-            fragmentParams.push(`max_paintwear=${maxFloat}`);
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                fragmentParams.push(`min_paintwear=${minFloat}`);
+                fragmentParams.push(`max_paintwear=${maxFloat}`);
+            }
             baseUrl += fragmentParams.join('&');
             return addUtmParams(baseUrl);
         } else {
@@ -271,8 +279,10 @@ export class MarketplaceURLs {
             if (paintSeed !== null) {
                 fragmentParams.push(`paintseed=${paintSeed}`);
             }
-            fragmentParams.push(`min_paintwear=${minFloat}`);
-            fragmentParams.push(`max_paintwear=${maxFloat}`);
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                fragmentParams.push(`min_paintwear=${minFloat}`);
+                fragmentParams.push(`max_paintwear=${maxFloat}`);
+            }
             baseUrl += fragmentParams.join('&');
             return addUtmParams(baseUrl);
         } else {
@@ -356,7 +366,7 @@ export class MarketplaceURLs {
             if (id) {
                 const encodedItemName = encodeURIComponent(key);
                 let url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell?`;
-                if (!isVanillaSearch) {
+                if (!isVanillaSearch && !isDefaultFloatRange(exterior, minFloat, maxFloat)) {
                     url += `&minWear=${minFloat}&maxWear=${maxFloat}`;
                 }
                 if (paintSeed !== null && paintSeed !== undefined) {
@@ -371,7 +381,9 @@ export class MarketplaceURLs {
         let url = `https://c5game.com/csgo?keyword=${encodedBaseSearchName}`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
-        url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        }
         return addUtmParams(url);
     }
 
@@ -437,7 +449,7 @@ export class MarketplaceURLs {
         let url = `https://csfloat.com/search?${urlParams}`;
         if (urlParams.includes('paint_index')) {
             url += `&category=${category}`;
-            if (!isVanillaSearch) {
+            if (!isVanillaSearch && !isDefaultFloatRange(exterior, minFloat, maxFloat)) {
                 url += `&min_float=${minFloat}&max_float=${maxFloat}`;
             }
             url += (noTradeHold ? `&type=buy_now` : "");
@@ -464,7 +476,9 @@ export class MarketplaceURLs {
         }
         let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
         if (!isVanillaSearch) {
-            url += `&minFloat=${minFloat}&maxFloat=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&minFloat=${minFloat}&maxFloat=${maxFloat}`;
+            }
             url += (exterior ? `&quality=${exterior}` : "");
         }
         url += (isStatTrak ? `&isStatTrak=true` : "");
@@ -487,7 +501,9 @@ export class MarketplaceURLs {
             url += `&family=vanilla`;
             if (isStatTrak) url += `&category_0=stattrak_tm`;
         } else {
-            url += `&floatValueFrom=${minFloat}&floatValueTo=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&floatValueFrom=${minFloat}&floatValueTo=${maxFloat}`;
+            }
             if (isStatTrak) url += `&category_0=stattrak_tm`;
             if (currentExteriorLabel) url += `&exterior=${encodeURIComponent(currentExteriorLabel.toLowerCase())}`;
         }
@@ -553,7 +569,9 @@ export class MarketplaceURLs {
         const queryName = isVanillaSearch ? encodeURIComponent(`${baseSearchName} | Vanilla`) : encodedBaseSearchName;
         let url = `https://gamerpay.gg/?query=${queryName}&sortBy=price&ascending=true&page=1`;
         if (!isVanillaSearch) {
-            url += `&floatMin=${minFloat}&floatMax=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&floatMin=${minFloat}&floatMax=${maxFloat}`;
+            }
             url += (currentExteriorLabel ? `&wear=${currentExteriorLabel}` : "");
         }
         url += (isStatTrak ? `&statTrak=True` : "");
@@ -635,7 +653,9 @@ export class MarketplaceURLs {
         let url = `https://haloskins.com/market?keyword=${encodedBaseSearchName}&sort=1`;
         url += (isStatTrak ? `&statTrak=1` : "");
         url += (currentWearCategory ? `&exterior=${currentWearCategory}` : "");
-        url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        }
         return addUtmParams(url);
     }
 
@@ -695,7 +715,9 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             url += `&exterior=5`;
         } else {
-            url += `&float_from=${minFloat}&float_to=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&float_from=${minFloat}&float_to=${maxFloat}`;
+            }
             if (currentLisSkinsExteriorId) {
                 url += `&exterior=${currentLisSkinsExteriorId}`;
             }
@@ -753,8 +775,8 @@ export class MarketplaceURLs {
         } else if (currentExteriorLabel) {
             url += `&quality=${encodeURIComponent(currentExteriorLabel)}`;
         }
-        if (!isVanillaSearch) {
-            url += (parseFloat(minFloat) > 0 || parseFloat(maxFloat) < 1 ? `&floatMin=${minFloat}&floatMax=${maxFloat}` : '');
+        if (!isVanillaSearch && !isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&floatMin=${minFloat}&floatMax=${maxFloat}`;
         }
         if (!isVanillaSearch && phaseName && phaseMappings.csgo?.[phaseName]) {
             url += `&phase=${phaseMappings.csgo[phaseName]}`;
@@ -861,7 +883,6 @@ export class MarketplaceURLs {
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         const wearLabelParam = currentExteriorLabel ? encodeURIComponent(`["${currentExteriorLabel}"]`) : "[]";
-        const floatRangeParam = encodeURIComponent(JSON.stringify({ from: minFloat, to: maxFloat }));
         let searchString = encodedBaseSearchName;
         if (!isVanillaSearch && phaseName && phaseMappings.shadowpay?.[phaseName]) {
             searchString += phaseMappings.shadowpay[phaseName];
@@ -870,7 +891,10 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             url += `&vanilla_only=1`;
         } else {
-            url += `&float=${floatRangeParam}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                const floatRangeParam = encodeURIComponent(JSON.stringify({ from: minFloat, to: maxFloat }));
+                url += `&float=${floatRangeParam}`;
+            }
             if (exterior) url += `&exteriors=${wearLabelParam}`;
         }
         if (isStatTrak) url += `&is_stattrak=1`;
@@ -890,7 +914,9 @@ export class MarketplaceURLs {
         const currentExteriorId = exteriorMappings.default[exterior];
         let url = `https://skinbaron.de/en/csgo?str=${encodedBaseSearchName}&sort=PA&affiliateId=854`;
         if (!isVanillaSearch) {
-            url += `&wlb=${wearGt}&wub=${wearLt}`;
+            if (!isDefaultFloatRange(exterior, wearGt, wearLt)) {
+                url += `&wlb=${wearGt}&wub=${wearLt}`;
+            }
             url += (currentExteriorId ? `&exterior=${currentExteriorId}` : "");
         } else {
             url += `&unpainted=true`;
@@ -945,7 +971,9 @@ export class MarketplaceURLs {
         }
         const encodedSkinoutSearchTerm = encodeURIComponent(skinoutSearchTerm);
         let url = `https://skinout.gg/en/market?search=${encodedSkinoutSearchTerm}&sort=price_asc`;
-        url += `&float_min=${minFloat}&float_max=${maxFloat}`;
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&float_min=${minFloat}&float_max=${maxFloat}`;
+        }
         url += (exterior ? `&exterior=${exterior}` : "");
         url += (noTradeHold ? `&selected_hold=0` : "");
         if (phaseName && phaseMappings.skinout?.[phaseName]) {
@@ -1015,14 +1043,14 @@ export class MarketplaceURLs {
         if (exteriorMappings.urlFormattedPlus[exterior]) {
             queryParams.push(`exterior=${exteriorMappings.urlFormattedPlus[exterior]}`);
         }
-        if (minFloat > 0 || maxFloat < 1) {
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
             queryParams.push(`float_from=${minFloat}&float_to=${maxFloat}`);
         }
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
         return addUtmParams(url);
-    }    
+    }
 
     // Skinport
     static generateSkinport(params, _mappings) {
@@ -1041,7 +1069,9 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             url += `&vanilla=1`;
         } else {
-            url += `&weargt=${wearGt}&wearlt=${wearLt}`;
+            if (!isDefaultFloatRange(exterior, wearGt, wearLt)) {
+                url += `&weargt=${wearGt}&wearlt=${wearLt}`;
+            }
             if (currentSpExteriorId) url += `&exterior=${currentSpExteriorId}`;
         }
         if (isStatTrak) url += `&stattrak=1`;
@@ -1286,7 +1316,9 @@ export class MarketplaceURLs {
         url += (isStatTrak ? `&stat_trak=1` : "");
         if (!isVanillaSearch) {
             url += (exterior ? `&exterior=${exterior.toUpperCase()}` : "");
-            url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+            }
         }
         if (!isVanillaSearch && phaseName && phaseMappings.waxpeer?.[phaseName]) {
             url += `&phase=${phaseMappings.waxpeer[phaseName]}`;
@@ -1307,7 +1339,9 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             url += `&exterior=e5`;
         } else {
-            url += `&float-from=${minFloat}&float-to=${maxFloat}`;
+            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+                url += `&float-from=${minFloat}&float-to=${maxFloat}`;
+            }
             if (exterior && currentWhitemarketExteriorCode) url += `&exterior=${currentWhitemarketExteriorCode}`;
             else url += '&exterior=e0%2Ce1%2Ce2%2Ce3%2Ce4';
         }
