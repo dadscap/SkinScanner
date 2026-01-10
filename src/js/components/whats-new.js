@@ -29,21 +29,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🔗</div>
+                            <div class="feature-icon">🧭</div>
                             <div class="feature-text">
-                                <strong>Debugged URL generation</strong>
-                                <ul>
-                                    <li>Fixed issue with URL generation misplacing/duplicating characters. All should work correctly on every market.</li>
-                                    <li>If you find any issues, report them on the <a href="https://github.com/dadscap/SkinScanner/issues">GitHub page</a>.</li>
-                                    <li>Or send an email to <a href="mailto:dadscaptv@gmail.com">dadscaptv@gmail.com</a>.</li>
-                                </ul>
+                                <strong>Market picker refresh</strong>
+                                <p>The marketplace list is now a compact icon grid with refreshed logos, including Avan Market, LisSkins, Waxpeer, White.Market, and YouPin. Hover any tile to see its name.</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <div class="feature-icon">🔍</div>
+                            <div class="feature-icon">🎯</div>
                             <div class="feature-text">
-                                <strong>Updated mappings</strong>
-                                <p>New items searchable on BUFF163, BUFF.Market, C5Game, Ecosteam, Pirateswaap and Youpin.</p>
+                                <strong>Cleaner float & paint seed input</strong>
+                                <p>Float fields now sanitize to 0.000–1.000, and paint seed values are limited to 0–1000 with a quick on-screen alert.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔗</div>
+                            <div class="feature-text">
+                                <strong>Improved marketplace URLs</strong>
+                                <p>Updated URL generation for vanilla knives, StatTrak, exteriors, and float filters across multiple markets for more accurate searches.</p>
                             </div>
                         </div>
                     </div>

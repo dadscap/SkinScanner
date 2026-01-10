@@ -15,16 +15,21 @@ export class MarketplaceURLs {
 
     // Avanmarket
     static generateAvanmarket(params, _mappings) {
-        const { encodedBaseSearchName, minFloat, maxFloat, isStatTrak, phaseName, isVanillaSearch, fullInput } = params;
+        const { encodedBaseSearchName, minFloat, maxFloat, isStatTrak, phaseName, isVanillaSearch, fullInput, baseSearchName } = params;
         let url = `https://avan.market/en/market/cs?name=${encodedBaseSearchName}&r=dadscap&sort=1`;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             return addUtmParams(url);
         }
-        if (!isVanillaSearch && !isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+        if (isVanillaSearch) {
+            let knifeName = baseSearchName.replace(/^★\s*/, '').replace(/\s*\|\s*Vanilla$/i, '').toLowerCase().replace(/\s+/g, '-');
+            let slug = isStatTrak ? `★-stattraktm-${knifeName}` : `★-${knifeName}`;
+            return addUtmParams(`https://avan.market/en/market/cs/${slug}?r=dadscap`);
+        }
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
             url += `&float_min=${minFloat}&float_max=${maxFloat}`;
         }
         url += (isStatTrak ? '&special=StatTrak™' : '');
-        if (!isVanillaSearch && phaseName && phaseMappings.avanmarket?.[phaseName]) {
+        if (phaseName && phaseMappings.avanmarket?.[phaseName]) {
             url += `&phase=${phaseMappings.avanmarket[phaseName]}`;
         }
         return addUtmParams(url);
@@ -229,7 +234,8 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             let bMarketGoodId = null;
             if (bMarketMap) {
-                const itemData = bMarketMap[baseSearchName];
+                const vanillaKey = baseSearchName.startsWith('★') ? baseSearchName.replace(/\s*\|\s*Vanilla$/i, '') : `★ ${baseSearchName.replace(/\s*\|\s*Vanilla$/i, '')}`;
+                const itemData = bMarketMap[vanillaKey];
                 if (itemData) {
                     bMarketGoodId = isStatTrak ? itemData["st_vanilla"] : itemData["vanilla"];
                 }
@@ -467,20 +473,22 @@ export class MarketplaceURLs {
             url += (isStatTrak ? `&isStatTrak=true` : "");
             return addUtmParams(url);
         }
-        let searchNameParam;
         if (isVanillaSearch) {
-            const knifeName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
-            searchNameParam = encodeURIComponent(knifeName);
-        } else {
-            searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
-        }
-        let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
-        if (!isVanillaSearch) {
-            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
-                url += `&minFloat=${minFloat}&maxFloat=${maxFloat}`;
+            let knifeName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            knifeName = knifeName.replace(/\s*\|\s*Vanilla$/i, '');
+            if (isStatTrak) {
+                knifeName = knifeName.replace('★', '★ StatTrak™');
             }
-            url += (exterior ? `&quality=${exterior}` : "");
+            const searchNameParam = encodeURIComponent(knifeName);
+            let url = `https://cs.money/market/buy/?limit=60&offset=0&search=${searchNameParam}&order=asc&sort=price`;
+            return addUtmParams(url);
         }
+        let searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
+        let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&minFloat=${minFloat}&maxFloat=${maxFloat}`;
+        }
+        url += (exterior && exteriorMappings.urlFormattedPlus[exterior] ? `&exterior=${exteriorMappings.urlFormattedPlus[exterior]}` : "");
         url += (isStatTrak ? `&isStatTrak=true` : "");
         url += (paintSeed !== null ? `&pattern=${paintSeed}` : "");
         return addUtmParams(url);
@@ -668,9 +676,9 @@ export class MarketplaceURLs {
         }
         let searchName = finalSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
         if (isVanillaSearch) {
-            let vanillaName = baseSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
+            let vanillaName = baseSearchName.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '').replace(/\s*\|\s*Vanilla$/i, '');
             if (isStatTrak) {
-                vanillaName = `StatTrak™ ★ ${vanillaName}`;
+                vanillaName = `★ StatTrak™ ${vanillaName}`;
             } else {
                 vanillaName = `★ ${vanillaName}`;
             }
@@ -734,12 +742,21 @@ export class MarketplaceURLs {
     static generateMannco(params, _mappings) {
         const { baseSearchName, exterior, isStatTrak, encodedBaseSearchName, phaseName, isVanillaSearch, fullInput } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
+            let url = `https://mannco.store/cs2?search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
             if (isStatTrak) url += `&stattrak=stattrak`;
             return addUtmParams(url);
         }
+        if (isVanillaSearch) {
+            let slug = baseSearchName
+                .replace(/^★\s*/, '')
+                .replace(/\s*\|\s*Vanilla$/i, '')
+                .replace(/\s+/g, '-')
+                .toLowerCase();
+            if (isStatTrak) slug = `stattrak-${slug}`;
+            return addUtmParams(`https://mannco.store/item/730-${slug}?&ref=dadscap`);
+        }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
-        if (!isVanillaSearch && exterior && exterior !== 'Any') {
+        if (exterior && exterior !== 'Any') {
             let slug = baseSearchName
                 .replace(/^★\s*/, '')
                 .replace(/StatTrak™\s*/i, '')
@@ -753,7 +770,7 @@ export class MarketplaceURLs {
             const url = `https://mannco.store/item/730-${slug}/?ref=dadscap`;
             return addUtmParams(url);
         }
-        let url = `https://mannco.store/cs2?&search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
+        let url = `https://mannco.store/cs2?search=${encodedBaseSearchName}&page=1&price=ASC&ref=dadscap`;
         if (isStatTrak) url += `&stattrak=stattrak`;
         return addUtmParams(url);
     }
@@ -798,6 +815,16 @@ export class MarketplaceURLs {
 
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let url = `https://pirateswap.com/?ref=dadscap&mhn=${encodedMarketHashName}`;
+            return addUtmParams(url);
+        }
+        if (isVanillaSearch) {
+            const vanillaKey = baseSearchName.startsWith('★') ? baseSearchName.replace(/\s*\|\s*Vanilla$/i, '') : `★ ${baseSearchName.replace(/\s*\|\s*Vanilla$/i, '')}`;
+            const pirateEntry = pirateMap?.[vanillaKey];
+            const mhnc = pirateEntry ? (isStatTrak ? pirateEntry.st_vanilla : pirateEntry.vanilla) : null;
+            let vanillaMhn = isStatTrak ? `★ StatTrak™ ${vanillaKey.replace(/^★\s*/, '')}` : vanillaKey;
+            const encodedVanillaMhn = encodeURIComponent(vanillaMhn);
+            let url = `https://pirateswap.com/exchanger?ref=dadscap&mhn=${encodedVanillaMhn}`;
+            if (mhnc) url += `&mhnc=${mhnc}`;
             return addUtmParams(url);
         }
         const key = baseSearchName;
@@ -1127,7 +1154,7 @@ export class MarketplaceURLs {
         if (isVanillaSearch) {
             let vanillaName = fullInput.replace(/★\s*/g, '').replace(/StatTrak™\s*/g, '');
             if (isStatTrak) {
-                vanillaName = `StatTrak™ ★ ${vanillaName}`;
+                vanillaName = `★ StatTrak™ ${vanillaName}`;
             } else {
                 vanillaName = `★ ${vanillaName}`;
             }
@@ -1245,9 +1272,9 @@ export class MarketplaceURLs {
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
-            let vanillaName = baseSearchName.startsWith('★') ? baseSearchName : `${baseSearchName}`;
+            let vanillaName = baseSearchName.replace(/^★\s*/, '').replace(/\s*\|\s*Vanilla$/i, '');
             if (isStatTrak) {
-                vanillaName = `StatTrak ★ ${baseSearchName.replace(/^★\s*/, '')}`;
+                vanillaName = `StatTrak ${vanillaName}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
             return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
@@ -1279,11 +1306,19 @@ export class MarketplaceURLs {
     
     // Tradeit
     static generateTradeit(params, _mappings) {
-        const { phaseName, isStatTrak, fullInput, finalSearchName, exterior, isVanillaSearch } = params;
+        const { phaseName, isStatTrak, fullInput, finalSearchName, exterior, isVanillaSearch, baseSearchName } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const encodedSearch = finalSearchName.replace(/ /g, '+');
             const baseUrl = `https://tradeit.gg/csgo/store?aff=Dadscap&search=${encodedSearch}`;
             return addUtmParams(baseUrl);
+        }
+        if (isVanillaSearch) {
+            let knifeName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            knifeName = knifeName.replace(/\s*\|\s*Vanilla$/i, '');
+            if (isStatTrak) {
+                knifeName = knifeName.replace('★', '★ StatTrak™');
+            }
+            return addUtmParams(`https://waxpeer.com/r/dadscap?sort=DESC&order=deals&all=0&search=${encodeURIComponent(knifeName)}&exact=1`);
         }
         const currentExteriorLabel = exteriorMappings.labels[exterior];
         let searchString;
@@ -1305,22 +1340,27 @@ export class MarketplaceURLs {
 
     // Waxpeer
     static generateWaxpeer(params, _mappings) {
-        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, phaseName, isVanillaSearch, fullInput } = params;
+        const { encodedBaseSearchName, isStatTrak, exterior, minFloat, maxFloat, phaseName, isVanillaSearch, fullInput, baseSearchName } = params;
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://waxpeer.com/r/dadscap?all=0&search=${encodedBaseSearchName}`;
+            let url = `https://waxpeer.com/r/dadscap?all=0&search=${encodedBaseSearchName}&exact=1`;
             url += (isStatTrak ? `&stat_trak=1` : "");
             return addUtmParams(url);
         }
-        const searchQuery = isVanillaSearch ? `${encodedBaseSearchName}&exact=1` : encodedBaseSearchName;
-        let url = `https://waxpeer.com/r/dadscap?all=0&search=${searchQuery}`;
-        url += (isStatTrak ? `&stat_trak=1` : "");
-        if (!isVanillaSearch) {
-            url += (exterior ? `&exterior=${exterior.toUpperCase()}` : "");
-            if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
-                url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        if (isVanillaSearch) {
+            let knifeName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
+            knifeName = knifeName.replace(/\s*\|\s*Vanilla$/i, '');
+            if (isStatTrak) {
+                knifeName = knifeName.replace('★', '★ StatTrak™');
             }
+            return addUtmParams(`https://waxpeer.com/r/dadscap?sort=DESC&order=deals&all=0&search=${encodeURIComponent(knifeName)}&exact=1`);
         }
-        if (!isVanillaSearch && phaseName && phaseMappings.waxpeer?.[phaseName]) {
+        let url = `https://waxpeer.com/r/dadscap?all=0&search=${encodedBaseSearchName}`;
+        url += (isStatTrak ? `&stat_trak=1` : "");
+        url += (exterior ? `&exterior=${exterior.toUpperCase()}` : "");
+        if (!isDefaultFloatRange(exterior, minFloat, maxFloat)) {
+            url += `&min_float=${minFloat}&max_float=${maxFloat}`;
+        }
+        if (phaseName && phaseMappings.waxpeer?.[phaseName]) {
             url += `&phase=${phaseMappings.waxpeer[phaseName]}`;
         }
         return addUtmParams(url);

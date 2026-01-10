@@ -15,6 +15,9 @@ export class FloatRangeManager {
         this.cachedValues = { min: 0, max: 1 };
         this.isUpdating = false;
         this.isUpdatingExterior = false;
+        this.paintSeedAlertTimeout = null;
+        this.paintSeedAlertElement = null;
+        this.lastValidPaintSeed = '';
         
         this.debouncedStateChange = this.debounce(() => {
             this.onStateChange();
@@ -29,16 +32,179 @@ export class FloatRangeManager {
         this.elements.minFloatRange?.addEventListener('input', (e) => this.handleRangeInput(e, 'min'));
         this.elements.maxFloatRange?.addEventListener('input', (e) => this.handleRangeInput(e, 'max'));
         
+        this.elements.minFloatInput?.addEventListener('keydown', (e) => this.handleFloatInputKeydown(e));
+        this.elements.maxFloatInput?.addEventListener('keydown', (e) => this.handleFloatInputKeydown(e));
         this.elements.minFloatInput?.addEventListener('input', () => this.updateSlidersFromInput());
         this.elements.maxFloatInput?.addEventListener('input', () => this.updateSlidersFromInput());
+        this.elements.paintSeedInput?.addEventListener('keydown', (e) => this.handlePaintSeedKeydown(e));
         this.elements.paintSeedInput?.addEventListener('input', () => {
+            this.sanitizePaintSeedInput();
             updatePaintSeedInputValidationClass(this.elements.paintSeedInput);
             this.onStateChange();
         });
 
         this.dualRangeContainer = this.elements.minFloatRange?.closest('.dual-range-container');
         
+        this.initializePaintSeedInput();
         this.updateSlidersFromInput(false);
+    }
+
+    handleFloatInputKeydown(event) {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+        const allowedKeys = [
+            'Backspace',
+            'Delete',
+            'ArrowLeft',
+            'ArrowRight',
+            'ArrowUp',
+            'ArrowDown',
+            'Home',
+            'End',
+            'Tab',
+            'Enter'
+        ];
+        if (allowedKeys.includes(event.key)) return;
+
+        if (event.key.length === 1 && !/[\d.]/.test(event.key)) {
+            event.preventDefault();
+        }
+    }
+
+    handlePaintSeedKeydown(event) {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+        const allowedKeys = [
+            'Backspace',
+            'Delete',
+            'ArrowLeft',
+            'ArrowRight',
+            'ArrowUp',
+            'ArrowDown',
+            'Home',
+            'End',
+            'Tab',
+            'Enter'
+        ];
+        if (allowedKeys.includes(event.key)) return;
+
+        if (event.key.length === 1 && !/\d/.test(event.key)) {
+            event.preventDefault();
+        }
+    }
+
+    initializePaintSeedInput() {
+        const input = this.elements.paintSeedInput;
+        if (!input) return;
+
+        const normalized = this.normalizePaintSeedValue(input.value);
+        input.value = normalized.tooLarge ? '' : normalized.value;
+        this.lastValidPaintSeed = input.value;
+    }
+
+    ensurePaintSeedAlertElement() {
+        if (this.paintSeedAlertElement || !this.elements.paintSeedInput) return;
+
+        const alertElement = document.createElement('div');
+        alertElement.className = 'paint-seed-alert';
+        alertElement.textContent = 'Paint seed values can only range between 0 and 1000.';
+
+        const container = this.elements.paintSeedInput.parentElement;
+        if (container) {
+            const teaser = container.querySelector('.secret-teaser');
+            if (teaser) {
+                container.insertBefore(alertElement, teaser);
+            } else {
+                container.appendChild(alertElement);
+            }
+        }
+
+        this.paintSeedAlertElement = alertElement;
+    }
+
+    showPaintSeedAlert() {
+        this.ensurePaintSeedAlertElement();
+        if (!this.paintSeedAlertElement || !this.elements.paintSeedInput) return;
+
+        if (this.paintSeedAlertTimeout) {
+            clearTimeout(this.paintSeedAlertTimeout);
+        }
+
+        this.paintSeedAlertElement.classList.add('is-visible');
+        this.elements.paintSeedInput.classList.add('paint-seed-alert-active');
+
+        this.paintSeedAlertTimeout = setTimeout(() => {
+            this.paintSeedAlertElement.classList.remove('is-visible');
+            this.elements.paintSeedInput.classList.remove('paint-seed-alert-active');
+            this.paintSeedAlertTimeout = null;
+        }, 2000);
+    }
+
+    normalizePaintSeedValue(rawValue) {
+        const rawString = String(rawValue ?? '');
+        const digitsOnly = rawString.replace(/[^\d]/g, '');
+        if (digitsOnly === '') {
+            return { value: '', tooLarge: false };
+        }
+
+        const numericValue = parseInt(digitsOnly, 10);
+        if (Number.isNaN(numericValue)) {
+            return { value: '', tooLarge: false };
+        }
+
+        return { value: digitsOnly, tooLarge: numericValue > 1000 };
+    }
+
+    sanitizePaintSeedInput() {
+        const input = this.elements.paintSeedInput;
+        if (!input) return;
+
+        const normalized = this.normalizePaintSeedValue(input.value);
+
+        if (normalized.tooLarge) {
+            input.value = this.lastValidPaintSeed;
+            this.showPaintSeedAlert();
+            return;
+        }
+
+        input.value = normalized.value;
+        this.lastValidPaintSeed = normalized.value;
+    }
+
+    sanitizeFloatInputValue(rawValue) {
+        if (typeof rawValue !== 'string') {
+            rawValue = String(rawValue ?? '');
+        }
+
+        const isNegative = rawValue.trim().startsWith('-');
+        let cleaned = rawValue.replace(/[^\d.]/g, '');
+        const firstDotIndex = cleaned.indexOf('.');
+        if (firstDotIndex !== -1) {
+            const integerPart = cleaned.slice(0, firstDotIndex);
+            let decimalPart = cleaned.slice(firstDotIndex + 1).replace(/\./g, '');
+            if (decimalPart.length > 3) {
+                decimalPart = decimalPart.slice(0, 3);
+            }
+            cleaned = `${integerPart}.${decimalPart}`;
+        }
+
+        if (cleaned.startsWith('.')) {
+            cleaned = `0${cleaned}`;
+        }
+
+        if (isNegative) {
+            return '0.000';
+        }
+
+        if (cleaned === '') return '';
+
+        const numericValue = parseFloat(cleaned);
+        if (!Number.isNaN(numericValue)) {
+            if (numericValue > 1) return '1.000';
+            if (numericValue < 0) return '0.000';
+        }
+
+        return cleaned;
     }
 
     debounce(func, wait) {
@@ -116,12 +282,37 @@ export class FloatRangeManager {
 
     updateSlidersFromInput(doSave = true) {
         this.isUpdating = true;
-        
-        let minInputValue = parseFloat(this.elements.minFloatInput.value) || 0;
-        let maxInputValue = parseFloat(this.elements.maxFloatInput.value) || 0;
-        
-        minInputValue = Math.max(0, Math.min(1, minInputValue));
-        maxInputValue = Math.max(0, Math.min(1, maxInputValue));
+
+        const minSanitized = this.sanitizeFloatInputValue(this.elements.minFloatInput.value);
+        const maxSanitized = this.sanitizeFloatInputValue(this.elements.maxFloatInput.value);
+
+        if (minSanitized !== this.elements.minFloatInput.value) {
+            this.elements.minFloatInput.value = minSanitized;
+        }
+        if (maxSanitized !== this.elements.maxFloatInput.value) {
+            this.elements.maxFloatInput.value = maxSanitized;
+        }
+
+        const minNumeric = parseFloat(minSanitized);
+        const maxNumeric = parseFloat(maxSanitized);
+        const minHasNumber = !Number.isNaN(minNumeric);
+        const maxHasNumber = !Number.isNaN(maxNumeric);
+
+        let minInputValue = minHasNumber ? minNumeric : 0;
+        let maxInputValue = maxHasNumber ? maxNumeric : 0;
+
+        const clampedMin = Math.max(0, Math.min(1, minInputValue));
+        const clampedMax = Math.max(0, Math.min(1, maxInputValue));
+
+        if (minHasNumber && clampedMin !== minInputValue) {
+            this.elements.minFloatInput.value = clampedMin.toFixed(3);
+        }
+        if (maxHasNumber && clampedMax !== maxInputValue) {
+            this.elements.maxFloatInput.value = clampedMax.toFixed(3);
+        }
+
+        minInputValue = clampedMin;
+        maxInputValue = clampedMax;
         
         if (minInputValue > maxInputValue) {
             minInputValue = maxInputValue;
@@ -176,6 +367,11 @@ export class FloatRangeManager {
         this.elements.minFloatInput.value = (typeof state.minFloat === 'string' && !isNaN(parseFloat(state.minFloat))) ? state.minFloat : '0.000';
         this.elements.maxFloatInput.value = (typeof state.maxFloat === 'string' && !isNaN(parseFloat(state.maxFloat))) ? state.maxFloat : '1.000';
         this.elements.paintSeedInput.value = state.paintSeed || '';
+        if (this.elements.paintSeedInput) {
+            const normalized = this.normalizePaintSeedValue(this.elements.paintSeedInput.value);
+            this.elements.paintSeedInput.value = normalized.tooLarge ? '' : normalized.value;
+            this.lastValidPaintSeed = this.elements.paintSeedInput.value;
+        }
         
         this.cachedValues.min = parseFloat(this.elements.minFloatInput.value) || 0;
         this.cachedValues.max = parseFloat(this.elements.maxFloatInput.value) || 1;
@@ -190,6 +386,7 @@ export class FloatRangeManager {
         this.elements.minFloatInput.value = '0.000';
         this.elements.maxFloatInput.value = '1.000';
         this.elements.paintSeedInput.value = '';
+        this.lastValidPaintSeed = '';
         
         this.cachedValues.min = 0;
         this.cachedValues.max = 1;
@@ -227,6 +424,11 @@ export class FloatRangeManager {
             this.animationFrameId = null;
         }
         
+        if (this.paintSeedAlertTimeout) {
+            clearTimeout(this.paintSeedAlertTimeout);
+            this.paintSeedAlertTimeout = null;
+        }
+
         if (this.debouncedStateChange) {
             this.debouncedStateChange = null;
         }

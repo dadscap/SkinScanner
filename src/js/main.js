@@ -47,6 +47,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetFiltersButton = document.getElementById('resetFiltersButton');
     const settingsButton = document.getElementById('settingsButton');
 
+    const marketplaceNameOverrides = {
+        avanmarket: 'Avan Market',
+        lisskins: 'LisSkins',
+        waxpeer: 'Waxpeer',
+        whitemarket: 'White.Market'
+    };
+
+    marketItems.forEach((item) => {
+        const key = item.dataset.value || '';
+        const img = item.querySelector('img');
+        const svg = item.querySelector('svg');
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        let name = img?.alt?.trim() || '';
+        if (!name) {
+            name = marketplaceNameOverrides[key] || key.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+        }
+        if (!name) return;
+        item.setAttribute('title', name);
+        if (img) img.setAttribute('title', name);
+        if (svg) svg.setAttribute('title', name);
+        if (checkbox) {
+            checkbox.setAttribute('title', name);
+            if (!checkbox.getAttribute('aria-label')) {
+                checkbox.setAttribute('aria-label', name);
+            }
+        }
+    });
+
     // --- Debounced Save State Function ---
     const doSaveState = async () => {
         const state = {
@@ -83,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize autocomplete component
     const autocomplete = new AutocompleteComponent(itemNameInput, {
-        maxResults: 50,
+        maxResults: 500,
         minSearchLength: 1,
         debounceDelay: 150,
         highlightSearch: true,
