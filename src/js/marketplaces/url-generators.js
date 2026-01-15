@@ -2,7 +2,7 @@
  * Generates marketplace URLs based on user input and selected parameters.
  */
 
-import { phaseMappings, exteriorMappings, exteriorPresets, getItemCategory, ITEM_CATEGORIES } from '../config/constants.js';
+import { phaseMappings, exteriorMappings, exteriorPresets, getItemCategory, ITEM_CATEGORIES, KNIFE_IDENTIFIERS } from '../config/constants.js';
 import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
 
 function isDefaultFloatRange(exterior, minFloat, maxFloat) {
@@ -802,27 +802,42 @@ export class MarketplaceURLs {
 
     // Market.CSGO
     static generateCsgo(params, _mappings) {
-        const { encodedBaseSearchName, isStatTrak, isVanillaSearch, exterior, minFloat, maxFloat, phaseName, fullInput } = params;
+        const { baseSearchName, finalSearchName, encodedBaseSearchName, isStatTrak, isVanillaSearch, exterior, minFloat, maxFloat, phaseName, fullInput } = params;
+        const utmParams = 'utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
-            let url = `https://market.csgo.com/en/?search=${encodedBaseSearchName}`;
+            let url = `https://market.csgo.com/?search=${encodedBaseSearchName}`;
             url += (isStatTrak ? `&categories=StatTrak™` : '');
             url += '&sort=price&order=asc';
-            return url + '&utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
         }
-        const currentExteriorLabel = exteriorMappings.labels[exterior];
-        let url = `https://market.csgo.com/en/?search=${encodedBaseSearchName}`;
-        url += (isStatTrak ? `&categories=StatTrak™` : '');
-        if (isVanillaSearch) {
-            url += `&quality=Not%20Painted`;
-        } else if (currentExteriorLabel) {
-            url += `&quality=${encodeURIComponent(currentExteriorLabel)}`;
+        const exteriorLabel = exteriorMappings.labels[exterior] || exterior;
+        if (!exterior || exterior === 'Any' || isVanillaSearch) {
+            let url = `https://market.csgo.com/?search=${encodedBaseSearchName}`;
+            url += (isStatTrak ? `&categories=StatTrak™` : '');
+            if (isVanillaSearch) {
+                url += `&quality=Not%20Painted`;
+            } else if (exteriorLabel && exterior !== 'Any') {
+                url += `&quality=${encodeURIComponent(exteriorLabel)}`;
+            }
+            url += `&floatMin=${minFloat}&floatMax=${maxFloat}`;
+            if (!isVanillaSearch && phaseName && phaseMappings.csgo?.[phaseName]) {
+                url += `&phase=${phaseMappings.csgo[phaseName]}`;
+            }
+            url += '&sort=price&order=asc';
+            return `${url}&${utmParams}`;
         }
-        url += `&floatMin=${minFloat}&floatMax=${maxFloat}`;
-        if (!isVanillaSearch && phaseName && phaseMappings.csgo?.[phaseName]) {
-            url += `&phase=${phaseMappings.csgo[phaseName]}`;
+        const marketHashName = `${finalSearchName}${exteriorLabel ? ` (${exteriorLabel})` : ''}`;
+        const isKnife = KNIFE_IDENTIFIERS.some((knife) => baseSearchName.includes(knife) || fullInput.includes(knife));
+        const isGlove = getItemCategory(fullInput) === ITEM_CATEGORIES.GLOVE;
+        const needsStar = (isKnife || isGlove) && !marketHashName.startsWith('★');
+        const marketHashNameWithStar = needsStar ? `★ ${marketHashName.replace(/^★\s*/, '')}` : marketHashName;
+        const encodedMarketHashName = encodeURIComponent(marketHashNameWithStar);
+        let url = `https://market.csgo.com/${encodedMarketHashName}`;
+        const queryParams = [utmParams];
+        if (phaseName && phaseMappings.csgo?.[phaseName]) {
+            queryParams.unshift(`phase-product=${phaseMappings.csgo[phaseName]}`);
         }
-        url += '&sort=price&order=asc';
-        return url + '&utm_campaign=newcampaign&utm_source=SkinScanner&cpid=28e643b6-8c56-4212-b09c-ba3cabec7d7a&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7';
+        url += `?${queryParams.join('&')}`;
+        return url;
     }
 
     // Pirateswap

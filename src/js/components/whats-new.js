@@ -29,10 +29,10 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🔪</div>
+                            <div class="feature-icon">⚙️</div>
                             <div class="feature-text">
-                                <strong>Doppler Search Fix</strong>
-                                <p>Search for Doppler/Gamma Doppler items is now fixed for all marketplaces. Sorry for the inconvenience. 🙏</p>
+                                <strong>Updated IDs</strong>
+                                <p>Routine maintenance.</p>
                             </div>
                         </div>
                     </div>
