@@ -46,11 +46,15 @@ export class SearchProcessor {
             }
         }
 
+        const cleanedInputNoPhase = phaseMatch
+            ? cleanedInput.replace(phaseRegex, '').replace(/\s+/g, ' ').trim()
+            : cleanedInput;
+
         let baseSearchName;
         if (isVanillaSearch) {
-            baseSearchName = cleanedInput.substring(0, cleanedInput.lastIndexOf(" | Vanilla")).trim();
+            baseSearchName = cleanedInputNoPhase.substring(0, cleanedInputNoPhase.lastIndexOf(" | Vanilla")).trim();
         } else {
-            baseSearchName = cleanedInput;
+            baseSearchName = cleanedInputNoPhase;
         }
         
         const itemCanHaveStatTrak = canHaveStatTrak(baseSearchName);
