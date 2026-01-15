@@ -1,3 +1,4 @@
 /src/data/
 scripts
 collections_info_sheet.txt
+.mypy_cache/
