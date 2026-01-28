@@ -31,8 +31,8 @@ export class WhatsNewManager {
                         <div class="feature-item">
                             <div class="feature-icon">⚙️</div>
                             <div class="feature-text">
-                                <strong>Updated IDs</strong>
-                                <p>Routine maintenance.</p>
+                                <strong>Addition of new collections</strong>
+                                <p>Skins from the Achroma & Harlequin collections are now searchable via autocomplete 🔎</p>
                             </div>
                         </div>
                     </div>

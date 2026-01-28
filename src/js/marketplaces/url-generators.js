@@ -355,8 +355,7 @@ export class MarketplaceURLs {
                 }
             }
             if (id) {
-                const encodedItemName = encodeURIComponent(fullInput);
-                const url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell`;
+                const url = `https://c5game.com/csgo/${id}/item/sell`;
                 return addUtmParams(url);
             }
             let url = `https://c5game.com/csgo?keyword=${encodedBaseSearchName}`;
@@ -398,8 +397,7 @@ export class MarketplaceURLs {
                     id = c5Map[secondaryKey];
                 }
             if (id) {
-                const encodedItemName = encodeURIComponent(key);
-                let url = `https://c5game.com/csgo/${id}/${encodedItemName}/sell?`;
+                let url = `https://c5game.com/csgo/${id}/item/sell?`;
                 if (phaseName && phaseMappings.c5game?.[phaseName]) {
                     url += `paintSeed&levelIds=${phaseMappings.c5game[phaseName]}`;
                 }
