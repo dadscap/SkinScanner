@@ -7,7 +7,7 @@ if (typeof browser === "undefined") {
 }
 
 export class WhatsNewManager {
-    
+
     constructor() {
         this.overlay = null;
         this.isShown = false;
@@ -17,7 +17,7 @@ export class WhatsNewManager {
         const overlay = document.createElement('div');
         overlay.id = 'whatsNewOverlay';
         overlay.className = 'whats-new-overlay';
-        
+
         overlay.innerHTML = `
             <div class="whats-new-backdrop"></div>
             <div class="whats-new-modal">
@@ -29,10 +29,24 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">⚙️</div>
+                            <div class="feature-icon">🖌️</div>
                             <div class="feature-text">
-                                <strong>Addition of new collections</strong>
-                                <p>Skins from the Achroma & Harlequin collections are now searchable via autocomplete 🔎</p>
+                                <strong>Vectorized Logos</strong>
+                                <p>Replaced raster logo images with inline SVGs to improve loadtimes and visual consistency.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">👋</div>
+                            <div class="feature-text">
+                                <strong>New onboarding</strong>
+                                <p>New users are now redirected <a href="https://skinscanner.dadsc.app/welcome" target="_blank"">here</a> for a quick tour of the extension's features.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📚</div>
+                            <div class="feature-text">
+                                <strong>Missing items added</strong>
+                                <p>Added missing items to the autocomplete list.</p>
                             </div>
                         </div>
                     </div>

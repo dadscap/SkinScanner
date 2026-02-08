@@ -22,12 +22,12 @@ export function validateFloatInputsDOM(minFloatInput, maxFloatInput, floatRangeD
         minFloatInput.classList.add('invalid');
         isRangeValid = false;
     }
-    
+
     if (isNaN(maxVal) || maxVal < 0 || maxVal > 1) {
         maxFloatInput.classList.add('invalid');
         isRangeValid = false;
     }
-    
+
     if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
         if (floatRangeDiv) floatRangeDiv.classList.add('invalid-float-range');
         minFloatInput.classList.add('invalid');

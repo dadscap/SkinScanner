@@ -9,50 +9,50 @@ if (typeof browser === "undefined") {
 const STORAGE_KEYS = {
     LAST_VERSION: 'skinscanner_last_version',
     SHOW_WHATS_NEW: 'skinscanner_show_whats_new',
-    BADGE_SHOWN: 'skinscanner_badge_shown',
-    WELCOME_SEEN: 'skinscanner_has_seen_welcome'
+    BADGE_SHOWN: 'skinscanner_badge_shown'
 };
+const WELCOME_PAGE_URL = 'https://skinscanner.dadsc.app/welcome';
 
 const RS = {
-  key: (tabId) => `rs-${tabId}`,
-  isRapidSkinsUrl: (url) => {
-    try {
-      const u = new URL(url);
-      const hostOk = u.hostname === 'rapidskins.com' || u.hostname === 'www.rapidskins.com';
-      const notAffiliate = !u.pathname.startsWith('/a/');
-      return hostOk && notAffiliate;
-    } catch { return false; }
-  }
+    key: (tabId) => `rs-${tabId}`,
+    isRapidSkinsUrl: (url) => {
+        try {
+            const u = new URL(url);
+            const hostOk = u.hostname === 'rapidskins.com' || u.hostname === 'www.rapidskins.com';
+            const notAffiliate = !u.pathname.startsWith('/a/');
+            return hostOk && notAffiliate;
+        } catch { return false; }
+    }
 };
 
 async function rsMaybeRedirect(details) {
-  try {
-    if (!details || !details.url || !RS.isRapidSkinsUrl(details.url)) return;
-
-    const key = RS.key(details.tabId);
-    const got = await browser.storage.local.get(key);
-    const finalUrl = got[key];
-    if (!finalUrl) return;
-
-    await browser.storage.local.remove(key);
     try {
-      await browser.tabs.update(details.tabId, { url: finalUrl });
+        if (!details || !details.url || !RS.isRapidSkinsUrl(details.url)) return;
+
+        const key = RS.key(details.tabId);
+        const got = await browser.storage.local.get(key);
+        const finalUrl = got[key];
+        if (!finalUrl) return;
+
+        await browser.storage.local.remove(key);
+        try {
+            await browser.tabs.update(details.tabId, { url: finalUrl });
+        } catch (e) {
+        }
     } catch (e) {
+        console.warn('RapidSkins redirect failed:', e);
     }
-  } catch (e) {
-    console.warn('RapidSkins redirect failed:', e);
-  }
 }
 
 browser.webNavigation.onCommitted.addListener(rsMaybeRedirect, {
-  url: [{ hostSuffix: 'rapidskins.com' }]
+    url: [{ hostSuffix: 'rapidskins.com' }]
 });
 browser.webNavigation.onCompleted.addListener(rsMaybeRedirect, {
-  url: [{ hostSuffix: 'rapidskins.com' }]
+    url: [{ hostSuffix: 'rapidskins.com' }]
 });
 
 browser.tabs.onRemoved.addListener(async (tabId) => {
-  try { await browser.storage.local.remove(RS.key(tabId)); } catch {}
+    try { await browser.storage.local.remove(RS.key(tabId)); } catch { }
 });
 
 const getCurrentVersion = () => {
@@ -78,7 +78,7 @@ const showNewBadge = () => {
 
 const handleInstallOrUpdate = async (details) => {
     const currentVersion = getCurrentVersion();
-    
+
     try {
         const storage = await browser.storage.local.get([
             STORAGE_KEYS.LAST_VERSION,
@@ -90,21 +90,22 @@ const handleInstallOrUpdate = async (details) => {
             await browser.storage.local.set({
                 [STORAGE_KEYS.LAST_VERSION]: currentVersion,
                 [STORAGE_KEYS.SHOW_WHATS_NEW]: false,
-                [STORAGE_KEYS.BADGE_SHOWN]: false,
-                [STORAGE_KEYS.WELCOME_SEEN]: false
+                [STORAGE_KEYS.BADGE_SHOWN]: false
             });
+
+            await browser.tabs.create({ url: WELCOME_PAGE_URL });
             console.log('SkinScanner installed, version:', currentVersion);
-            
+
         } else if (details.reason === 'update') {
             const lastVersion = storage[STORAGE_KEYS.LAST_VERSION];
-            
+
             if (lastVersion && lastVersion !== currentVersion) {
                 await browser.storage.local.set({
                     [STORAGE_KEYS.LAST_VERSION]: currentVersion,
                     [STORAGE_KEYS.SHOW_WHATS_NEW]: true,
                     [STORAGE_KEYS.BADGE_SHOWN]: true
                 });
-                
+
                 showNewBadge();
                 console.log(`SkinScanner updated from ${lastVersion} to ${currentVersion}`);
             }
@@ -134,7 +135,7 @@ const checkBadgeOnStartup = async () => {
 const handlePopupOpened = async () => {
     try {
         const storage = await browser.storage.local.get([STORAGE_KEYS.SHOW_WHATS_NEW]);
-        
+
         if (storage[STORAGE_KEYS.SHOW_WHATS_NEW]) {
             setTimeout(async () => {
                 await browser.storage.local.set({

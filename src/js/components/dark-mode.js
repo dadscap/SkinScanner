@@ -5,7 +5,7 @@
 import { StorageManager } from '../utils/storage.js';
 
 export class DarkModeManager {
-    
+
     constructor(toggleElement, bodyElement) {
         this.toggleElement = toggleElement;
         this.bodyElement = bodyElement;

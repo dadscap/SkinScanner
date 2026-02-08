@@ -3,7 +3,7 @@
  */
 
 export class MarketSelector {
-    
+
     constructor(elements, onStateChangeCallback) {
         this.elements = elements;
         this.onStateChange = onStateChangeCallback;
@@ -54,7 +54,7 @@ export class MarketSelector {
         this.elements.selectBuySellCheckbox?.addEventListener('change', () => this.toggleCategoryMarkets('buysell'));
         this.elements.selectTradeCheckbox?.addEventListener('change', () => this.toggleCategoryMarkets('trade'));
         this.elements.selectChinaCheckbox?.addEventListener('change', () => this.toggleCategoryMarkets('china'));
-        
+
         this.elements.marketItems.forEach(item => {
             const checkbox = item.querySelector('input[type="checkbox"]');
             if (checkbox) {
@@ -71,7 +71,7 @@ export class MarketSelector {
                 });
             }
         });
-        
+
         this.updateSelectAllState();
         this.updateCategoryStates();
     }
@@ -79,7 +79,7 @@ export class MarketSelector {
     updateSelectAllState() {
         const allChecked = Array.from(this.elements.marketCheckboxes).every(cb => cb.checked);
         const anyChecked = Array.from(this.elements.marketCheckboxes).some(cb => cb.checked);
-        
+
         if (this.elements.selectAllCheckbox) {
             this.elements.selectAllCheckbox.checked = allChecked && this.elements.marketCheckboxes.length > 0;
             this.elements.selectAllCheckbox.indeterminate = !allChecked && anyChecked;
@@ -122,8 +122,8 @@ export class MarketSelector {
 
     toggleCategoryMarkets(categoryName) {
         let categoryCheckbox;
-        
-        switch(categoryName) {
+
+        switch (categoryName) {
             case 'buysell':
                 categoryCheckbox = this.elements.selectBuySellCheckbox;
                 break;
@@ -136,16 +136,16 @@ export class MarketSelector {
             default:
                 return;
         }
-        
+
         if (!categoryCheckbox) return;
 
         const isChecked = categoryCheckbox.checked;
         const categoryCheckboxes = this.getCategoryCheckboxes(categoryName);
-        
+
         categoryCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
-        
+
         this.updateSelectAllState();
         this.updateCategoryStates();
         this.onStateChange();
@@ -153,10 +153,10 @@ export class MarketSelector {
 
     updateSearchButtonText() {
         if (!this.elements.searchButton) return;
-        
+
         const numSelected = this.getSelectedMarkets().length;
         const baseText = "Find Listings";
-        
+
         if (numSelected > 0) {
             this.elements.searchButton.textContent = `${baseText} On ${numSelected} Market${numSelected !== 1 ? 's' : ''}`;
             this.elements.searchButton.disabled = false;
@@ -168,12 +168,12 @@ export class MarketSelector {
 
     toggleAllMarkets() {
         if (!this.elements.selectAllCheckbox) return;
-        
+
         const isChecked = this.elements.selectAllCheckbox.checked;
         this.elements.marketCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
-        
+
         this.updateSelectAllState();
         this.updateCategoryStates();
         this.onStateChange();
@@ -187,13 +187,13 @@ export class MarketSelector {
 
     applyState(state) {
         this.elements.selectAllCheckbox.checked = state.selectAll || false;
-        
+
         const savedMarkets = Array.isArray(state.selectedMarkets) ? state.selectedMarkets : [];
-        
+
         this.elements.marketCheckboxes.forEach(cb => {
             cb.checked = savedMarkets.includes(cb.value);
         });
-        
+
         this.updateSelectAllState();
         this.updateCategoryStates();
     }
@@ -202,27 +202,27 @@ export class MarketSelector {
         this.elements.marketCheckboxes.forEach(cb => {
             cb.checked = false;
         });
-        
+
         if (this.elements.selectAllCheckbox) {
             this.elements.selectAllCheckbox.checked = false;
             this.elements.selectAllCheckbox.indeterminate = false;
         }
-        
+
         if (this.elements.selectBuySellCheckbox) {
             this.elements.selectBuySellCheckbox.checked = false;
             this.elements.selectBuySellCheckbox.indeterminate = false;
         }
-        
+
         if (this.elements.selectTradeCheckbox) {
             this.elements.selectTradeCheckbox.checked = false;
             this.elements.selectTradeCheckbox.indeterminate = false;
         }
-        
+
         if (this.elements.selectChinaCheckbox) {
             this.elements.selectChinaCheckbox.checked = false;
             this.elements.selectChinaCheckbox.indeterminate = false;
         }
-        
+
         this.updateSearchButtonText();
     }
 }

@@ -96,7 +96,7 @@ export class MarketplaceURLs {
 
     // Buff163
     static generateBuff(params, mappings) {
-        const {isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat} = params;
+        const { isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat } = params;
         const { buffMap } = mappings || {};
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let itemData = buffMap ? buffMap[fullInput] : null;
@@ -190,7 +190,7 @@ export class MarketplaceURLs {
                         buffGoodId = exteriorData["buff163_goods_id"];
                     }
                 } else {
-                     console.warn(`Buff163: No exteriorData found for key '${buffIdKey}' in item '${buffMapLookupKey}'`);
+                    console.warn(`Buff163: No exteriorData found for key '${buffIdKey}' in item '${buffMapLookupKey}'`);
                 }
             } else {
                 console.log(`Buff163: Item key "${buffMapLookupKey}" not found in buffMap.`);
@@ -226,7 +226,7 @@ export class MarketplaceURLs {
 
     // Buff.Market
     static generateBuffmarket(params, mappings) {
-        const {isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat} = params;
+        const { isVanillaSearch, encodedBaseSearchName, isStatTrak, exterior, phaseName, baseSearchName, fullInput, paintSeed, minFloat, maxFloat } = params;
         const { bMarketMap } = mappings || {};
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             let itemData = bMarketMap ? bMarketMap[fullInput] : null;
@@ -392,10 +392,10 @@ export class MarketplaceURLs {
                     key = `${isKnife ? '★ ' : ''}${isStatTrak ? 'StatTrak™ ' : ''}${baseSearchName}${label ? ` (${label})` : ''}`;
                 }
             }
-                let id = c5Map ? c5Map[key] : null;
-                if (!id && secondaryKey && c5Map) {
-                    id = c5Map[secondaryKey];
-                }
+            let id = c5Map ? c5Map[key] : null;
+            if (!id && secondaryKey && c5Map) {
+                id = c5Map[secondaryKey];
+            }
             if (id) {
                 let url = `https://c5game.com/csgo/${id}/item/sell?`;
                 if (phaseName && phaseMappings.c5game?.[phaseName]) {
@@ -729,7 +729,7 @@ export class MarketplaceURLs {
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
         return addUtmParams(`https://itrade.gg/trade/csgo?search=${formattedName}&ref=dadscap`);
-    }    
+    }
 
     // LisSkins
     static generateLisskins(params, _mappings) {
@@ -941,7 +941,7 @@ export class MarketplaceURLs {
         if (noTradeHold) query += `&maximumUnlockDays=0`;
         return wrap(query);
     }
-    
+
     // ShadowPay
     static generateShadowpay(params, _mappings) {
         const { exterior, minFloat, maxFloat, encodedBaseSearchName, isVanillaSearch, phaseName, isStatTrak, fullInput } = params;
@@ -1098,7 +1098,7 @@ export class MarketplaceURLs {
                 url += '&is_hold=0';
             }
             return addUtmParams(url);
-            
+
         }
         let normalizedName = finalSearchName
             .replace(/^★\s*/, '')
@@ -1282,7 +1282,7 @@ export class MarketplaceURLs {
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
         return addUtmParams(`https://skinswap.com/r/dadscap?search=${formattedName}`);
-    }    
+    }
 
     // Steam
     static generateSteam(params, _mappings) {
@@ -1319,7 +1319,7 @@ export class MarketplaceURLs {
         const baseUrl = `https://steamcommunity.com/market/search?q=${encodeURIComponent(steamSearchName)}&appid=730`;
         return addUtmParams(baseUrl);
     }
-    
+
     // Swap.gg
     static generateSwapgg(params, _mappings) {
         let { baseSearchName, finalSearchName, exterior, isVanillaSearch, isStatTrak, phaseName, fullInput } = params;
@@ -1362,7 +1362,7 @@ export class MarketplaceURLs {
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
         return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
     }
-    
+
     // Tradeit
     static generateTradeit(params, _mappings) {
         const { phaseName, isStatTrak, fullInput, finalSearchName, exterior, isVanillaSearch, baseSearchName } = params;

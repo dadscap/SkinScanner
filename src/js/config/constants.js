@@ -7,28 +7,28 @@ export const exteriorPresets = {
 };
 
 export const exteriorMappings = {
-    labels: {fn: "Factory New", mw: "Minimal Wear", ft: "Field-Tested", ww: "Well-Worn", bs: "Battle-Scarred"},
-    default: {fn: 1, mw: 2, ft: 3, ww: 4, bs: 5},
-    wearCategory: {fn: "WearCategory0", mw: "WearCategory1", ft: "WearCategory2", ww: "WearCategory3", bs: "WearCategory4"},
-    skinport: {fn: 2, mw: 4, ft: 3, ww: 5, bs: 1},
-    lisskins: {fn: 2, mw: 4, ft: 3, ww: 6, bs: 1},
-    whitemarket: {fn: 'e0', mw: 'e1', ft: 'e2', ww: 'e3', bs: 'e4'},
-    urlFormatted: {fn: 'factory-new', mw: 'minimal-wear', ft: 'field-tested', ww: 'well-worn', bs: 'battle-scarred'},
-    urlFormattedPlus: {fn: 'Factory+New', mw: 'Minimal+Wear', ft: 'Field-Tested', ww: 'Well-Worn', bs: 'Battle-Scarred'},
+    labels: { fn: "Factory New", mw: "Minimal Wear", ft: "Field-Tested", ww: "Well-Worn", bs: "Battle-Scarred" },
+    default: { fn: 1, mw: 2, ft: 3, ww: 4, bs: 5 },
+    wearCategory: { fn: "WearCategory0", mw: "WearCategory1", ft: "WearCategory2", ww: "WearCategory3", bs: "WearCategory4" },
+    skinport: { fn: 2, mw: 4, ft: 3, ww: 5, bs: 1 },
+    lisskins: { fn: 2, mw: 4, ft: 3, ww: 6, bs: 1 },
+    whitemarket: { fn: 'e0', mw: 'e1', ft: 'e2', ww: 'e3', bs: 'e4' },
+    urlFormatted: { fn: 'factory-new', mw: 'minimal-wear', ft: 'field-tested', ww: 'well-worn', bs: 'battle-scarred' },
+    urlFormattedPlus: { fn: 'Factory+New', mw: 'Minimal+Wear', ft: 'Field-Tested', ww: 'Well-Worn', bs: 'Battle-Scarred' },
 };
 
 export const phaseMappings = {
     avanmarket: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" },
     bitskins: { "Phase 1": 1, "Phase 2": 2, "Phase 3": 3, "Phase 4": 4, "Sapphire": 6, "Ruby": 5, "Black Pearl": 7, "Emerald": 8 },
     c5game: { "Phase 1": 11, "Phase 2": 12, "Phase 3": 13, "Phase 4": 14, "Sapphire": 33, "Ruby": 31, "Black Pearl": 34, "Emerald": 32 },
-    csgo: { "Phase 1": "phase1", "Phase 2": "phase2", "Phase 3": "phase3", "Phase 4": "phase4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "blackpearl", "Emerald": "emerald" },    
-    dmarket: { "Phase 1": "phase-1", "Phase 2": "phase-2", "Phase 3": "phase-3", "Phase 4": "phase-4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "black-pearl", "Emerald": "emerald" },    
+    csgo: { "Phase 1": "phase1", "Phase 2": "phase2", "Phase 3": "phase3", "Phase 4": "phase4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "blackpearl", "Emerald": "emerald" },
+    dmarket: { "Phase 1": "phase-1", "Phase 2": "phase-2", "Phase 3": "phase-3", "Phase 4": "phase-4", "Sapphire": "sapphire", "Ruby": "ruby", "Black Pearl": "black-pearl", "Emerald": "emerald" },
     gamerpay: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" },
     lisskins: { "Phase 1": 1, "Phase 2": 2, "Phase 3": 3, "Phase 4": 4, "Sapphire": 6, "Ruby": 7, "Black Pearl": 8, "Emerald": 5 },
-    shadowpay: { "Phase 1": "+(Phase+1)", "Phase 2": "+(Phase+2)", "Phase 3": "+(Phase+3)", "Phase 4": "+(Phase+4)", "Sapphire": "+(Sapphire)", "Ruby": "+(Ruby)", "Black Pearl": "+(Black+Pearl)", "Emerald": "+(Emerald)" },    
+    shadowpay: { "Phase 1": "+(Phase+1)", "Phase 2": "+(Phase+2)", "Phase 3": "+(Phase+3)", "Phase 4": "+(Phase+4)", "Sapphire": "+(Sapphire)", "Ruby": "+(Ruby)", "Black Pearl": "+(Black+Pearl)", "Emerald": "+(Emerald)" },
     skinout: { "Phase 1": "Phase+1", "Phase 2": "Phase+2", "Phase 3": "Phase+3", "Phase 4": "Phase+4", "Sapphire": "Sapphire", "Ruby": "Ruby", "Black Pearl": "Black+Pearl", "Emerald": "Emerald" },
-    skinport: { "Phase 1": 2, "Phase 2": 3, "Phase 3": 4, "Phase 4": 5, "Sapphire": 6, "Ruby": 7, "Black Pearl": 8, "Emerald": 9 },    
-    waxpeer: { "Phase 1": "p1", "Phase 2": "p2", "Phase 3": "p3", "Phase 4": "p4", "Sapphire": "sh", "Ruby": "rb", "Black Pearl": "bp", "Emerald": "em" },    
+    skinport: { "Phase 1": 2, "Phase 2": 3, "Phase 3": 4, "Phase 4": 5, "Sapphire": 6, "Ruby": 7, "Black Pearl": 8, "Emerald": 9 },
+    waxpeer: { "Phase 1": "p1", "Phase 2": "p2", "Phase 3": "p3", "Phase 4": "p4", "Sapphire": "sh", "Ruby": "rb", "Black Pearl": "bp", "Emerald": "em" },
     whitemarket: { "Phase 1": "PHASE1", "Phase 2": "PHASE2", "Phase 3": "PHASE3", "Phase 4": "PHASE4", "Sapphire": "SAPPHIRE", "Ruby": "RUBY", "Black Pearl": "BLACK_PEARL", "Emerald": "EMERALD" }
 };
 
@@ -36,7 +36,6 @@ export const STORAGE_KEY = 'skinScannerState';
 export const DARK_MODE_KEY = 'darkModePreference';
 export const RECENT_SEARCHES_KEY = 'recentSearches';
 export const TAB_DELAY_KEY = 'tabDelayPreference';
-export const WELCOME_SEEN_KEY = 'skinscanner_has_seen_welcome';
 
 export const UTM_SOURCE = 'skinscanner-ext';
 

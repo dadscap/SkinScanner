@@ -11,7 +11,6 @@ import { FloatRangeManager } from './components/float-range.js';
 import { MarketSelector } from './components/market-selector.js';
 import { AutocompleteComponent } from './components/autocomplete.js';
 import { WhatsNewManager } from './components/whats-new.js';
-import { WelcomeManager } from './components/welcome.js';
 import { TabManager } from './services/tab-manager.js';
 import { SearchProcessor } from './services/search-processor.js';
 import { getMappings } from './services/data-service.js';
@@ -108,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchButton
     };
     const marketSelector = new MarketSelector(marketSelectorElements, debouncedSaveState);
-    
+
     // Initialize autocomplete component
     const autocomplete = new AutocompleteComponent(itemNameInput, {
         maxResults: 500,
@@ -121,9 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize What's New manager
     const whatsNewManager = new WhatsNewManager();
-
-    // Initialize Welcome manager
-    const welcomeManager = new WelcomeManager();
 
     // --- Load Preferences & State ---
     await darkModeManager.loadPreference();
@@ -141,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePaintSeedInputValidationClass(paintSeedInput);
         marketSelector.updateSelectAllState(); // Ensure button text is correct
     }
-     // Call save state for any simple inputs not handled by components
+    // Call save state for any simple inputs not handled by components
     itemNameInput.addEventListener('input', debouncedSaveState);
     stattrakCheckbox.addEventListener('change', debouncedSaveState);
     noTradeholdCheckbox.addEventListener('change', debouncedSaveState);
@@ -154,16 +150,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         noTradeholdCheckbox.checked = false;
         exteriorSelect.value = '';
         paintSeedInput.value = '';
-        
+
         // Reset float range using the component method
         floatRangeManager.resetToDefaults();
-        
+
         // Reset marketplace selections using the component method
         marketSelector.resetToDefaults();
-        
+
         // Save the reset state
         await doSaveState();
-        
+
         console.log("All filters reset to default values");
     };
 
@@ -172,12 +168,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         resetFiltersButton.addEventListener('click', async () => {
             // Check if user wants to skip confirmation
             const skipConfirmation = await StorageManager.getSkipResetConfirmation();
-            
+
             if (skipConfirmation) {
                 await resetFiltersToDefault();
                 return;
             }
-            
+
             // Show confirmation dialog
             const confirmed = await showResetConfirmationDialog();
             if (confirmed) {
@@ -215,9 +211,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(overlay);
-            
+
             // Handle confirm button
             document.getElementById('confirmResetButton').addEventListener('click', async () => {
                 const skipCheckbox = document.getElementById('skipConfirmationCheckbox');
@@ -227,13 +223,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.removeChild(overlay);
                 resolve(true);
             });
-            
+
             // Handle cancel button
             document.getElementById('cancelResetButton').addEventListener('click', () => {
                 document.body.removeChild(overlay);
                 resolve(false);
             });
-            
+
             // Handle overlay click (cancel)
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -251,7 +247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const skinNames = Object.keys(mappings.skinMap);
         autocomplete.updateData(skinNames);
         console.log(`Loaded ${skinNames.length} skin names for autocomplete`);
-        
+
         if (searchButton) searchButton.disabled = marketSelector.getSelectedMarkets().length === 0;
     } else {
         console.error("SkinMap data is missing!");
@@ -259,14 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             searchButton.disabled = true;
             searchButton.textContent = "Error: Skin data missing";
         }
-    }
-
-    // --- Check and Show Welcome Message for First-Time Users ---
-    const hasSeenWelcome = await StorageManager.getHasSeenWelcome();
-    if (!hasSeenWelcome) {
-        // Show welcome message for first-time users
-        // Note: Welcome will be marked as seen when user dismisses it
-        await welcomeManager.show();
     }
 
     // --- Check and Show What's New After Everything is Loaded ---
@@ -281,8 +269,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             if (!updatePaintSeedInputValidationClass(paintSeedInput)) {
-                 alert('Please correct the paint seed (0-1000).');
-                 return;
+                alert('Please correct the paint seed (0-1000).');
+                return;
             }
 
             const selectedMarkets = marketSelector.getSelectedMarkets();
@@ -348,9 +336,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(overlay);
-            
+
             document.getElementById('confirmMarketWarningButton').addEventListener('click', async () => {
                 const skipCheckbox = document.getElementById('skipMarketWarningCheckbox');
                 if (skipCheckbox.checked) {
@@ -359,12 +347,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.removeChild(overlay);
                 resolve(true);
             });
-            
+
             document.getElementById('cancelMarketWarningButton').addEventListener('click', () => {
                 document.body.removeChild(overlay);
                 resolve(false);
             });
-            
+
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
                     document.body.removeChild(overlay);
@@ -378,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const showSettingsDialog = async () => {
         // Get current tab delay setting
         const currentDelay = await StorageManager.getTabDelay();
-        
+
         return new Promise((resolve) => {
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
@@ -405,14 +393,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(overlay);
-            
+
             // Set up tiered bar functionality
             const options = overlay.querySelectorAll('.tiered-bar-option');
             const currentDisplay = overlay.querySelector('#currentDelayDisplay');
             let selectedDelay = currentDelay;
-            
+
             // Function to update display text
             const updateDisplayText = (delay) => {
                 const delayTexts = {
@@ -424,14 +412,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
                 currentDisplay.textContent = delayTexts[delay] || `${delay}ms`;
             };
-            
+
             // Set initial active state and display
             options.forEach(option => {
                 const delay = parseInt(option.dataset.delay);
                 if (delay === currentDelay) {
                     option.classList.add('active');
                 }
-                
+
                 option.addEventListener('click', () => {
                     // Remove active from all options
                     options.forEach(opt => opt.classList.remove('active'));
@@ -442,23 +430,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                     updateDisplayText(delay);
                 });
             });
-            
+
             // Set initial display
             updateDisplayText(currentDelay);
-            
+
             // Handle save button
             document.getElementById('saveSettingsButton').addEventListener('click', async () => {
                 await StorageManager.setTabDelay(selectedDelay);
                 document.body.removeChild(overlay);
                 resolve(true);
             });
-            
+
             // Handle cancel button
             document.getElementById('cancelSettingsButton').addEventListener('click', () => {
                 document.body.removeChild(overlay);
                 resolve(false);
             });
-            
+
             // Handle overlay click (cancel)
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {

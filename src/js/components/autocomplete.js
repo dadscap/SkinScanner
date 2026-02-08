@@ -4,7 +4,7 @@
  */
 
 export class AutocompleteComponent {
-    
+
     constructor(inputElement, options = {}) {
         this.input = inputElement;
         this.options = {
@@ -16,7 +16,7 @@ export class AutocompleteComponent {
             showResultCount: options.showResultCount !== false,
             ...options
         };
-        
+
         this.data = [];
         this.filteredData = [];
         this.selectedIndex = -1;
@@ -27,17 +27,17 @@ export class AutocompleteComponent {
         this.dataReady = false;
         this.pendingQuery = null;
         this.activeQueryId = 0;
-        
+
         this.init();
     }
-    
+
     init() {
         this.createDropdownElements();
         this.setupEventListeners();
         this.setupKeyboardNavigation();
         this.updateClearButtonVisibility();
     }
-    
+
     createDropdownElements() {
         const existingContainer = this.input.parentElement.querySelector('.autocomplete-container');
         if (!existingContainer) {
@@ -46,9 +46,9 @@ export class AutocompleteComponent {
             this.input.parentNode.insertBefore(container, this.input);
             container.appendChild(this.input);
         }
-        
+
         this.container = this.input.parentElement;
-        
+
         this.dropdown = document.createElement('div');
         this.dropdown.className = 'autocomplete-dropdown';
         this.dropdown.setAttribute('role', 'listbox');
@@ -56,11 +56,11 @@ export class AutocompleteComponent {
 
         this.resultsContainer = document.createElement('div');
         this.resultsContainer.className = 'autocomplete-results';
-        
+
         this.loadingElement = document.createElement('div');
         this.loadingElement.className = 'autocomplete-loading';
         this.loadingElement.innerHTML = '<div class="loading-spinner"></div><span>Loading...</span>';
-        
+
         this.emptyElement = document.createElement('div');
         this.emptyElement.className = 'autocomplete-empty';
         this.emptyElement.textContent = 'No results found';
@@ -68,7 +68,7 @@ export class AutocompleteComponent {
         this.resultCountElement = document.createElement('div');
         this.resultCountElement.className = 'autocomplete-result-count';
         this.resultCountElement.style.display = 'none';
-        
+
         this.dropdown.appendChild(this.resultsContainer);
         this.dropdown.appendChild(this.loadingElement);
         this.dropdown.appendChild(this.emptyElement);
@@ -81,19 +81,19 @@ export class AutocompleteComponent {
         this.clearButton.setAttribute('aria-label', 'Clear search input');
         this.clearButton.style.display = 'none';
         this.container.appendChild(this.clearButton);
-        
+
         this.input.setAttribute('role', 'combobox');
         this.input.setAttribute('aria-expanded', 'false');
         this.input.setAttribute('aria-autocomplete', 'list');
         this.input.setAttribute('aria-owns', this.dropdown.id = 'autocomplete-dropdown-' + Date.now());
     }
-    
+
     setupEventListeners() {
         this.input.addEventListener('input', (e) => {
             this.handleInput(e.target.value);
             this.updateClearButtonVisibility();
         });
-        
+
         this.input.addEventListener('focus', () => {
             if (this.input.value.length >= this.options.minSearchLength) {
                 this.show();
@@ -101,7 +101,7 @@ export class AutocompleteComponent {
                 this.hide();
             }
         });
-        
+
         this.input.addEventListener('blur', () => {
             setTimeout(() => {
                 if (!this.dropdown.contains(document.activeElement) && !this.clearButton.contains(document.activeElement)) {
@@ -109,13 +109,13 @@ export class AutocompleteComponent {
                 }
             }, 150);
         });
-        
+
         document.addEventListener('click', (e) => {
             if (!this.container.contains(e.target) && !this.clearButton.contains(e.target)) {
                 this.hide();
             }
         });
-        
+
         this.dropdown.addEventListener('click', (e) => {
             const item = e.target.closest('.autocomplete-item');
             if (item) {
@@ -129,18 +129,18 @@ export class AutocompleteComponent {
             this.updateClearButtonVisibility();
             this.hide();
         });
-        
+
         this.dropdown.addEventListener('mousedown', (e) => {
             e.preventDefault();
         });
     }
-    
+
     setupKeyboardNavigation() {
         if (!this.options.enableKeyboardNavigation) return;
-        
+
         this.input.addEventListener('keydown', (e) => {
             if (!this.isOpen) return;
-            
+
             switch (e.key) {
                 case 'ArrowDown':
                     e.preventDefault();
@@ -166,11 +166,11 @@ export class AutocompleteComponent {
             }
         });
     }
-    
+
     handleInput(value) {
         clearTimeout(this.debounceTimer);
         const trimmedValue = value.trim();
-        
+
         if (trimmedValue.length < this.options.minSearchLength) {
             this.hide();
             this.pendingQuery = null;
@@ -183,21 +183,21 @@ export class AutocompleteComponent {
             this.show();
             return;
         }
-        
+
         const normalizedValue = trimmedValue.toLowerCase();
         const hasPerfectMatch = this.data.some(item => item.toLowerCase() === normalizedValue);
-        
+
         if (hasPerfectMatch) {
             this.hide();
             this.pendingQuery = null;
             return;
         }
-        
+
         this.debounceTimer = setTimeout(() => {
             this.search(trimmedValue);
         }, this.options.debounceDelay);
     }
-    
+
     search(query) {
         const trimmedQuery = query.trim();
         if (!trimmedQuery || trimmedQuery.length < this.options.minSearchLength) {
@@ -212,7 +212,7 @@ export class AutocompleteComponent {
             this.showLoading();
             return;
         }
-        
+
         this.pendingQuery = null;
         const cacheKey = trimmedQuery.toLowerCase();
         const isCached = this.resultCache.has(cacheKey);
@@ -232,7 +232,7 @@ export class AutocompleteComponent {
             this.showOrHideBasedOnMatch(trimmedQuery);
             return;
         }
-        
+
         const results = this.filterData(trimmedQuery);
         if (currentQueryId !== this.activeQueryId) return;
 
@@ -241,22 +241,22 @@ export class AutocompleteComponent {
         this.renderResults();
         this.showOrHideBasedOnMatch(trimmedQuery);
     }
-    
+
     showOrHideBasedOnMatch(query) {
         const normalizedQuery = query.toLowerCase();
         const hasPerfectMatch = this.data.some(item => item.toLowerCase() === normalizedQuery);
-        
+
         if (hasPerfectMatch) {
             this.hide();
         } else {
             this.show();
         }
     }
-    
+
     filterData(query) {
         const normalizedQuery = query.toLowerCase();
         const results = [];
-        
+
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
             if (normalizedItem === normalizedQuery) {
@@ -265,7 +265,7 @@ export class AutocompleteComponent {
                 results.push({ text: item, relevance: 90 });
             }
         }
-        
+
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
             if (!normalizedItem.startsWith(normalizedQuery) &&
@@ -273,13 +273,13 @@ export class AutocompleteComponent {
                 results.push({ text: item, relevance: 50 });
             }
         }
-        
+
         const queryWords = normalizedQuery.split(/\s+/);
         for (const item of this.data) {
             const normalizedItem = item.toLowerCase();
             let hasAllWords = true;
             let wordMatches = 0;
-            
+
             for (const word of queryWords) {
                 if (normalizedItem.includes(word)) {
                     wordMatches++;
@@ -288,7 +288,7 @@ export class AutocompleteComponent {
                     break;
                 }
             }
-            
+
             if (hasAllWords && wordMatches === queryWords.length) {
                 const existingResult = results.find(r => r.text === item);
                 if (!existingResult) {
@@ -296,7 +296,7 @@ export class AutocompleteComponent {
                 }
             }
         }
-        
+
         return results
             .sort((a, b) => b.relevance - a.relevance)
             .slice(0, this.options.maxResults)
@@ -311,7 +311,7 @@ export class AutocompleteComponent {
             "SG 553", "AUG", "SCAR-20", "G3SG1", "Dual Berettas", "CZ75-Auto", "R8 Revolver",
             "MP5-SD", "Knife", "Gloves", "Sticker", "Music Kit", "Case", "Capsule", "Graffiti"
         ];
-        
+
         for (const type of weaponTypes) {
             if (itemName.includes(type)) {
                 return type;
@@ -319,7 +319,7 @@ export class AutocompleteComponent {
         }
         if (itemName.includes("Knife")) return "Knife";
         if (itemName.includes("Gloves")) return "Gloves";
-        
+
         return "Other";
     }
 
@@ -353,11 +353,11 @@ export class AutocompleteComponent {
                 items: grouped[key]
             }));
     }
-    
+
     renderResults() {
         this.resultsContainer.innerHTML = '';
         this.selectedIndex = -1;
-        
+
         if (this.filteredData.length === 0) {
             this.hideLoading();
             this.showEmpty();
@@ -365,10 +365,10 @@ export class AutocompleteComponent {
             this.show();
             return;
         }
-        
+
         this.hideLoading();
         this.hideEmpty();
-        
+
         const query = this.input.value.toLowerCase();
         let totalRenderedItems = 0;
 
@@ -378,55 +378,55 @@ export class AutocompleteComponent {
             itemElement.setAttribute('role', 'option');
             itemElement.setAttribute('aria-selected', 'false');
             itemElement.dataset.value = item;
-            
+
             if (this.options.highlightSearch) {
                 itemElement.innerHTML = this.highlightText(item, query);
             } else {
                 itemElement.textContent = item;
             }
-            
+
             this.resultsContainer.appendChild(itemElement);
             totalRenderedItems++;
         });
         this.updateResultCount(totalRenderedItems, this.data.length);
     }
 
-    
+
     highlightText(text, query) {
         if (!query) return text;
-        
+
         const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const queryWords = query.split(/\s+/).filter(word => word.length > 0);
-        
+
         let highlightedText = text;
-        
+
         queryWords.forEach(word => {
             const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
             highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
         });
-        
+
         return highlightedText;
     }
-    
+
     navigateDown() {
         const items = this.dropdown.querySelectorAll('.autocomplete-item');
         if (items.length === 0) return;
-        
+
         this.selectedIndex = (this.selectedIndex + 1) % items.length;
         this.updateSelection();
     }
-    
+
     navigateUp() {
         const items = this.dropdown.querySelectorAll('.autocomplete-item');
         if (items.length === 0) return;
-        
+
         this.selectedIndex = this.selectedIndex <= 0 ? items.length - 1 : this.selectedIndex - 1;
         this.updateSelection();
     }
-    
+
     updateSelection() {
         const items = this.dropdown.querySelectorAll('.autocomplete-item');
-        
+
         items.forEach((item, index) => {
             if (index === this.selectedIndex) {
                 item.classList.add('selected');
@@ -439,7 +439,7 @@ export class AutocompleteComponent {
             }
         });
     }
-    
+
     selectItem(itemElement) {
         const value = itemElement.dataset.value;
         this.input.value = value;
@@ -453,47 +453,47 @@ export class AutocompleteComponent {
 
         const changeEvent = new Event('change', { bubbles: true });
         this.input.dispatchEvent(changeEvent);
-        
+
         const inputEvent = new Event('input', { bubbles: true });
         this.input.dispatchEvent(inputEvent);
     }
-    
+
     selectItemByIndex(index) {
         const items = this.dropdown.querySelectorAll('.autocomplete-item');
         if (items[index]) {
             this.selectItem(items[index]);
         }
     }
-    
+
     show() {
         if (this.isOpen) return;
-        
+
         this.isOpen = true;
         this.dropdown.classList.add('open');
         this.input.setAttribute('aria-expanded', 'true');
-        
+
         this.positionDropdown();
         this.resultsContainer.scrollTop = this.scrollPosition;
     }
-    
+
     hide() {
         if (!this.isOpen) return;
-        
+
         this.isOpen = false;
         this.dropdown.classList.remove('open');
         this.input.setAttribute('aria-expanded', 'false');
         this.selectedIndex = -1;
         this.scrollPosition = this.resultsContainer.scrollTop;
     }
-    
+
     positionDropdown() {
         const inputRect = this.input.getBoundingClientRect();
-        
+
         this.dropdown.style.width = `${inputRect.width}px`;
         this.dropdown.style.left = '0';
         this.dropdown.style.top = `${inputRect.height + 2}px`;
     }
-    
+
     showLoading() {
         this.loadingElement.style.display = 'flex';
         this.emptyElement.style.display = 'none';
@@ -503,19 +503,19 @@ export class AutocompleteComponent {
             this.show();
         }
     }
-    
+
     hideLoading() {
         this.loadingElement.style.display = 'none';
         this.resultsContainer.style.display = 'block';
     }
-    
+
     showEmpty() {
         this.emptyElement.style.display = 'block';
         this.loadingElement.style.display = 'none';
         this.resultsContainer.style.display = 'none';
         this.resultCountElement.style.display = 'none';
     }
-    
+
     hideEmpty() {
         this.emptyElement.style.display = 'none';
     }
@@ -542,7 +542,7 @@ export class AutocompleteComponent {
         }
         return ranQueuedSearch;
     }
-    
+
     updateData(data) {
         const ranQueuedSearch = this.setData(data);
         if (ranQueuedSearch) return;
@@ -551,22 +551,22 @@ export class AutocompleteComponent {
             this.search(this.input.value);
         }
     }
-    
+
     getValue() {
         return this.input.value;
     }
-    
+
     setValue(value) {
         this.input.value = value;
         this.updateClearButtonVisibility();
     }
-    
+
     clear() {
         this.input.value = '';
         this.hide();
         this.updateClearButtonVisibility();
     }
-    
+
     destroy() {
         this.hide();
         if (this.dropdown && this.dropdown.parentNode) {
@@ -575,13 +575,13 @@ export class AutocompleteComponent {
         if (this.clearButton && this.clearButton.parentNode) {
             this.clearButton.parentNode.removeChild(this.clearButton);
         }
-        
+
         this.input.removeAttribute('role');
         this.input.removeAttribute('aria-expanded');
         this.input.removeAttribute('aria-autocomplete');
         this.input.removeAttribute('aria-owns');
         this.input.removeAttribute('aria-activedescendant');
-        
+
         clearTimeout(this.debounceTimer);
     }
 

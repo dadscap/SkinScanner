@@ -56,13 +56,13 @@ export class SearchProcessor {
         } else {
             baseSearchName = cleanedInputNoPhase;
         }
-        
+
         const itemCanHaveStatTrak = canHaveStatTrak(baseSearchName);
         const itemCanHaveFloat = canHaveFloat(baseSearchName);
         const itemCanHavePaintSeed = canHavePaintSeed(baseSearchName);
-        
+
         const validatedStatTrak = isStatTrakChecked && itemCanHaveStatTrak;
-        
+
         let finalSearchName;
         if (validatedStatTrak) {
             if (isKnife) {
@@ -73,15 +73,15 @@ export class SearchProcessor {
         } else {
             finalSearchName = baseSearchName;
         }
-        
+
         const validatedExterior = itemCanHaveFloat ? exterior : '';
         const validatedMinFloat = itemCanHaveFloat ? minFloat : 0;
         const validatedMaxFloat = itemCanHaveFloat ? maxFloat : 1;
-        
+
         const validatedPaintSeed = (itemCanHavePaintSeed && paintSeedValue !== '' && validatePaintSeed(paintSeedValue))
             ? parseInt(paintSeedValue, 10)
             : null;
-        
+
         return {
             fullInput: trimmedFullInput,
             baseSearchName,

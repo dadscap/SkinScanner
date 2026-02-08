@@ -28,7 +28,7 @@ export class TabManager {
       try {
         await new Promise((resolve) => {
           if (!browser || !browser.tabs) {
-            try { window.open(url, '_blank'); } catch {}
+            try { window.open(url, '_blank'); } catch { }
             openedCount++;
             return resolve();
           }

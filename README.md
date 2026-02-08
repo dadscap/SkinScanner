@@ -3,6 +3,7 @@
 </p>
 
 # SkinScanner 🔍  
+
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 ![Chrome Extension](https://img.shields.io/badge/platform-Chrome-blue)
 ![Made with ❤️ by Dadscap](https://img.shields.io/badge/made%20with-%E2%9D%A4%20by%20Dadscap-orange)
@@ -13,6 +14,7 @@ The ultimate CS2 multi-market skin search extension — by [Dadscap](https://www
 ---
 
 ## 🌟 What it does
+
 SkinScanner lets you instantly search for any CS2 skin across all major marketplaces — with filters for float, paint seed, StatTrak, trade hold, and more.
 
 **No sign-up. No limits. No tracking.** Just fast, frictionless skin searches — the way it should be.
@@ -20,6 +22,7 @@ SkinScanner lets you instantly search for any CS2 skin across all major marketpl
 ---
 
 ## 🛠️ Features
+
 - Multi-market search (Steam, BUFF163, Skinport, CSFloat & more!)
 - Float range + Paint Seed filters
 - StatTrak & Tradable toggles
@@ -29,6 +32,7 @@ SkinScanner lets you instantly search for any CS2 skin across all major marketpl
 ---
 
 ## 📦 Installation
+
 1. Download the extension files
 2. Go to `chrome://extensions`
 3. Enable "Developer Mode"
@@ -37,10 +41,12 @@ SkinScanner lets you instantly search for any CS2 skin across all major marketpl
 ---
 
 ## 🤝 License
+
 MIT License.  
 Referral links are included in the official release by Dadscap.
 
 ---
 
 ## 💬 Contact
+
 For questions, suggestions, or collabs: [dadscaptv@gmail.com](mailto:dadscaptv@gmail.com) or [@Dadscap](https://twitter.com/dadscap) on Twitter

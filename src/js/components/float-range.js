@@ -5,11 +5,11 @@ import { exteriorPresets } from '../config/constants.js';
 import { validateFloatInputsDOM, updatePaintSeedInputValidationClass } from '../utils/validation.js';
 
 export class FloatRangeManager {
-    
+
     constructor(elements, onStateChangeCallback) {
         this.elements = elements;
         this.onStateChange = onStateChangeCallback;
-        
+
         this.animationFrameId = null;
         this.dualRangeContainer = null;
         this.cachedValues = { min: 0, max: 1 };
@@ -18,20 +18,20 @@ export class FloatRangeManager {
         this.paintSeedAlertTimeout = null;
         this.paintSeedAlertElement = null;
         this.lastValidPaintSeed = '';
-        
+
         this.debouncedStateChange = this.debounce(() => {
             this.onStateChange();
         }, 100);
-        
+
         this.fastVisualUpdate = this.debounce(() => {
             this.updateRangeFillImmediate();
         }, 16);
 
         this.elements.exteriorSelect?.addEventListener('change', () => this.onExteriorChange());
-        
+
         this.elements.minFloatRange?.addEventListener('input', (e) => this.handleRangeInput(e, 'min'));
         this.elements.maxFloatRange?.addEventListener('input', (e) => this.handleRangeInput(e, 'max'));
-        
+
         this.elements.minFloatInput?.addEventListener('keydown', (e) => this.handleFloatInputKeydown(e));
         this.elements.maxFloatInput?.addEventListener('keydown', (e) => this.handleFloatInputKeydown(e));
         this.elements.minFloatInput?.addEventListener('input', () => this.updateSlidersFromInput());
@@ -44,7 +44,7 @@ export class FloatRangeManager {
         });
 
         this.dualRangeContainer = this.elements.minFloatRange?.closest('.dual-range-container');
-        
+
         this.initializePaintSeedInput();
         this.updateSlidersFromInput(false);
     }
@@ -221,11 +221,11 @@ export class FloatRangeManager {
 
     handleRangeInput(event, type) {
         if (this.isUpdating) return;
-        
+
         const value = parseFloat(event.target.value) || 0;
         const otherType = type === 'min' ? 'max' : 'min';
         const otherValue = this.cachedValues[otherType];
-        
+
         let constrainedValue = value;
         if (type === 'min' && value > otherValue) {
             constrainedValue = otherValue;
@@ -234,16 +234,16 @@ export class FloatRangeManager {
             constrainedValue = otherValue;
             event.target.value = constrainedValue;
         }
-        
+
         this.cachedValues[type] = constrainedValue;
-        
+
         this.updateRangeFillImmediate();
-        
+
         this.updateInputFieldsImmediate(type, constrainedValue);
-        
+
         this.fastVisualUpdate();
         this.debouncedStateChange();
-        
+
         this.updateExteriorFromFloatRange();
     }
 
@@ -251,11 +251,11 @@ export class FloatRangeManager {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
         }
-        
+
         this.animationFrameId = requestAnimationFrame(() => {
             const minPercent = this.cachedValues.min * 100;
             const maxPercent = this.cachedValues.max * 100;
-            
+
             if (this.dualRangeContainer) {
                 this.dualRangeContainer.style.setProperty('--range-fill-left', `${minPercent}%`);
                 this.dualRangeContainer.style.setProperty('--range-fill-right', `${100 - maxPercent}%`);
@@ -265,7 +265,7 @@ export class FloatRangeManager {
 
     updateInputFieldsImmediate(type, value) {
         const formattedValue = value.toFixed(3);
-        
+
         if (type === 'min') {
             this.elements.minFloatInput.value = formattedValue;
             if (this.elements.minFloatLabel) {
@@ -313,7 +313,7 @@ export class FloatRangeManager {
 
         minInputValue = clampedMin;
         maxInputValue = clampedMax;
-        
+
         if (minInputValue > maxInputValue) {
             minInputValue = maxInputValue;
             this.elements.minFloatInput.value = minInputValue.toFixed(3);
@@ -322,20 +322,20 @@ export class FloatRangeManager {
             maxInputValue = minInputValue;
             this.elements.maxFloatInput.value = maxInputValue.toFixed(3);
         }
-        
+
         this.cachedValues.min = minInputValue;
         this.cachedValues.max = maxInputValue;
-        
+
         this.elements.minFloatRange.value = minInputValue;
         this.elements.maxFloatRange.value = maxInputValue;
         if (this.elements.minFloatLabel) this.elements.minFloatLabel.textContent = minInputValue.toFixed(3);
         if (this.elements.maxFloatLabel) this.elements.maxFloatLabel.textContent = maxInputValue.toFixed(3);
-        
+
         this.updateRangeFillImmediate();
         this.validateInputs();
-        
+
         this.isUpdating = false;
-        
+
         if (doSave) {
             this.onStateChange();
             this.updateExteriorFromFloatRange();
@@ -349,7 +349,7 @@ export class FloatRangeManager {
 
     onExteriorChange() {
         if (this.isUpdatingExterior) return;
-        
+
         const exteriorKey = this.elements.exteriorSelect.value;
         const preset = exteriorPresets[exteriorKey];
         if (preset) {
@@ -372,10 +372,10 @@ export class FloatRangeManager {
             this.elements.paintSeedInput.value = normalized.tooLarge ? '' : normalized.value;
             this.lastValidPaintSeed = this.elements.paintSeedInput.value;
         }
-        
+
         this.cachedValues.min = parseFloat(this.elements.minFloatInput.value) || 0;
         this.cachedValues.max = parseFloat(this.elements.maxFloatInput.value) || 1;
-        
+
         this.updateSlidersFromInput(false);
         this.updateRangeFillImmediate();
         updatePaintSeedInputValidationClass(this.elements.paintSeedInput);
@@ -387,10 +387,10 @@ export class FloatRangeManager {
         this.elements.maxFloatInput.value = '1.000';
         this.elements.paintSeedInput.value = '';
         this.lastValidPaintSeed = '';
-        
+
         this.cachedValues.min = 0;
         this.cachedValues.max = 1;
-        
+
         this.updateSlidersFromInput(false);
         this.updateRangeFillImmediate();
         updatePaintSeedInputValidationClass(this.elements.paintSeedInput);
@@ -398,13 +398,13 @@ export class FloatRangeManager {
 
     updateExteriorFromFloatRange() {
         if (this.isUpdatingExterior || !this.elements.exteriorSelect) return;
-        
+
         const minFloat = this.cachedValues.min;
         const maxFloat = this.cachedValues.max;
-        
+
         for (const [exteriorKey, boundaries] of Object.entries(exteriorPresets)) {
             const [exteriorMin, exteriorMax] = boundaries;
-            
+
             if (minFloat >= exteriorMin && maxFloat <= exteriorMax) {
                 this.isUpdatingExterior = true;
                 this.elements.exteriorSelect.value = exteriorKey;
@@ -412,7 +412,7 @@ export class FloatRangeManager {
                 return;
             }
         }
-        
+
         this.isUpdatingExterior = true;
         this.elements.exteriorSelect.value = '';
         this.isUpdatingExterior = false;
@@ -423,7 +423,7 @@ export class FloatRangeManager {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
         }
-        
+
         if (this.paintSeedAlertTimeout) {
             clearTimeout(this.paintSeedAlertTimeout);
             this.paintSeedAlertTimeout = null;
