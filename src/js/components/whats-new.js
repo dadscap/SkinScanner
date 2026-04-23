@@ -29,24 +29,17 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🖌️</div>
+                            <div class="feature-icon">🔗</div>
                             <div class="feature-text">
-                                <strong>Vectorized Logos</strong>
-                                <p>Replaced raster logo images with inline SVGs to improve loadtimes and visual consistency.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">👋</div>
-                            <div class="feature-text">
-                                <strong>New onboarding</strong>
-                                <p>New users are now redirected <a href="https://skinscanner.dadsc.app/welcome" target="_blank"">here</a> for a quick tour of the extension's features.</p>
+                                <strong>CS.Money link improvements</strong>
+                                <p>CS.Money links now include proper tracking parameters for a better marketplace experience.</p>
                             </div>
                         </div>
                         <div class="feature-item">
                             <div class="feature-icon">📚</div>
                             <div class="feature-text">
-                                <strong>Missing items added</strong>
-                                <p>Added missing items to the autocomplete list.</p>
+                                <strong>Updated item list</strong>
+                                <p>The autocomplete list has been updated to include the most recent CS2 item additions.</p>
                             </div>
                         </div>
                     </div>
