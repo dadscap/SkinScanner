@@ -42,6 +42,16 @@ export function addUtmParams(url, _marketKey) {
     return base + fragment;
 }
 
+export function addCsmoneyUtmParams(url) {
+    if (!url) return null;
+    const utmString = 'utm_source=mediabuy&utm_medium=cs2cap&utm_campaign=market&utm_content=link';
+    const urlParts = url.split('#');
+    let base = urlParts[0];
+    const fragment = urlParts.length > 1 ? '#' + urlParts[1] : '';
+    base += (base.includes('?') ? '&' : '?') + utmString;
+    return base + fragment;
+}
+
 export function ShadowPayUtmParams(url, _marketKey) {
     if (!url) return null;
 

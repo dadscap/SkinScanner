@@ -3,7 +3,7 @@
  */
 
 import { phaseMappings, exteriorMappings, exteriorPresets, getItemCategory, ITEM_CATEGORIES, KNIFE_IDENTIFIERS } from '../config/constants.js';
-import { addUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
+import { addUtmParams, addCsmoneyUtmParams, ShadowPayUtmParams } from '../utils/url-helpers.js';
 
 function isDefaultFloatRange(exterior, minFloat, maxFloat) {
     if (!exterior || !exteriorPresets[exterior]) return false;
@@ -494,7 +494,7 @@ export class MarketplaceURLs {
             const searchNameParam = encodedBaseSearchName;
             let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
             url += (isStatTrak ? `&isStatTrak=true` : "");
-            return addUtmParams(url);
+            return addCsmoneyUtmParams(url);
         }
         if (isVanillaSearch) {
             let knifeName = baseSearchName.startsWith('★') ? baseSearchName : `★ ${baseSearchName}`;
@@ -504,7 +504,7 @@ export class MarketplaceURLs {
             }
             const searchNameParam = encodeURIComponent(knifeName);
             let url = `https://cs.money/market/buy/?limit=60&offset=0&search=${searchNameParam}&order=asc&sort=price`;
-            return addUtmParams(url);
+            return addCsmoneyUtmParams(url);
         }
         let searchNameParam = phaseName ? encodedFullInput : encodedBaseSearchName;
         let url = `https://cs.money/market/buy/?limit=60&offset=0&name=${searchNameParam}&order=asc&sort=price`;
@@ -514,7 +514,7 @@ export class MarketplaceURLs {
         url += (exterior && exteriorMappings.urlFormattedPlus[exterior] ? `&exterior=${exteriorMappings.urlFormattedPlus[exterior]}` : "");
         url += (isStatTrak ? `&isStatTrak=true` : "");
         url += (paintSeed !== null ? `&pattern=${paintSeed}` : "");
-        return addUtmParams(url);
+        return addCsmoneyUtmParams(url);
     }
 
     // DMarket
