@@ -29,17 +29,10 @@ export class WhatsNewManager {
                     <div class="whats-new-version">Version ${browser.runtime.getManifest().version}</div>
                     <div class="whats-new-features">
                         <div class="feature-item">
-                            <div class="feature-icon">🔗</div>
+                            <div class="feature-icon">🔥</div>
                             <div class="feature-text">
-                                <strong>CS.Money link improvements</strong>
-                                <p>CS.Money links now include proper tracking parameters for a better marketplace experience.</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">📚</div>
-                            <div class="feature-text">
-                                <strong>Updated item list</strong>
-                                <p>The autocomplete list has been updated to include the most recent CS2 item additions.</p>
+                                <strong>C5Game hotfix</strong>
+                                <p>Fixed an issue that made searching for items in C5 land on an error page</p>
                             </div>
                         </div>
                     </div>

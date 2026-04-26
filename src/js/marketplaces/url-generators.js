@@ -252,10 +252,10 @@ export class MarketplaceURLs {
                 }
             }
             if (itemData && itemData.goods_id) {
-                const url = `https://buff.market/market/goods/${itemData.goods_id}`;
+                const url = `https://buff.market/market/goods/?ref=U1093250563&${itemData.goods_id}`;
                 return addUtmParams(url);
             }
-            let searchUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
+            let searchUrl = `https://buff.market/market/all?ref=U1093250563&search=${encodedBaseSearchName}`;
             searchUrl += (isStatTrak ? `&category=tag_weapon_stat` : '');
             return addUtmParams(searchUrl);
         }
@@ -269,10 +269,10 @@ export class MarketplaceURLs {
                 }
             }
             if (bMarketGoodId) {
-                const url = `https://buff.market/market/goods/${bMarketGoodId}`;
+                const url = `https://buff.market/market/goods/?ref=U1093250563&${bMarketGoodId}`;
                 return addUtmParams(url);
             } else {
-                let vanillaUrl = `https://buff.market/market/all?search=${encodedBaseSearchName}`;
+                let vanillaUrl = `https://buff.market/market/all?ref=U1093250563&search=${encodedBaseSearchName}`;
                 if (isStatTrak) {
                     vanillaUrl += `&category=tag_weapon_stat`;
                 }
@@ -1327,7 +1327,7 @@ export class MarketplaceURLs {
         finalSearchName = finalSearchName.replace(/StatTrak™/g, 'StatTrak');
         if (getItemCategory(fullInput) === ITEM_CATEGORIES.SPECIAL) {
             const formattedName = `${finalSearchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-            return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
+            return addUtmParams(`https://swap.gg/trade?r=HTDSZFIA&search=${formattedName}`);
         }
         let searchName = finalSearchName;
         if (isVanillaSearch) {
@@ -1336,7 +1336,7 @@ export class MarketplaceURLs {
                 vanillaName = `StatTrak ${vanillaName}`;
             }
             const formattedName = `${vanillaName}`.replace(/\s+/g, '+');
-            return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
+            return addUtmParams(`https://swap.gg/trade?r=HTDSZFIA&search=${formattedName}`);
         }
         const isKnifeOrGlove = searchName.includes('Knife') || searchName.includes('Gloves') || searchName.includes('Wraps');
         if (isKnifeOrGlove) {
@@ -1360,7 +1360,7 @@ export class MarketplaceURLs {
             }
         }
         const formattedName = `${searchName}`.replace(/\s+/g, '+').replace(/\+\|\+/g, '+|+');
-        return addUtmParams(`https://swap.gg/trade?search=${formattedName}`);
+        return addUtmParams(`https://swap.gg/trade?r=HTDSZFIA&search=${formattedName}`);
     }
 
     // Tradeit
